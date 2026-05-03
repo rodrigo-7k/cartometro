@@ -271,93 +271,148 @@ def tela_configuracoes(container, dialog_pai=None):
     # =========================
     def render_limites():
         config = dados.get("config", {})
+        modo_atual = config.get("modo_cartao", "Unificado")
         
         with ui.card().classes('config-card'):
             with ui.row().classes('items-center gap-2 mb-3'):
                 ui.icon('tune').classes('text-lg').style(f'color: {cor_primaria} !important;')
-                ui.label("Limites do Cartão").classes('text-base font-bold')
+                ui.label("Configuração do Cartão").classes('text-base font-bold')
             
+            # ============================================================
+            # DICA INFORMATIVA
+            # ============================================================
             with ui.card().classes('dica-card').style(f'background: {cor_primaria}08; border-left: 3px solid {cor_primaria};'):
                 with ui.row().classes('items-start gap-2'):
                     ui.icon('info').classes('text-sm mt-0.5').style(f'color: {cor_primaria} !important;')
                     with ui.column().classes('gap-1'):
                         ui.label("💡 Como funciona").classes('text-xs font-semibold').style(f'color: {cor_primaria} !important;')
-                        ui.label("O Limite Total é o máximo que você pode gastar. O Limite Parcelado controla compras divididas. O dia de fechamento define quando sua fatura vira.").classes('text-[11px] text-gray-600')
+                        ui.label("Escolha o modo de controle primeiro. No modo Unificado, você define limites gerais. No Individual, cada cartão tem seus próprios limites.").classes('text-[11px] text-gray-600')
             
-            with ui.column().classes('w-full gap-1 mb-3'):
-                ui.label("💰 Limite Total (R$)").classes('campo-label')
-                lt = ui.number(value=config.get("limite_total", 3000), format="%.2f").props('outlined dense').classes('w-full')
-                ui.label("Valor máximo disponível para todas as compras").classes('text-[10px] text-gray-400')
-            
-            with ui.column().classes('w-full gap-1 mb-3'):
-                ui.label("📦 Limite Parcelado (R$)").classes('campo-label')
-                lp = ui.number(value=config.get("limite_parcelado", 1500), format="%.2f").props('outlined dense').classes('w-full')
-                ui.label("Controle extra para não acumular muitas parcelas").classes('text-[10px] text-gray-400')
-            
-            with ui.column().classes('w-full gap-1 mb-3'):
-                ui.label("📅 Dia de Fechamento").classes('campo-label')
-                df = ui.select(options=list(range(1, 32)), label="Dia", value=config.get("dia_fechamento", 10)).props('outlined dense').classes('w-full')
-                ui.label("📌 Dica: Compras após o fechamento entram na próxima fatura").classes('text-[10px] text-gray-400')
-            
+            # ============================================================
+            # MODO DE CONTROLE (PRIMEIRO)
+            # ============================================================
             with ui.column().classes('w-full gap-1 mb-4'):
                 ui.label("💳 Modo de Controle").classes('campo-label')
                 modo_cartao = ui.select(
                     options=["Unificado", "Individual"], 
                     label="Modo", 
-                    value=config.get("modo_cartao", "Unificado")
+                    value=modo_atual
                 ).props('outlined dense').classes('w-full')
                 
-                dica_modo = ui.column().classes('w-full')
+                # Container para campos condicionais
+                container_limites = ui.column().classes('w-full')
+            
+            # ============================================================
+            # CAMPOS CONDICIONAIS
+            # ============================================================
+            campos_limites = {}
+            
+            def atualizar_campos_limites():
+                container_limites.clear()
+                campos_limites.clear()
                 
-                def atualizar_dica_modo():
-                    dica_modo.clear()
-                    with dica_modo:
-                        if modo_cartao.value == "Unificado":
-                            with ui.card().classes('dica-card mt-2').style('background: #eff6ff; border-left: 3px solid #3b82f6;'):
-                                with ui.row().classes('items-start gap-2'):
-                                    ui.icon('check_circle').classes('text-sm mt-0.5').style('color: #3b82f6 !important;')
-                                    with ui.column().classes('gap-1'):
-                                        ui.label("🔹 Modo Unificado").classes('text-xs font-semibold text-blue-700')
-                                        ui.label("• Um único limite para controlar todos os gastos").classes('text-[11px] text-gray-600')
-                                        ui.label("• Perfeito para quem tem apenas um cartão de crédito").classes('text-[11px] text-gray-600')
-                                        ui.label("• Não precisa cadastrar cartões individuais").classes('text-[11px] text-gray-600')
-                                        ui.label("• Os KPIs mostram o limite total consolidado").classes('text-[11px] text-gray-600')
-                                        ui.label("✅ Configuração mais simples e direta").classes('text-[11px] text-blue-600 font-medium')
-                        else:
-                            with ui.card().classes('dica-card mt-2').style('background: #faf5ff; border-left: 3px solid #8b5cf6;'):
-                                with ui.row().classes('items-start gap-2'):
-                                    ui.icon('account_balance_wallet').classes('text-sm mt-0.5').style('color: #8b5cf6 !important;')
-                                    with ui.column().classes('gap-1'):
-                                        ui.label("🔹 Modo Individual").classes('text-xs font-semibold text-purple-700')
-                                        ui.label("• Cada cartão tem seu próprio limite e controle").classes('text-[11px] text-gray-600')
-                                        ui.label("• Cadastre seus cartões na aba '💳 Cartões'").classes('text-[11px] text-gray-600')
-                                        ui.label("• Filtre gastos por cartão na tela principal").classes('text-[11px] text-gray-600')
-                                        ui.label("• Ideal para quem tem múltiplos cartões").classes('text-[11px] text-gray-600')
-                                        ui.label("• Cada cartão pode ter data de fechamento diferente").classes('text-[11px] text-gray-600')
+                if modo_cartao.value == "Unificado":
+                    # MODO UNIFICADO - Mostrar limites gerais
+                    with container_limites:
+                        with ui.card().classes('dica-card mt-2').style('background: #eff6ff; border-left: 3px solid #3b82f6;'):
+                            with ui.row().classes('items-start gap-2'):
+                                ui.icon('check_circle').classes('text-sm mt-0.5').style('color: #3b82f6 !important;')
+                                with ui.column().classes('gap-1'):
+                                    ui.label("🔹 Modo Unificado").classes('text-xs font-semibold text-blue-700')
+                                    ui.label("• Um único limite para controlar todos os gastos").classes('text-[11px] text-gray-600')
+                                    ui.label("• Perfeito para quem tem apenas um cartão de crédito").classes('text-[11px] text-gray-600')
+                                    ui.label("• Os KPIs mostram o limite total consolidado").classes('text-[11px] text-gray-600')
+                                    ui.label("✅ Configuração mais simples e direta").classes('text-[11px] text-blue-600 font-medium')
+                        
+                        with ui.column().classes('w-full gap-1 mb-3 mt-3'):
+                            ui.label("💰 Limite Total (R$)").classes('campo-label')
+                            lt = ui.number(value=config.get("limite_total", 3000), format="%.2f").props('outlined dense').classes('w-full')
+                            ui.label("Valor máximo disponível para todas as compras").classes('text-[10px] text-gray-400')
+                            campos_limites['limite_total'] = lt
+                        
+                        with ui.column().classes('w-full gap-1 mb-3'):
+                            ui.label("📦 Limite Parcelado (R$)").classes('campo-label')
+                            lp = ui.number(value=config.get("limite_parcelado", 1500), format="%.2f").props('outlined dense').classes('w-full')
+                            ui.label("Controle extra para não acumular muitas parcelas").classes('text-[10px] text-gray-400')
+                            campos_limites['limite_parcelado'] = lp
+                        
+                        with ui.column().classes('w-full gap-1 mb-3'):
+                            ui.label("📅 Dia de Fechamento").classes('campo-label')
+                            df = ui.select(options=list(range(1, 32)), label="Dia", value=config.get("dia_fechamento", 10)).props('outlined dense').classes('w-full')
+                            ui.label("📌 Dica: Compras após o fechamento entram na próxima fatura").classes('text-[10px] text-gray-400')
+                            campos_limites['dia_fechamento'] = df
+                        
+                        def salvar_unificado():
+                            lt_val = campos_limites.get('limite_total')
+                            lp_val = campos_limites.get('limite_parcelado')
+                            df_val = campos_limites.get('dia_fechamento')
+                            atualizar_config(
+                                limite_total=lt_val.value if lt_val else 3000, 
+                                limite_parcelado=lp_val.value if lp_val else 1500, 
+                                dia_fechamento=df_val.value if df_val else 10, 
+                                modo_cartao=modo_cartao.value
+                            )
+                            ui.notify("✅ Limites salvos! Recarregando...", type="positive", position="top", timeout=1000)
+                            recarregar_principal()
+                        
+                        ui.button("Salvar Limites", on_click=salvar_unificado, icon='save').classes('w-full mt-2').style(
+                            f'background: {cor_primaria} !important; color: white !important; border-radius: 8px; font-weight: 600;'
+                        )
+                
+                else:
+                    # MODO INDIVIDUAL - Cada cartão tem seus limites
+                    with container_limites:
+                        with ui.card().classes('dica-card mt-2').style('background: #faf5ff; border-left: 3px solid #8b5cf6;'):
+                            with ui.row().classes('items-start gap-2'):
+                                ui.icon('account_balance_wallet').classes('text-sm mt-0.5').style('color: #8b5cf6 !important;')
+                                with ui.column().classes('gap-1'):
+                                    ui.label("🔹 Modo Individual").classes('text-xs font-semibold text-purple-700')
+                                    ui.label("• Cada cartão tem seu próprio limite e controle").classes('text-[11px] text-gray-600')
+                                    ui.label("• Cadastre seus cartões na aba '💳 Cartões'").classes('text-[11px] text-gray-600')
+                                    ui.label("• Filtre gastos por cartão na tela principal").classes('text-[11px] text-gray-600')
+                                    ui.label("• Ideal para quem tem múltiplos cartões").classes('text-[11px] text-gray-600')
+                                    
+                                    cartoes = dados.get("cartoes", [])
+                                    if not cartoes:
+                                        with ui.card().classes('p-3 mt-2 rounded').style('background: #fef3c7; border: 1px solid #f59e0b;'):
+                                            with ui.row().classes('items-start gap-2'):
+                                                ui.icon('warning').classes('text-sm mt-0.5').style('color: #f59e0b !important;')
+                                                with ui.column().classes('gap-1'):
+                                                    ui.label("⚠️ Nenhum cartão cadastrado!").classes('text-xs font-semibold text-yellow-700')
+                                                    ui.label("Vá na aba '💳 Cartões' para cadastrar seus cartões com limites individuais.").classes('text-[10px] text-yellow-600')
+                                    else:
+                                        with ui.card().classes('p-3 mt-2 rounded').style('background: #ecfdf5; border: 1px solid #10b981;'):
+                                            with ui.row().classes('items-start gap-2'):
+                                                ui.icon('check_circle').classes('text-sm mt-0.5').style('color: #10b981 !important;')
+                                                with ui.column().classes('gap-1'):
+                                                    ui.label(f"✅ {len(cartoes)} cartão(ões) cadastrado(s)").classes('text-xs font-semibold text-green-700')
+                                                    ui.label("Os limites são gerenciados individualmente na aba de cartões.").classes('text-[10px] text-green-600')
                                         
-                                        cartoes = dados.get("cartoes", [])
-                                        if not cartoes:
-                                            with ui.card().classes('p-2 mt-1 rounded').style('background: #fef3c7; border: 1px solid #f59e0b;'):
-                                                ui.label("⚠️ Você ainda não cadastrou nenhum cartão! Vá na aba '💳 Cartões' para cadastrar.").classes('text-[10px] text-yellow-700')
-                                        else:
-                                            ui.label(f"✅ {len(cartoes)} cartão(ões) cadastrado(s)").classes('text-[11px] text-green-600 font-medium')
-                
-                modo_cartao.on('update:model-value', lambda e: atualizar_dica_modo())
-                atualizar_dica_modo()
+                                        # Mostrar resumo dos cartões
+                                        for c in cartoes:
+                                            with ui.card().classes('dica-card mt-2').style('background: #f9fafb;'):
+                                                with ui.row().classes('items-center justify-between'):
+                                                    ui.label(f"💳 {c.get('nome', '')}").classes('text-sm font-semibold')
+                                                    with ui.column().classes('gap-0 items-end'):
+                                                        ui.label(f"Limite: {config_service.formatar_valor(c.get('limite_total', 0))}").classes('text-xs text-gray-600')
+                                                        ui.label(f"Fecha dia {c.get('dia_fechamento', 10)}").classes('text-[10px] text-gray-400')
+                        
+                        def salvar_individual():
+                            atualizar_config(modo_cartao=modo_cartao.value)
+                            ui.notify("✅ Modo Individual ativado! Configure os cartões na aba Cartões.", type="positive", position="top", timeout=2000)
+                            recarregar_principal()
+                        
+                        ui.button("Salvar Modo", on_click=salvar_individual, icon='save').classes('w-full mt-2').style(
+                            f'background: {cor_primaria} !important; color: white !important; border-radius: 8px; font-weight: 600;'
+                        )
             
-            def salvar_limites():
-                atualizar_config(
-                    limite_total=lt.value, 
-                    limite_parcelado=lp.value, 
-                    dia_fechamento=df.value, 
-                    modo_cartao=modo_cartao.value
-                )
-                ui.notify("✅ Limites salvos! Recarregando...", type="positive", position="top", timeout=1000)
-                recarregar_principal()
+            # ============================================================
+            # EVENTO DE MUDANÇA
+            # ============================================================
+            modo_cartao.on('update:model-value', lambda e: atualizar_campos_limites())
             
-            ui.button("Salvar Limites", on_click=salvar_limites, icon='save').classes('w-full').style(
-                f'background: {cor_primaria} !important; color: white !important; border-radius: 8px; font-weight: 600;'
-            )
+            # Renderizar campos iniciais
+            atualizar_campos_limites()
     
     # =========================
     # RENDER: CARTÕES
