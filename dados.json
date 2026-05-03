@@ -1,0 +1,242 @@
+{
+  "config": {
+    "limite_total": 3000.0,
+    "limite_parcelado": 1500.0,
+    "dia_fechamento": 4,
+    "cor_primaria": "#3b82f6",
+    "cor_escura": "#1e40af",
+    "modo_cartao": "Individual"
+  },
+  "gastos": [
+    {
+      "id": "1777397560.479922",
+      "descricao": "Prezunic",
+      "valor": 150.0,
+      "tipo": "À Vista",
+      "parcelas": 1,
+      "parcela_atual": 1,
+      "data": "2026-04-28",
+      "categoria": "Alimentação",
+      "subcategoria": null,
+      "cartao": "Nubank"
+    },
+    {
+      "id": "1777674161.866609",
+      "descricao": "Celular Jessica (1/8)",
+      "descricao_base": "Celular Jessica",
+      "valor": 100.0,
+      "valor_total": 800.0,
+      "tipo": "Parcelado",
+      "parcelas": 8,
+      "parcela_atual": 1,
+      "data": "2026-05-01",
+      "categoria": "Compras",
+      "subcategoria": null,
+      "cartao": "Itau"
+    },
+    {
+      "id": "1777674161.866648",
+      "descricao": "Celular Jessica (2/8)",
+      "descricao_base": "Celular Jessica",
+      "valor": 100.0,
+      "valor_total": 800.0,
+      "tipo": "Parcelado",
+      "parcelas": 8,
+      "parcela_atual": 2,
+      "data": "2026-06-01",
+      "categoria": "Compras",
+      "subcategoria": null
+    },
+    {
+      "id": "1777674161.866668",
+      "descricao": "Celular Jessica (3/8)",
+      "descricao_base": "Celular Jessica",
+      "valor": 100.0,
+      "valor_total": 800.0,
+      "tipo": "Parcelado",
+      "parcelas": 8,
+      "parcela_atual": 3,
+      "data": "2026-07-01",
+      "categoria": "Compras",
+      "subcategoria": null
+    },
+    {
+      "id": "1777674161.866682",
+      "descricao": "Celular Jessica (4/8)",
+      "descricao_base": "Celular Jessica",
+      "valor": 100.0,
+      "valor_total": 800.0,
+      "tipo": "Parcelado",
+      "parcelas": 8,
+      "parcela_atual": 4,
+      "data": "2026-08-01",
+      "categoria": "Compras",
+      "subcategoria": null
+    },
+    {
+      "id": "1777674161.866694",
+      "descricao": "Celular Jessica (5/8)",
+      "descricao_base": "Celular Jessica",
+      "valor": 100.0,
+      "valor_total": 800.0,
+      "tipo": "Parcelado",
+      "parcelas": 8,
+      "parcela_atual": 5,
+      "data": "2026-09-01",
+      "categoria": "Compras",
+      "subcategoria": null
+    },
+    {
+      "id": "1777674161.866716",
+      "descricao": "Celular Jessica (6/8)",
+      "descricao_base": "Celular Jessica",
+      "valor": 100.0,
+      "valor_total": 800.0,
+      "tipo": "Parcelado",
+      "parcelas": 8,
+      "parcela_atual": 6,
+      "data": "2026-10-01",
+      "categoria": "Compras",
+      "subcategoria": null
+    },
+    {
+      "id": "1777674161.866728",
+      "descricao": "Celular Jessica (7/8)",
+      "descricao_base": "Celular Jessica",
+      "valor": 100.0,
+      "valor_total": 800.0,
+      "tipo": "Parcelado",
+      "parcelas": 8,
+      "parcela_atual": 7,
+      "data": "2026-11-01",
+      "categoria": "Compras",
+      "subcategoria": null
+    },
+    {
+      "id": "1777674161.866739",
+      "descricao": "Celular Jessica (8/8)",
+      "descricao_base": "Celular Jessica",
+      "valor": 100.0,
+      "valor_total": 800.0,
+      "tipo": "Parcelado",
+      "parcelas": 8,
+      "parcela_atual": 8,
+      "data": "2026-12-01",
+      "categoria": "Compras",
+      "subcategoria": null
+    }
+  ],
+  "fixos": [
+    {
+      "id": "1777383984.161785",
+      "descricao": "Netflix",
+      "valor": 19.0,
+      "tipo": "Fixo",
+      "categoria": "Assinaturas",
+      "subcategoria": null,
+      "data_criacao": "2026-04-28"
+    }
+  ],
+  "categorias": [
+    {
+      "nome": "Alimentação",
+      "icone": "restaurant",
+      "cor": "#ef4444",
+      "subcategorias": [
+        "Supermercado",
+        "Delivery",
+        "Restaurante",
+        "Lanche"
+      ]
+    },
+    {
+      "nome": "Transporte",
+      "icone": "directions_car",
+      "cor": "#f59e0b",
+      "subcategorias": [
+        "Combustível",
+        "Uber/Táxi",
+        "Estacionamento",
+        "Pedágio"
+      ]
+    },
+    {
+      "nome": "Assinaturas",
+      "icone": "subscriptions",
+      "cor": "#8b5cf6",
+      "subcategorias": [
+        "Streaming",
+        "Academia",
+        "Software",
+        "Clube"
+      ]
+    },
+    {
+      "nome": "Compras",
+      "icone": "shopping_bag",
+      "cor": "#ec4899",
+      "subcategorias": [
+        "Roupas",
+        "Eletrônicos",
+        "Casa",
+        "Presentes"
+      ]
+    },
+    {
+      "nome": "Saúde",
+      "icone": "local_hospital",
+      "cor": "#10b981",
+      "subcategorias": [
+        "Farmácia",
+        "Consultas",
+        "Exames",
+        "Plano de Saúde"
+      ]
+    },
+    {
+      "nome": "Lazer",
+      "icone": "sports_esports",
+      "cor": "#06b6d4",
+      "subcategorias": [
+        "Cinema",
+        "Jogos",
+        "Viagens",
+        "Eventos"
+      ]
+    },
+    {
+      "nome": "Educação",
+      "icone": "school",
+      "cor": "#6366f1",
+      "subcategorias": [
+        "Cursos",
+        "Livros",
+        "Material"
+      ]
+    },
+    {
+      "nome": "Outros",
+      "icone": "more_horiz",
+      "cor": "#6b7280",
+      "subcategorias": []
+    }
+  ],
+  "cartoes": [
+    {
+      "id": "1777678946.633548",
+      "nome": "Itau",
+      "limite_total": 2000.0,
+      "limite_parcelado": 500.0,
+      "dia_fechamento": 4,
+      "ativo": true
+    },
+    {
+      "id": "1777678966.255974",
+      "nome": "Nubank",
+      "limite_total": 1000.0,
+      "limite_parcelado": 200.0,
+      "dia_fechamento": 10,
+      "ativo": true
+    }
+  ]
+}
