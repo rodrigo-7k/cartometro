@@ -679,7 +679,7 @@ def tela_configuracoes(container, dialog_pai=None):
     def render_sobre():
         # Logo em destaque
         with ui.element('div').classes('sobre-logo-container'):
-            ui.image('imagens/logo_completa.png').classes('sobre-logo')
+            ui.image('/imagens/logo_completa.png').classes('sobre-logo')
         
         # Informações do App
         with ui.card().classes('config-card'):

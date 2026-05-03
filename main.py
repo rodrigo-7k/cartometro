@@ -6,9 +6,16 @@ from nicegui import ui
 from db import inicializar
 from config_service import config_service
 from auth_service import get_usuario_logado
+from fastapi.staticfiles import StaticFiles
 import hashlib
 import os
 import json
+
+# ============================================================
+# STATIC FILES (RENDER)
+# ============================================================
+if os.path.exists('imagens'):
+    ui.app.mount('/imagens', StaticFiles(directory='imagens'), name='imagens')
 
 USUARIOS_ARQ = 'usuarios.json'
 
@@ -70,9 +77,9 @@ def login():
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
     
     <!-- FAVICONS -->
-    <link rel="icon" type="image/x-icon" href="imagens/favicon/favicon.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="imagens/favicon/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="imagens/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/x-icon" href="/imagens/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/imagens/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/imagens/favicon/favicon-32x32.png">
 
     /* ============================================================
        RESET E BASE
@@ -403,7 +410,7 @@ def login():
         # ============================================================
         with ui.element('div').classes('lp-brand'):
             # ÚNICO elemento: logo completa
-            ui.image('imagens/logo_full_branca.png').classes('lp-brand-logo')
+            ui.image('/imagens/logo_branca.png').classes('lp-brand-logo')
 
         # ============================================================
         # DESKTOP: LADO DIREITO - FORMULÁRIO BRANCO
@@ -416,7 +423,7 @@ def login():
                 # ============================================================
                 with ui.element('div').classes('lp-mobile-header'):
                     # Logo no header colorido do mobile
-                    ui.image('imagens/logo.png').classes('lp-mobile-header-logo')
+                    ui.image('/imagens/logo.png').classes('lp-mobile-header-logo')
 
                 # ============================================================
                 # MOBILE: CARD BRANCO (wrapper no mobile, normal no desktop)
@@ -427,10 +434,10 @@ def login():
                     # LOGO NO TOPO DO FORMULÁRIO (desktop e mobile)
                     # ============================================================
                     with ui.element('div').classes('flex justify-center'):
-                        ui.image('imagens/wordmark.png').classes('lp-form-logo')
+                        ui.image('/imagens/wordmark.png').classes('lp-form-logo')
 
                     # ============================================================
-                    # TEXTO EXPLICATIVO (NOVO)
+                    # TEXTO EXPLICATIVO
                     # ============================================================
                     ui.label('Acompanhe gastos do cartão, defina limites e organize suas finanças com simplicidade.').classes('lp-form-desc')
 
@@ -471,7 +478,7 @@ def login():
                     )
 
                     # ============================================================
-                    # ACESSO RÁPIDO - INFORMAÇÃO DE DEMONSTRAÇÃO (NOVO)
+                    # ACESSO RÁPIDO - INFORMAÇÃO DE DEMONSTRAÇÃO
                     # ============================================================
                     with ui.element('div').classes('lp-hint'):
                         ui.label('Acesso rápido').classes('lp-hint-label')
@@ -503,11 +510,17 @@ def app():
 inicializar()
 carregar_usuarios()
 
+# ============================================================
+# CONFIGURAÇÃO PARA DEPLOY (RENDER)
+# ============================================================
+PORT = int(os.environ.get('PORT', 8080))
+
 ui.run(
     title="Cartometro - Controle Inteligente do seu Crédito",
-    favicon="imagens/favicon/favicon.ico",
+    favicon="/imagens/favicon/favicon.ico",
     reload=False,
-    show=True,
-    port=8080,
+    show=False,
+    host='0.0.0.0',
+    port=PORT,
     storage_secret='cartometro-2024-secret'
 )

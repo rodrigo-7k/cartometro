@@ -613,7 +613,7 @@ def tela_lancamentos(container):
                 # ============================================================
                 with ui.row().classes('items-center gap-2'):
                     # Logo completa no header
-                    ui.image('imagens/logo_branca.png').style('width: 120px; height: auto;')
+                    ui.image('/imagens/logo_branca.png').style('width: 120px; height: auto;')
                     with ui.column().classes('gap-0'):
                         inicio, fim = get_ciclo_atual()
                         ui.label(f"Fecha dia {fim.day}").classes('header-subtitle-text text-white')
