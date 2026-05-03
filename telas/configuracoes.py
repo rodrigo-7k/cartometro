@@ -12,6 +12,12 @@ import os
 import hashlib
 
 
+# ============================================================
+# URLS DAS IMAGENS (CLOUDINARY)
+# ============================================================
+LOGO_COMPLETA = "https://res.cloudinary.com/dxgyzvs8p/image/upload/v1777845630/logo_full_branca_wlx97y.png"
+
+
 AVATARES = [
     "🐶", "🐱", "🐷", "🦆",
     "🐻", "🦁", "👩🏻‍💻", "👨🏻‍💻",
@@ -677,9 +683,9 @@ def tela_configuracoes(container, dialog_pai=None):
     # RENDER: SOBRE
     # =========================
     def render_sobre():
-        # Logo em destaque
+        # Logo em destaque (URL Cloudinary)
         with ui.element('div').classes('sobre-logo-container'):
-            ui.image('/imagens/logo_completa.png').classes('sobre-logo')
+            ui.image(LOGO_COMPLETA).classes('sobre-logo')
         
         # Informações do App
         with ui.card().classes('config-card'):
@@ -801,7 +807,6 @@ def tela_configuracoes(container, dialog_pai=None):
         config = dados.get("config", {})
         modo = config.get("modo_cartao", "Unificado")
         
-        # Labels mais curtas para caber no mobile
         abas_list = [
             ("limites", "⚙️ Limites"),
             ("tema", "🎨 Tema"),

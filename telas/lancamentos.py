@@ -7,7 +7,6 @@ from db import carregar, remover_gasto, salvar
 from config_service import config_service
 from auth_service import get_usuario_logado
 from datetime import datetime, timedelta
-from consultor import gerar_notificacoes
 from collections import defaultdict
 from constantes import (
     GASTO_AVISTA, GASTO_PARCELADO, GASTO_FIXO,
@@ -15,6 +14,11 @@ from constantes import (
 )
 
 ARQUIVO = "dados.json"
+
+# ============================================================
+# URLS DAS IMAGENS (CLOUDINARY)
+# ============================================================
+LOGO_COMPLETA = "https://res.cloudinary.com/dxgyzvs8p/image/upload/v1777845630/logo_full_branca_wlx97y.png"
 
 
 CUSTOM_CSS = """
@@ -234,7 +238,12 @@ def tela_lancamentos(container):
             "restante": restante,
             "percentual": (total_gasto / limite_total * 100) if limite_total > 0 else 0,
         }
-     
+    
+    # ==========================================
+    # CONSULTOR FINANCEIRO
+    # ==========================================
+    from consultor import gerar_notificacoes
+    
     def atualizar_badge():
         if notif_badge is None: return
         notificacoes = gerar_notificacoes(dados, gastos, fixos, cartoes)
@@ -609,11 +618,10 @@ def tela_lancamentos(container):
         with ui.element('div').classes('lancamentos-header-fixo'):
             with ui.row().classes('header-bar items-center justify-between').style(f'background: linear-gradient(135deg, {cor_escura}, {cor_primaria}) !important;'):
                 # ============================================================
-                # HEADER COM LOGO COMPLETA
+                # HEADER COM LOGO (URL CLOUDINARY)
                 # ============================================================
                 with ui.row().classes('items-center gap-2'):
-                    # Logo completa no header
-                    ui.image('/imagens/logo_branca.png').style('width: 120px; height: auto;')
+                    ui.image(LOGO_COMPLETA).style('width: 120px; height: auto;')
                     with ui.column().classes('gap-0'):
                         inicio, fim = get_ciclo_atual()
                         ui.label(f"Fecha dia {fim.day}").classes('header-subtitle-text text-white')

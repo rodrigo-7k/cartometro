@@ -6,16 +6,18 @@ from nicegui import ui
 from db import inicializar
 from config_service import config_service
 from auth_service import get_usuario_logado
-from fastapi.staticfiles import StaticFiles
 import hashlib
 import os
 import json
 
 # ============================================================
-# STATIC FILES (RENDER)
+# URLs DAS IMAGENS (CLOUDINARY)
 # ============================================================
-if os.path.exists('imagens'):
-    ui.app.mount('/imagens', StaticFiles(directory='imagens'), name='imagens')
+LOGO_BRANCA = "https://res.cloudinary.com/dxgyzvs8p/image/upload/v1777845617/logo_branca_mmgwof.png"
+LOGO_FULL_BRANCA = "https://res.cloudinary.com/dxgyzvs8p/image/upload/v1777845630/logo_full_branca_wlx97y.png"
+LOGO = "https://res.cloudinary.com/dxgyzvs8p/image/upload/v1777845521/logo_bvchvv.png"
+WORDMARK = "https://res.cloudinary.com/dxgyzvs8p/image/upload/v1777845635/wordmark_nf3put.png"
+FAVICON = "https://res.cloudinary.com/dxgyzvs8p/image/upload/v1777845656/favicon_crsq9e.ico"
 
 USUARIOS_ARQ = 'usuarios.json'
 
@@ -77,9 +79,9 @@ def login():
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
     
     <!-- FAVICONS -->
-    <link rel="icon" type="image/x-icon" href="/imagens/favicon/favicon.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="/imagens/favicon/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/imagens/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/x-icon" href="{FAVICON}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{LOGO}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{LOGO}">
 
     /* ============================================================
        RESET E BASE
@@ -409,8 +411,7 @@ def login():
         # DESKTOP: LADO ESQUERDO - APENAS LOGO NO FUNDO COLORIDO
         # ============================================================
         with ui.element('div').classes('lp-brand'):
-            # ÚNICO elemento: logo completa
-            ui.image('/imagens/logo_branca.png').classes('lp-brand-logo')
+            ui.image(LOGO_BRANCA).classes('lp-brand-logo')
 
         # ============================================================
         # DESKTOP: LADO DIREITO - FORMULÁRIO BRANCO
@@ -422,8 +423,7 @@ def login():
                 # MOBILE: HEADER COLORIDO (só aparece no mobile)
                 # ============================================================
                 with ui.element('div').classes('lp-mobile-header'):
-                    # Logo no header colorido do mobile
-                    ui.image('/imagens/logo.png').classes('lp-mobile-header-logo')
+                    ui.image(LOGO).classes('lp-mobile-header-logo')
 
                 # ============================================================
                 # MOBILE: CARD BRANCO (wrapper no mobile, normal no desktop)
@@ -434,7 +434,7 @@ def login():
                     # LOGO NO TOPO DO FORMULÁRIO (desktop e mobile)
                     # ============================================================
                     with ui.element('div').classes('flex justify-center'):
-                        ui.image('/imagens/wordmark.png').classes('lp-form-logo')
+                        ui.image(WORDMARK).classes('lp-form-logo')
 
                     # ============================================================
                     # TEXTO EXPLICATIVO
@@ -517,7 +517,7 @@ PORT = int(os.environ.get('PORT', 8080))
 
 ui.run(
     title="Cartometro - Controle Inteligente do seu Crédito",
-    favicon="/imagens/favicon/favicon.ico",
+    favicon=FAVICON,
     reload=False,
     show=False,
     host='0.0.0.0',
