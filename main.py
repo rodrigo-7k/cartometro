@@ -30,7 +30,6 @@ FAVICON          = "https://res.cloudinary.com/dxgyzvs8p/image/upload/v177784565
 # Imagens de placeholder (substitua depois)
 HERO_DASHBOARD   = "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80"
 FEATURE_IMAGE    = "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80"
-MOBILE_MOCKUP    = "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400&q=80"
 
 # ============================================================
 # VARIÁVEIS GLOBAIS
@@ -81,18 +80,25 @@ def landing_page():
     }}
     
     .navbar-container {{
-        max-width: 1280px;
+        width: 85%;
+        max-width: 1400px;
         margin: 0 auto;
-        padding: 0 32px;
+        padding: 0 16px;
         display: flex;
         align-items: center;
         justify-content: space-between;
         height: 72px;
     }}
     
+    .navbar-brand {{
+        display: flex;
+        align-items: center;
+    }}
+    
     .navbar-brand img {{
-        height: 36px;
+        height: 38px;
         width: auto;
+        display: block;
     }}
     
     .navbar-links {{
@@ -132,6 +138,9 @@ def landing_page():
         font-family: inherit;
         transition: all 0.2s;
         box-shadow: 0 1px 2px rgba(124, 58, 237, 0.3);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
     }}
     
     .btn-primary:hover {{
@@ -170,7 +179,7 @@ def landing_page():
     
     /* ========== HERO ========== */
     .hero {{
-        padding: 120px 32px 80px;
+        padding: 120px 0 80px;
         background: linear-gradient(135deg, #faf5ff 0%, #f0f4ff 50%, #ffffff 100%);
         position: relative;
         overflow: hidden;
@@ -188,7 +197,8 @@ def landing_page():
     }}
     
     .hero-container {{
-        max-width: 1280px;
+        width: 85%;
+        max-width: 1400px;
         margin: 0 auto;
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -225,9 +235,9 @@ def landing_page():
     }}
     
     .hero-title {{
-        font-size: clamp(40px, 5vw, 64px);
+        font-size: clamp(40px, 4.5vw, 60px);
         font-weight: 900;
-        line-height: 1.1;
+        line-height: 1.08;
         letter-spacing: -1.5px;
         color: #0f172a;
         margin-bottom: 20px;
@@ -245,7 +255,6 @@ def landing_page():
         color: #64748b;
         line-height: 1.7;
         margin-bottom: 32px;
-        max-width: 480px;
     }}
     
     .hero-actions {{
@@ -267,6 +276,9 @@ def landing_page():
         font-family: inherit;
         transition: all 0.2s;
         box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
     }}
     
     .hero-cta:hover {{
@@ -299,6 +311,7 @@ def landing_page():
         gap: 16px;
         color: #94a3b8;
         font-size: 13px;
+        flex-wrap: wrap;
     }}
     
     .hero-trust-item {{
@@ -307,17 +320,16 @@ def landing_page():
         gap: 6px;
     }}
     
-    .hero-trust-item svg {{
-        width: 16px;
-        height: 16px;
-    }}
-    
     .hero-image {{
         position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }}
     
     .hero-image-main {{
         width: 100%;
+        max-width: 520px;
         border-radius: 16px;
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         border: 1px solid rgba(0, 0, 0, 0.05);
@@ -347,43 +359,15 @@ def landing_page():
         right: -30px;
     }}
     
-    /* ========== STATS BAR ========== */
-    .stats-bar {{
-        border-top: 1px solid #f1f5f9;
-        border-bottom: 1px solid #f1f5f9;
-        padding: 48px 32px;
-        background: white;
-    }}
-    
-    .stats-container {{
-        max-width: 1280px;
-        margin: 0 auto;
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 32px;
-        text-align: center;
-    }}
-    
-    .stat-number {{
-        font-size: 36px;
-        font-weight: 900;
-        color: #0f172a;
-        margin-bottom: 4px;
-    }}
-    
-    .stat-label {{
-        font-size: 14px;
-        color: #64748b;
-    }}
-    
     /* ========== FEATURES ========== */
     .features {{
-        padding: 100px 32px;
+        padding: 100px 0;
         background: white;
     }}
     
     .features-container {{
-        max-width: 1280px;
+        width: 85%;
+        max-width: 1400px;
         margin: 0 auto;
     }}
     
@@ -469,12 +453,13 @@ def landing_page():
     
     /* ========== HOW IT WORKS ========== */
     .how-it-works {{
-        padding: 100px 32px;
+        padding: 100px 0;
         background: #fafafa;
     }}
     
     .how-container {{
-        max-width: 1280px;
+        width: 85%;
+        max-width: 1400px;
         margin: 0 auto;
     }}
     
@@ -532,27 +517,28 @@ def landing_page():
     
     /* ========== PRICING ========== */
     .pricing {{
-        padding: 100px 32px;
+        padding: 100px 0;
         background: white;
     }}
     
     .pricing-container {{
-        max-width: 1280px;
+        width: 85%;
+        max-width: 1400px;
         margin: 0 auto;
     }}
     
     .pricing-grid {{
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 24px;
-        max-width: 800px;
+        gap: 32px;
+        max-width: 1000px;
         margin: 64px auto 0;
     }}
     
     .plan-card {{
         border: 2px solid #e2e8f0;
         border-radius: 20px;
-        padding: 40px;
+        padding: 48px 40px;
         background: white;
         transition: all 0.3s;
         position: relative;
@@ -578,29 +564,35 @@ def landing_page():
         color: white;
         font-size: 12px;
         font-weight: 700;
-        padding: 6px 20px;
+        padding: 6px 24px;
         border-radius: 100px;
         letter-spacing: 0.5px;
+        white-space: nowrap;
+    }}
+    
+    .plan-header {{
+        text-align: center;
+        margin-bottom: 32px;
     }}
     
     .plan-name {{
-        font-size: 22px;
+        font-size: 24px;
         font-weight: 800;
         color: #0f172a;
-        margin-bottom: 16px;
+        margin-bottom: 8px;
     }}
     
     .plan-price {{
-        font-size: 48px;
+        font-size: 56px;
         font-weight: 900;
         color: #7c3aed;
+        line-height: 1;
         margin-bottom: 4px;
     }}
     
     .plan-period {{
         font-size: 14px;
         color: #94a3b8;
-        margin-bottom: 32px;
     }}
     
     .plan-divider {{
@@ -609,12 +601,18 @@ def landing_page():
         margin-bottom: 24px;
     }}
     
+    .plan-features {{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 32px;
+    }}
+    
     .plan-feature {{
         display: flex;
         align-items: center;
-        gap: 10px;
-        padding: 8px 0;
-        font-size: 14px;
+        gap: 8px;
+        font-size: 13px;
         color: #475569;
     }}
     
@@ -627,8 +625,10 @@ def landing_page():
         font-family: inherit;
         cursor: pointer;
         transition: all 0.2s;
-        margin-top: 32px;
         border: none;
+        text-decoration: none;
+        display: block;
+        text-align: center;
     }}
     
     .plan-btn.primary {{
@@ -655,7 +655,7 @@ def landing_page():
     
     /* ========== CTA ========== */
     .cta {{
-        padding: 100px 32px;
+        padding: 100px 0;
         background: linear-gradient(135deg, #6d28d9, #4f46e5);
         position: relative;
         overflow: hidden;
@@ -673,7 +673,8 @@ def landing_page():
     }}
     
     .cta-container {{
-        max-width: 800px;
+        width: 85%;
+        max-width: 1400px;
         margin: 0 auto;
         text-align: center;
         position: relative;
@@ -693,6 +694,9 @@ def landing_page():
         color: rgba(255, 255, 255, 0.9);
         line-height: 1.7;
         margin-bottom: 40px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
     }}
     
     .cta-btn {{
@@ -707,6 +711,9 @@ def landing_page():
         font-family: inherit;
         transition: all 0.2s;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
     }}
     
     .cta-btn:hover {{
@@ -717,25 +724,24 @@ def landing_page():
     /* ========== FOOTER ========== */
     .footer {{
         background: #0f172a;
-        padding: 64px 32px 32px;
+        padding: 48px 0;
         color: #94a3b8;
     }}
     
     .footer-container {{
-        max-width: 1280px;
+        width: 85%;
+        max-width: 1400px;
         margin: 0 auto;
         display: grid;
-        grid-template-columns: 2fr 1fr 1fr 1fr;
-        gap: 64px;
-        margin-bottom: 48px;
-        padding-bottom: 48px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        grid-template-columns: 1.5fr 1fr 1fr 1fr;
+        gap: 40px;
     }}
     
     .footer-brand img {{
-        height: 32px;
+        height: 48px;
         width: auto;
         margin-bottom: 16px;
+        display: block;
     }}
     
     .footer-brand p {{
@@ -768,11 +774,12 @@ def landing_page():
     }}
     
     .footer-bottom {{
-        max-width: 1280px;
-        margin: 0 auto;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        width: 85%;
+        max-width: 1400px;
+        margin: 32px auto 0;
+        padding-top: 24px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        text-align: center;
     }}
     
     .footer-copyright {{
@@ -807,8 +814,13 @@ def landing_page():
         }}
         
         .pricing-grid {{
-            max-width: 500px;
             grid-template-columns: 1fr;
+            max-width: 500px;
+        }}
+        
+        .footer-container {{
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
         }}
     }}
     
@@ -821,8 +833,19 @@ def landing_page():
             display: block;
         }}
         
+        .navbar-container,
+        .hero-container,
+        .features-container,
+        .how-container,
+        .pricing-container,
+        .cta-container,
+        .footer-container,
+        .footer-bottom {{
+            width: 92%;
+        }}
+        
         .hero {{
-            padding: 100px 20px 60px;
+            padding: 100px 0 60px;
         }}
         
         .hero-title {{
@@ -837,13 +860,8 @@ def landing_page():
             display: none;
         }}
         
-        .stats-container {{
-            grid-template-columns: repeat(2, 1fr);
-            gap: 24px;
-        }}
-        
         .features {{
-            padding: 60px 20px;
+            padding: 60px 0;
         }}
         
         .features-grid {{
@@ -851,44 +869,34 @@ def landing_page():
         }}
         
         .how-it-works {{
-            padding: 60px 20px;
+            padding: 60px 0;
         }}
         
         .pricing {{
-            padding: 60px 20px;
+            padding: 60px 0;
         }}
         
         .cta {{
-            padding: 60px 20px;
+            padding: 60px 0;
+        }}
+        
+        .plan-features {{
+            grid-template-columns: 1fr;
         }}
         
         .footer-container {{
             grid-template-columns: 1fr;
             gap: 32px;
         }}
-        
-        .footer-bottom {{
-            flex-direction: column;
-            gap: 12px;
-            text-align: center;
-        }}
     }}
     
     @media (max-width: 480px) {{
-        .navbar-container {{
-            padding: 0 16px;
-        }}
-        
         .hero-actions {{
             flex-direction: column;
         }}
         
-        .stats-container {{
-            grid-template-columns: 1fr;
-        }}
-        
-        .stats-bar {{
-            padding: 32px 20px;
+        .plan-card {{
+            padding: 32px 24px;
         }}
     }}
     </style>
@@ -904,18 +912,27 @@ def landing_page():
             }}
         }}
     }});
+    
+    function scrollToSection(id) {{
+        document.getElementById(id).scrollIntoView({{ behavior: 'smooth' }});
+    }}
+    
+    function navigateTo(url) {{
+        window.location.href = url;
+    }}
     </script>
     """)
     
     # ========== NAVBAR ==========
     with ui.element('nav').classes('navbar'):
         with ui.element('div').classes('navbar-container'):
-            ui.image(LOGO_FULL_COLOR).style('height: 36px; width: auto;')
+            with ui.element('div').classes('navbar-brand'):
+                ui.image(LOGO_FULL_COLOR).style('height: 38px !important; width: auto !important; display: block !important;')
             
             with ui.element('div').classes('navbar-links'):
-                ui.button('Funcionalidades', on_click=lambda: ui.run_javascript('document.getElementById("features").scrollIntoView({behavior:"smooth"})')).classes('nav-link')
-                ui.button('Como Funciona', on_click=lambda: ui.run_javascript('document.getElementById("how").scrollIntoView({behavior:"smooth"})')).classes('nav-link')
-                ui.button('Planos', on_click=lambda: ui.run_javascript('document.getElementById("pricing").scrollIntoView({behavior:"smooth"})')).classes('nav-link')
+                ui.button('Funcionalidades', on_click=lambda: ui.run_javascript('document.getElementById("features-section").scrollIntoView({behavior:"smooth"})')).classes('nav-link')
+                ui.button('Como Funciona', on_click=lambda: ui.run_javascript('document.getElementById("how-section").scrollIntoView({behavior:"smooth"})')).classes('nav-link')
+                ui.button('Planos', on_click=lambda: ui.run_javascript('document.getElementById("pricing-section").scrollIntoView({behavior:"smooth"})')).classes('nav-link')
                 ui.button('Entrar', on_click=lambda: ui.navigate.to('/login')).classes('btn-secondary')
                 ui.button('Começar Grátis', on_click=lambda: ui.navigate.to('/criar-conta')).classes('btn-primary')
             
@@ -927,7 +944,7 @@ def landing_page():
             with ui.element('div').classes('hero-content'):
                 with ui.element('div').classes('hero-badge'):
                     ui.element('div').classes('hero-badge-dot')
-                    ui.label('Novo: Consultor com 30+ alertas inteligentes')
+                    ui.label('Consultor com 30+ alertas inteligentes')
                 
                 ui.html('<h1 class="hero-title">Domine suas finanças com <span>inteligência</span></h1>')
                 ui.label('Controle total dos seus cartões de crédito, gastos organizados e alertas personalizados para você nunca perder o controle.').classes('hero-description')
@@ -961,22 +978,8 @@ def landing_page():
                         ui.label('Economia este mês').style('font-size: 11px; color: #94a3b8; font-weight: 500;')
                         ui.label('↓ 12% vs anterior').style('font-size: 16px; font-weight: 700; color: #10b981;')
     
-    # ========== STATS BAR ==========
-    with ui.element('section').classes('stats-bar'):
-        with ui.element('div').classes('stats-container'):
-            stats = [
-                ('10k+', 'Usuários Ativos'),
-                ('R$ 2M+', 'Gastos Controlados'),
-                ('30+', 'Alertas Inteligentes'),
-                ('4.9', 'Avaliação Média ★')
-            ]
-            for number, label in stats:
-                with ui.element('div'):
-                    ui.label(number).classes('stat-number')
-                    ui.label(label).classes('stat-label')
-    
     # ========== FEATURES ==========
-    with ui.element('section').classes('features').props('id=features'):
+    with ui.element('section').classes('features').props('id=features-section'):
         with ui.element('div').classes('features-container'):
             with ui.element('div').classes('section-header'):
                 ui.label('Funcionalidades').classes('section-badge')
@@ -1000,7 +1003,7 @@ def landing_page():
                         ui.label(description).classes('feature-description')
     
     # ========== HOW IT WORKS ==========
-    with ui.element('section').classes('how-it-works').props('id=how'):
+    with ui.element('section').classes('how-it-works').props('id=how-section'):
         with ui.element('div').classes('how-container'):
             with ui.element('div').classes('section-header'):
                 ui.label('Como Funciona').classes('section-badge')
@@ -1027,7 +1030,7 @@ def landing_page():
                     ui.image(FEATURE_IMAGE)
     
     # ========== PRICING ==========
-    with ui.element('section').classes('pricing').props('id=pricing'):
+    with ui.element('section').classes('pricing').props('id=pricing-section'):
         with ui.element('div').classes('pricing-container'):
             with ui.element('div').classes('section-header'):
                 ui.label('Planos').classes('section-badge')
@@ -1037,30 +1040,49 @@ def landing_page():
             with ui.element('div').classes('pricing-grid'):
                 # Free Plan
                 with ui.element('div').classes('plan-card'):
-                    ui.label('🆓 Gratuito').classes('plan-name')
-                    ui.label('R$ 0').classes('plan-price')
-                    ui.label('para sempre').classes('plan-period')
+                    with ui.element('div').classes('plan-header'):
+                        ui.label('🆓 Gratuito').classes('plan-name')
+                        ui.label('R$ 0').classes('plan-price')
+                        ui.label('para sempre').classes('plan-period')
+                    
                     ui.element('div').classes('plan-divider')
                     
-                    for feature in ['20 lançamentos/mês', '1 cartão', 'Modo Unificado', 'Consultor básico', 'Dashboard completo']:
-                        with ui.element('div').classes('plan-feature'):
-                            ui.label('✓').style('color: #10b981; font-weight: 700;')
-                            ui.label(feature)
+                    with ui.element('div').classes('plan-features'):
+                        features_free = [
+                            '✓ 20 lançamentos/mês',
+                            '✓ 1 cartão cadastrado',
+                            '✓ Modo Unificado',
+                            '✓ Consultor básico',
+                            '✓ Dashboard completo',
+                            '✓ Exportação de dados'
+                        ]
+                        for feature in features_free:
+                            ui.label(feature).classes('plan-feature')
                     
                     ui.button('Começar Grátis', on_click=lambda: ui.navigate.to('/criar-conta')).classes('plan-btn secondary')
                 
                 # Premium Plan
                 with ui.element('div').classes('plan-card featured'):
                     ui.label('MAIS POPULAR').classes('plan-badge')
-                    ui.label('💎 Premium').classes('plan-name')
-                    ui.label('R$ 4,99').classes('plan-price')
-                    ui.label('/mês').classes('plan-period')
+                    
+                    with ui.element('div').classes('plan-header'):
+                        ui.label('💎 Premium').classes('plan-name')
+                        ui.label('R$ 4,99').classes('plan-price')
+                        ui.label('/mês').classes('plan-period')
+                    
                     ui.element('div').classes('plan-divider')
                     
-                    for feature in ['Lançamentos ilimitados', 'Múltiplos cartões', 'Modo Individual', 'Consultor Premium (30+)', 'Relatórios avançados', 'Suporte prioritário']:
-                        with ui.element('div').classes('plan-feature'):
-                            ui.label('✓').style('color: #10b981; font-weight: 700;')
-                            ui.label(feature)
+                    with ui.element('div').classes('plan-features'):
+                        features_premium = [
+                            '✓ Lançamentos ilimitados',
+                            '✓ Múltiplos cartões',
+                            '✓ Modo Individual',
+                            '✓ Consultor Premium (30+)',
+                            '✓ Relatórios avançados',
+                            '✓ Suporte prioritário'
+                        ]
+                        for feature in features_premium:
+                            ui.label(feature).classes('plan-feature')
                     
                     ui.button('Assinar Premium', on_click=lambda: ui.navigate.to('/criar-conta')).classes('plan-btn primary')
     
@@ -1068,7 +1090,7 @@ def landing_page():
     with ui.element('section').classes('cta'):
         with ui.element('div').classes('cta-container'):
             ui.label('Pronto para controlar suas finanças?').classes('cta-title')
-            ui.label('Junte-se a milhares de pessoas que já transformaram sua relação com o dinheiro.').classes('cta-description')
+            ui.label('Junte-se a milhares de pessoas que já transformaram sua relação com o dinheiro usando o Cartometro.').classes('cta-description')
             ui.button('🚀 Criar Conta Gratuita', on_click=lambda: ui.navigate.to('/criar-conta')).classes('cta-btn')
     
     # ========== FOOTER ==========
@@ -1079,33 +1101,32 @@ def landing_page():
                 ui.label('Controle Inteligente do seu Crédito. Simples, rápido e eficiente.')
             
             with ui.element('div').classes('footer-col'):
-                ui.label('Produto').style('font-size: 13px; font-weight: 700; color: #e2e8f0; margin-bottom: 20px;')
-                for link in ['Funcionalidades', 'Planos', 'Demonstração']:
-                    ui.label(link).style('font-size: 13px; color: #64748b; margin-bottom: 12px; cursor: pointer;')
+                ui.label('Produto').style('font-size: 14px; font-weight: 700; color: #e2e8f0; margin-bottom: 20px; letter-spacing: 0.3px;')
+                for link_text, section_id in [('Funcionalidades', 'features-section'), ('Como Funciona', 'how-section'), ('Planos', 'pricing-section')]:
+                    ui.label(link_text).style('font-size: 13px; color: #64748b; margin-bottom: 12px; cursor: pointer;').on('click', lambda sid=section_id: ui.run_javascript(f'document.getElementById("{sid}").scrollIntoView({{behavior:"smooth"}})'))
             
             with ui.element('div').classes('footer-col'):
-                ui.label('Suporte').style('font-size: 13px; font-weight: 700; color: #e2e8f0; margin-bottom: 20px;')
-                for link in ['Central de Ajuda', 'suporte@cartometro.app', 'FAQ']:
-                    ui.label(link).style('font-size: 13px; color: #64748b; margin-bottom: 12px; cursor: pointer;')
+                ui.label('Suporte').style('font-size: 14px; font-weight: 700; color: #e2e8f0; margin-bottom: 20px; letter-spacing: 0.3px;')
+                for link_text in ['Central de Ajuda', 'suporte@cartometro.app', 'FAQ']:
+                    ui.label(link_text).style('font-size: 13px; color: #64748b; margin-bottom: 12px; cursor: pointer;')
             
             with ui.element('div').classes('footer-col'):
-                ui.label('Legal').style('font-size: 13px; font-weight: 700; color: #e2e8f0; margin-bottom: 20px;')
-                for link in ['Termos de Uso', 'Privacidade']:
-                    ui.label(link).style('font-size: 13px; color: #64748b; margin-bottom: 12px; cursor: pointer;')
+                ui.label('Legal').style('font-size: 14px; font-weight: 700; color: #e2e8f0; margin-bottom: 20px; letter-spacing: 0.3px;')
+                for link_text in ['Termos de Uso', 'Privacidade']:
+                    ui.label(link_text).style('font-size: 13px; color: #64748b; margin-bottom: 12px; cursor: pointer;')
         
         with ui.element('div').classes('footer-bottom'):
-            ui.label(f'© 2025 Cartometro. Todos os direitos reservados.').classes('footer-copyright')
+            ui.label('© 2025 Cartometro. Todos os direitos reservados.').classes('footer-copyright')
 
 
 # ============================================================
-# TELA DE LOGIN REDESENHADA
+# TELA DE LOGIN
 # ============================================================
 @ui.page('/login')
 def login():
     cor = config_service.get_primary_color()
     cor_escura = config_service.get_primary_dark()
     
-    # Bullet points para o lado esquerdo
     beneficios = [
         ("📊", "Dashboard inteligente com KPIs em tempo real"),
         ("🤖", "Consultor financeiro com 30+ alertas"),
@@ -1168,57 +1189,68 @@ def login():
         left: -150px;
     }}
     
-    .login-brand-logo {{
-        width: 180px;
-        height: auto;
-        margin-bottom: 48px;
+    .login-brand-content {{
         position: relative;
         z-index: 1;
+        max-width: 440px;
+        width: 100%;
+        text-align: center;
+    }}
+    
+    .login-brand-logo {{
+        width: 200px;
+        height: auto;
+        margin-bottom: 40px;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
     }}
     
     .login-brand-benefits {{
-        position: relative;
-        z-index: 1;
-        max-width: 400px;
+        text-align: left;
+        max-width: 380px;
+        margin: 0 auto;
     }}
     
     .login-brand-title {{
-        font-size: 28px;
+        font-size: 26px;
         font-weight: 800;
         color: white;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
         letter-spacing: -0.5px;
+        text-align: center;
     }}
     
     .login-brand-subtitle {{
-        font-size: 15px;
+        font-size: 14px;
         color: rgba(255, 255, 255, 0.7);
         margin-bottom: 40px;
         line-height: 1.6;
+        text-align: center;
     }}
     
     .benefit-item {{
         display: flex;
         align-items: center;
-        gap: 14px;
-        margin-bottom: 20px;
+        gap: 12px;
+        margin-bottom: 16px;
         color: white;
     }}
     
     .benefit-icon {{
-        width: 40px;
-        height: 40px;
-        background: rgba(255, 255, 255, 0.1);
+        width: 36px;
+        height: 36px;
+        background: rgba(255, 255, 255, 0.12);
         border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 20px;
+        font-size: 18px;
         flex-shrink: 0;
     }}
     
     .benefit-text {{
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 500;
         line-height: 1.4;
     }}
@@ -1240,9 +1272,9 @@ def login():
     }}
     
     .login-logo-icon {{
-        width: 48px;
+        width: 52px;
         height: auto;
-        margin: 0 auto 24px;
+        margin: 0 auto 20px;
         display: block;
     }}
     
@@ -1254,7 +1286,7 @@ def login():
     }}
     
     .login-title {{
-        font-size: 28px;
+        font-size: 26px;
         font-weight: 800;
         color: #0f172a;
         margin-bottom: 4px;
@@ -1263,14 +1295,14 @@ def login():
     }}
     
     .login-subtitle {{
-        font-size: 14px;
+        font-size: 13px;
         color: #94a3b8;
         text-align: center;
         margin-bottom: 32px;
     }}
     
     .field-wrapper {{
-        margin-bottom: 18px;
+        margin-bottom: 16px;
     }}
     
     .field-label {{
@@ -1309,6 +1341,7 @@ def login():
         font-family: inherit;
         transition: all 0.2s;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        margin-top: 8px;
     }}
     
     .login-btn:hover {{
@@ -1318,7 +1351,7 @@ def login():
     }}
     
     .demo-section {{
-        margin-top: 32px;
+        margin-top: 28px;
         padding-top: 24px;
         border-top: 1px solid #f1f5f9;
     }}
@@ -1329,7 +1362,7 @@ def login():
         color: #cbd5e1;
         text-transform: uppercase;
         letter-spacing: 1px;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
         text-align: center;
     }}
     
@@ -1360,14 +1393,13 @@ def login():
         color: #94a3b8;
     }}
     
-    .register-link a {{
+    .register-link span {{
         color: #7c3aed;
         font-weight: 600;
-        text-decoration: none;
         cursor: pointer;
     }}
     
-    .register-link a:hover {{
+    .register-link span:hover {{
         text-decoration: underline;
     }}
     
@@ -1376,14 +1408,13 @@ def login():
         margin-bottom: 24px;
     }}
     
-    .back-link a {{
+    .back-link span {{
         color: #64748b;
         font-size: 13px;
-        text-decoration: none;
         cursor: pointer;
     }}
     
-    .back-link a:hover {{
+    .back-link span:hover {{
         color: #0f172a;
     }}
     
@@ -1455,23 +1486,24 @@ def login():
     with ui.element('div').classes('login-page'):
         # LADO ESQUERDO - Marca e Benefícios
         with ui.element('div').classes('login-brand'):
-            ui.image(LOGO_FULL_BRANCA).classes('login-brand-logo')
-            
-            with ui.element('div').classes('login-brand-benefits'):
-                ui.label('Controle inteligente do seu crédito').classes('login-brand-title')
-                ui.label('Tudo que você precisa para dominar suas finanças em um só lugar.').classes('login-brand-subtitle')
+            with ui.element('div').classes('login-brand-content'):
+                ui.image(LOGO_FULL_BRANCA).classes('login-brand-logo')
                 
-                for icon, text in beneficios:
-                    with ui.element('div').classes('benefit-item'):
-                        ui.label(icon).classes('benefit-icon')
-                        ui.label(text).classes('benefit-text')
+                with ui.element('div').classes('login-brand-benefits'):
+                    ui.label('Controle inteligente do seu crédito').classes('login-brand-title')
+                    ui.label('Tudo que você precisa para dominar suas finanças em um só lugar.').classes('login-brand-subtitle')
+                    
+                    for icon, text in beneficios:
+                        with ui.element('div').classes('benefit-item'):
+                            ui.label(icon).classes('benefit-icon')
+                            ui.label(text).classes('benefit-text')
         
         # LADO DIREITO - Formulário
         with ui.element('div').classes('login-form-side'):
             with ui.element('div').classes('login-form-container'):
                 # Back link
                 with ui.element('div').classes('back-link'):
-                    ui.html('<a onclick="window.location.href=\'/\'">← Voltar para o site</a>')
+                    ui.label('← Voltar para o site').on('click', lambda: ui.navigate.to('/'))
                 
                 # Logo icon
                 ui.image(LOGO).classes('login-logo-icon')
@@ -1505,7 +1537,7 @@ def login():
                 # Register link
                 with ui.element('div').classes('register-link'):
                     ui.label('Não tem conta? ').style('display: inline;')
-                    ui.html('<a onclick="window.location.href=\'/criar-conta\'">Criar conta gratuita</a>')
+                    ui.label('Criar conta gratuita').style('display: inline;').on('click', lambda: ui.navigate.to('/criar-conta'))
 
 
 # ============================================================
@@ -1632,11 +1664,13 @@ def criar_conta():
             font-size: 13px;
             color: #94a3b8;
         }}
-        .login-link a {{
+        .login-link span {{
             color: #7c3aed;
             font-weight: 600;
-            text-decoration: none;
             cursor: pointer;
+        }}
+        .login-link span:hover {{
+            text-decoration: underline;
         }}
         .error-msg {{
             background: #fef2f2;
@@ -1748,7 +1782,7 @@ def criar_conta():
         
         with ui.element('div').classes('login-link'):
             ui.label('Já tem conta? ').style('display: inline;')
-            ui.html('<a onclick="window.location.href=\'/login\'">Fazer login</a>')
+            ui.label('Fazer login').style('display: inline;').on('click', lambda: ui.navigate.to('/login'))
 
 
 # ============================================================
