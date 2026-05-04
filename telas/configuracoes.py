@@ -735,11 +735,18 @@ def tela_configuracoes(container, dialog_pai=None):
         # ============================================================
         if plano == 'gratuito':
             with ui.card().classes('config-card').style(
-                'background:linear-gradient(135deg,#8b5cf6,#6366f1);color:white;'
+                'background:linear-gradient(135deg,#8b5cf6,#6366f1);'
             ):
-                ui.label("💎 Quer mais recursos?").classes('text-lg font-bold mb-2').style('color:white;')
-                ui.label("Premium por apenas R$ 4,99/mês").classes('text-sm mb-3').style('color:rgba(255,255,255,0.8);')
+                # Título
+                ui.label("💎 Quer mais recursos?").style(
+                    'font-size:18px;font-weight:700;color:#FFFFFF;margin-bottom:8px;'
+                )
+                # Subtítulo
+                ui.label("Premium por apenas R$ 4,99/mês").style(
+                    'font-size:14px;color:#E2E8F0;margin-bottom:16px;'
+                )
                 
+                # Benefícios
                 beneficios = [
                     "✅ Lançamentos ilimitados",
                     "✅ Múltiplos cartões",
@@ -747,10 +754,11 @@ def tela_configuracoes(container, dialog_pai=None):
                     "✅ Consultor Financeiro completo",
                 ]
                 for b in beneficios:
-                    ui.label(b).classes('text-sm').style('color:rgba(255,255,255,0.9);')
+                    ui.label(b).style('font-size:13px;color:#F1F5F9;padding:2px 0;')
                 
+                # Botão
                 ui.button("💎 Fazer Upgrade", icon='star', on_click=lambda: ui.navigate.to('/upgrade')).classes('w-full mt-4').style(
-                    'background:white;color:#6366f1;border-radius:8px;font-weight:600;'
+                    'background:#FFFFFF;color:#6366F1;border-radius:8px;font-weight:600;font-size:14px;'
                 )
         
         elif plano == 'demo':
@@ -758,9 +766,9 @@ def tela_configuracoes(container, dialog_pai=None):
                 with ui.row().classes('items-start gap-3'):
                     ui.icon('info').classes('text-xl').style('color:#3b82f6;')
                     with ui.column().classes('gap-2'):
-                        ui.label("👑 Conta Demonstração").classes('text-base font-bold text-blue-700')
-                        ui.label("Esta é uma conta de demonstração com todos os recursos liberados.").classes('text-sm text-gray-600')
-                        ui.label("Crie sua conta gratuita para começar a usar!").classes('text-sm text-gray-600')
+                        ui.label("👑 Conta Demonstração").style('font-size:16px;font-weight:700;color:#1E40AF;')
+                        ui.label("Esta é uma conta de demonstração com todos os recursos liberados.").style('font-size:13px;color:#475569;')
+                        ui.label("Crie sua conta gratuita para começar a usar!").style('font-size:13px;color:#475569;')
 
     # =========================
     # RENDER: SOBRE
