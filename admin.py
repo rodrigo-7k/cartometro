@@ -72,8 +72,9 @@ def alterar_senha_admin(nova_senha):
     global ADMIN_SENHA_HASH
     ADMIN_SENHA_HASH = hash_senha(nova_senha)
     config = carregar_config_admin()
-    config["admin"]["senha"] = ADMIN_SENHA_HASH
-    salvar_json(ADMIN_FILE, config)
+    if config and "admin" in config:
+        config["admin"]["senha"] = ADMIN_SENHA_HASH
+        salvar_json(ADMIN_FILE, config)
     return True
 
 
@@ -172,6 +173,149 @@ def admin_painel():
     receita_total = sum(p.get('valor', 0) for p in pagamentos if p.get('status') == 'confirmado')
     
     # ============================================================
+    # FUNÇÕES PRIMEIRO (ANTES DOS BOTÕES)
+    # ============================================================
+    def ativar_premium(usuario):
+        try:
+            atualizar_plano_usuario(usuario['email'], 'premium')
+            registrar_pagamento(usuario['email'], 'admin', 0, 'confirmado', 'admin')
+            ui.notify(f"✅ Premium ativado para {usuario['nome']}!", type="positive")
+        except Exception as e:
+            ui.notify(f"❌ Erro: {str(e)}", type="negative")
+        ui.timer(0.3, lambda: ui.navigate.to('/admin/painel'), once=True)
+    
+    def remover_premium(usuario):
+        try:
+            atualizar_plano_usuario(usuario['email'], 'gratuito')
+            ui.notify(f"⬇ Premium removido de {usuario['nome']}", type="warning")
+        except Exception as e:
+            ui.notify(f"❌ Erro: {str(e)}", type="negative")
+        ui.timer(0.3, lambda: ui.navigate.to('/admin/painel'), once=True)
+    
+    def dar_cortesia(usuario, dias):
+        try:
+            usuarios_lista = carregar_usuarios()
+            encontrado = False
+            for u in usuarios_lista:
+                if u.get('email', '').lower() == usuario.get('email', '').lower():
+                    u['plano'] = 'premium'
+                    u['data_expiracao'] = (datetime.now() + timedelta(days=dias)).isoformat()
+                    u['ativo'] = True
+                    encontrado = True
+                    break
+            if encontrado:
+                salvar_usuarios(usuarios_lista)
+                registrar_pagamento(usuario['email'], 'cortesia', 0, 'cortesia', 'admin')
+                ui.notify(f"🎁 {dias} dias de Premium para {usuario['nome']}!", type="positive")
+            else:
+                ui.notify(f"❌ Usuário não encontrado", type="negative")
+        except Exception as e:
+            ui.notify(f"❌ Erro ao dar cortesia: {str(e)}", type="negative")
+        ui.timer(0.3, lambda: ui.navigate.to('/admin/painel'), once=True)
+    
+    def toggle_ativo(usuario, ativo):
+        try:
+            usuarios_lista = carregar_usuarios()
+            for u in usuarios_lista:
+                if u.get('email', '').lower() == usuario.get('email', '').lower():
+                    u['ativo'] = ativo
+                    break
+            salvar_usuarios(usuarios_lista)
+            status = "ativado" if ativo else "desativado"
+            ui.notify(f"🔒 Usuário {status}!", type="info")
+        except Exception as e:
+            ui.notify(f"❌ Erro: {str(e)}", type="negative")
+        ui.timer(0.3, lambda: ui.navigate.to('/admin/painel'), once=True)
+    
+    def excluir_usuario(usuario):
+        try:
+            usuarios_lista = carregar_usuarios()
+            usuarios_lista = [u for u in usuarios_lista if u.get('email', '').lower() != usuario.get('email', '').lower()]
+            salvar_usuarios(usuarios_lista)
+            arquivo = f"data/{usuario['email'].replace('@','_').replace('.','_').lower()}.json"
+            if os.path.exists(arquivo):
+                os.remove(arquivo)
+            ui.notify(f"🗑️ Usuário {usuario['nome']} excluído!", type="warning")
+        except Exception as e:
+            ui.notify(f"❌ Erro: {str(e)}", type="negative")
+        ui.timer(0.3, lambda: ui.navigate.to('/admin/painel'), once=True)
+    
+    def confirmar_excluir_usuario(usuario):
+        with ui.dialog() as dialog, ui.card().classes('p-6 rounded-2xl max-w-[400px]'):
+            ui.label("🗑️ Excluir Usuário?").style('font-size:18px;font-weight:700;color:#ef4444;margin-bottom:8px;')
+            ui.label(f"Nome: {usuario.get('nome', '-')}").style('font-size:14px;')
+            ui.label(f"Email: {usuario.get('email', '-')}").style('font-size:14px;color:#64748b;margin-bottom:16px;')
+            ui.label("⚠️ Esta ação não pode ser desfeita!").style('font-size:12px;color:#ef4444;margin-bottom:16px;')
+            with ui.row().classes('justify-end gap-2'):
+                ui.button("Cancelar", on_click=dialog.close).props('outline')
+                ui.button("Excluir", on_click=lambda: [excluir_usuario(usuario), dialog.close()]).style('background:#ef4444;color:white;')
+        dialog.open()
+    
+    def gerar_relatorio():
+        texto = f"RELATÓRIO CARTÓMETRO - {datetime.now().strftime('%d/%m/%Y %H:%M')}\n"
+        texto += f"{'='*50}\n"
+        texto += f"Total Usuários: {total_usuarios}\n"
+        texto += f"Premium: {total_premium}\n"
+        texto += f"Gratuitos: {total_gratuito}\n"
+        texto += f"Demo: {total_demo}\n"
+        texto += f"Ativos: {total_ativos}\n"
+        texto += f"Inativos: {total_inativos}\n"
+        texto += f"Receita: R$ {receita_total:,.2f}\n"
+        texto += f"{'='*50}\n\nUSUÁRIOS:\n"
+        for u in usuarios:
+            texto += f"  {u.get('nome','-')} | {u.get('email','-')} | {u.get('plano','-')} | {'Ativo' if u.get('ativo',True) else 'Inativo'}\n"
+        
+        with ui.dialog() as dialog, ui.card().classes('p-6 rounded-2xl max-w-[600px] max-h-[80vh]'):
+            ui.label("📊 Relatório Completo").style('font-size:18px;font-weight:700;margin-bottom:12px;')
+            ui.textarea(value=texto).props('outlined readonly').style('width:100%;height:400px;font-family:monospace;font-size:11px;')
+            ui.button("Fechar", on_click=dialog.close).props('outline').classes('mt-3')
+        dialog.open()
+    
+    def exportar_csv():
+        csv = "Nome,Email,Plano,Ativo,Data Cadastro,Expiração\n"
+        for u in usuarios:
+            csv += f'"{u.get("nome","")}","{u.get("email","")}","{u.get("plano","")}","{u.get("ativo",True)}","{u.get("data_criacao","")}","{u.get("data_expiracao","")}"\n'
+        
+        with ui.dialog() as dialog, ui.card().classes('p-6 rounded-2xl max-w-[600px]'):
+            ui.label("📧 Exportar CSV").style('font-size:18px;font-weight:700;margin-bottom:12px;')
+            ui.textarea(value=csv).props('outlined readonly').style('width:100%;height:300px;font-family:monospace;font-size:11px;')
+            ui.label("Copie o conteúdo acima e salve como .csv").style('font-size:12px;color:#64748b;margin-top:8px;')
+            ui.button("Fechar", on_click=dialog.close).props('outline').classes('mt-3')
+        dialog.open()
+    
+    def abrir_form_novo_usuario():
+        with ui.dialog() as dialog, ui.card().classes('p-6 rounded-2xl max-w-[450px]'):
+            ui.label("➕ Novo Usuário").style('font-size:18px;font-weight:700;margin-bottom:16px;')
+            
+            nome_inp = ui.input("Nome completo").props('outlined').classes('w-full mb-3')
+            email_inp = ui.input("Email").props('outlined').classes('w-full mb-3')
+            senha_inp = ui.input("Senha", password=True, password_toggle_button=True).props('outlined').classes('w-full mb-3')
+            plano_inp = ui.select(["gratuito", "premium"], value="gratuito", label="Plano").props('outlined').classes('w-full mb-4')
+            
+            erro = ui.label('').style('color:#ef4444;font-size:12px;display:none;')
+            
+            def criar():
+                nome = nome_inp.value.strip() if nome_inp.value else ''
+                email = email_inp.value.strip() if email_inp.value else ''
+                senha = senha_inp.value or ''
+                if not nome or not email or not senha:
+                    erro.style('display:block'); erro.set_text('Preencha todos os campos'); return
+                
+                from db import criar_usuario
+                sucesso, msg, _ = criar_usuario(nome, email, senha, plano_inp.value)
+                if sucesso:
+                    ui.notify(f"✅ Usuário criado!", type="positive")
+                    dialog.close()
+                    ui.timer(0.3, lambda: ui.navigate.to('/admin/painel'), once=True)
+                else:
+                    erro.style('display:block'); erro.set_text(msg)
+            
+            with ui.row().classes('justify-end gap-2'):
+                ui.button("Cancelar", on_click=dialog.close).props('outline')
+                ui.button("Criar", on_click=criar).style('background:#10b981;color:white;')
+        dialog.open()
+    
+    # ============================================================
     # HEADER
     # ============================================================
     with ui.row().classes('w-full items-center justify-between p-4').style('background:#1e293b;color:white;flex-wrap:wrap;gap:12px;'):
@@ -181,6 +325,7 @@ def admin_painel():
         with ui.row().classes('gap-2'):
             ui.button("🔄 Atualizar", on_click=lambda: ui.navigate.to('/admin/painel')).props('flat').style('color:white;')
             ui.button("📊 Relatório", on_click=gerar_relatorio).props('flat').style('color:#10b981;')
+            ui.button("📧 CSV", on_click=exportar_csv).props('flat').style('color:#3b82f6;')
             ui.button("🚪 Sair", on_click=lambda: ui.navigate.to('/admin')).props('flat').style('color:#ef4444;')
     
     with ui.element('div').style('max-width:1300px;margin:0 auto;padding:24px 16px;'):
@@ -207,7 +352,7 @@ def admin_painel():
         # USUÁRIOS
         # ============================================================
         with ui.card().classes('w-full p-0 mb-6'):
-            with ui.row().classes('items-center justify-between p-4 border-b'):
+            with ui.row().classes('items-center justify-between p-4 border-b').style('flex-wrap:wrap;gap:8px;'):
                 ui.label("👥 Usuários Cadastrados").style('font-size:16px;font-weight:700;')
                 with ui.row().classes('gap-2'):
                     ui.button("📧 Exportar CSV", on_click=exportar_csv).props('flat').style('color:#3b82f6;font-size:12px;')
@@ -307,176 +452,30 @@ def admin_painel():
             with ui.element('div').style('padding:20px;'):
                 ui.label("🔒 Alterar Senha do Painel").style('font-size:14px;font-weight:600;margin-bottom:12px;')
                 with ui.row().classes('gap-3 items-end').style('flex-wrap:wrap;'):
-                    nova_senha = ui.input("Nova Senha", password=True, password_toggle_button=True).props('outlined').style('flex:1;min-width:180px;')
-                    confirmar_senha = ui.input("Confirmar Senha", password=True, password_toggle_button=True).props('outlined').style('flex:1;min-width:180px;')
-                    ui.button("Salvar", on_click=lambda: salvar_senha()).style('background:#8b5cf6;color:white;border-radius:8px;padding:12px 20px;')
+                    nova_senha_input = ui.input("Nova Senha", password=True, password_toggle_button=True).props('outlined').style('flex:1;min-width:180px;')
+                    confirmar_senha_input = ui.input("Confirmar Senha", password=True, password_toggle_button=True).props('outlined').style('flex:1;min-width:180px;')
                     
                     def salvar_senha():
-                        if not nova_senha.value or len(nova_senha.value) < 6:
+                        if not nova_senha_input.value or len(nova_senha_input.value) < 6:
                             ui.notify("⚠️ Mínimo 6 caracteres", type="warning"); return
-                        if nova_senha.value != confirmar_senha.value:
+                        if nova_senha_input.value != confirmar_senha_input.value:
                             ui.notify("⚠️ Senhas não conferem", type="warning"); return
-                        alterar_senha_admin(nova_senha.value)
+                        alterar_senha_admin(nova_senha_input.value)
                         ui.notify("✅ Senha alterada!", type="positive")
-                        nova_senha.value = ''; confirmar_senha.value = ''
+                        nova_senha_input.value = ''; confirmar_senha_input.value = ''
+                    
+                    ui.button("Salvar Senha", on_click=salvar_senha).style('background:#8b5cf6;color:white;border-radius:8px;padding:12px 20px;font-weight:600;')
                 
                 ui.separator().style('margin:20px 0;')
                 
                 ui.label("📊 Informações do Sistema").style('font-size:14px;font-weight:600;margin-bottom:12px;')
-                with ui.row().classes('gap-3').style('flex-wrap:wrap;'):
-                    ui.label(f"Total de usuários: {total_usuarios}").style('font-size:13px;')
-                    ui.label(f"Premium ativos: {total_premium}").style('font-size:13px;')
-                    ui.label(f"Gratuitos: {total_gratuito}").style('font-size:13px;')
-                    ui.label(f"Receita total: R$ {receita_total:,.2f}").style('font-size:13px;')
-    
-    # ============================================================
-    # FUNÇÕES DE AÇÃO
-    # ============================================================
-    def ativar_premium(usuario):
-        try:
-            atualizar_plano_usuario(usuario['email'], 'premium')
-            registrar_pagamento(usuario['email'], 'admin', 0, 'confirmado', 'admin')
-            ui.notify(f"✅ Premium ativado para {usuario['nome']}!", type="positive")
-        except Exception as e:
-            ui.notify(f"❌ Erro: {str(e)}", type="negative")
-        ui.timer(0.3, lambda: ui.navigate.to('/admin/painel'), once=True)
-    
-    def remover_premium(usuario):
-        try:
-            atualizar_plano_usuario(usuario['email'], 'gratuito')
-            ui.notify(f"⬇ Premium removido de {usuario['nome']}", type="warning")
-        except Exception as e:
-            ui.notify(f"❌ Erro: {str(e)}", type="negative")
-        ui.timer(0.3, lambda: ui.navigate.to('/admin/painel'), once=True)
-    
-    def dar_cortesia(usuario, dias):
-        try:
-            # Recarregar lista fresca
-            usuarios_lista = carregar_usuarios()
-            encontrado = False
-            for u in usuarios_lista:
-                if u.get('email', '').lower() == usuario.get('email', '').lower():
-                    u['plano'] = 'premium'
-                    u['data_expiracao'] = (datetime.now() + timedelta(days=dias)).isoformat()
-                    u['ativo'] = True
-                    encontrado = True
-                    break
-            
-            if encontrado:
-                salvar_usuarios(usuarios_lista)
-                registrar_pagamento(usuario['email'], 'cortesia', 0, 'cortesia', 'admin')
-                ui.notify(f"🎁 {dias} dias de Premium para {usuario['nome']}!", type="positive")
-            else:
-                ui.notify(f"❌ Usuário não encontrado", type="negative")
-        except Exception as e:
-            ui.notify(f"❌ Erro ao dar cortesia: {str(e)}", type="negative")
-        ui.timer(0.3, lambda: ui.navigate.to('/admin/painel'), once=True)
-    
-    def toggle_ativo(usuario, ativo):
-        try:
-            usuarios_lista = carregar_usuarios()
-            for u in usuarios_lista:
-                if u.get('email', '').lower() == usuario.get('email', '').lower():
-                    u['ativo'] = ativo
-                    break
-            salvar_usuarios(usuarios_lista)
-            status = "ativado" if ativo else "desativado"
-            ui.notify(f"🔒 Usuário {status}!", type="info")
-        except Exception as e:
-            ui.notify(f"❌ Erro: {str(e)}", type="negative")
-        ui.timer(0.3, lambda: ui.navigate.to('/admin/painel'), once=True)
-    
-    def confirmar_excluir_usuario(usuario):
-        with ui.dialog() as dialog, ui.card().classes('p-6 rounded-2xl max-w-[400px]'):
-            ui.label("🗑️ Excluir Usuário?").style('font-size:18px;font-weight:700;color:#ef4444;margin-bottom:8px;')
-            ui.label(f"Nome: {usuario.get('nome', '-')}").style('font-size:14px;')
-            ui.label(f"Email: {usuario.get('email', '-')}").style('font-size:14px;color:#64748b;margin-bottom:16px;')
-            ui.label("⚠️ Esta ação não pode ser desfeita!").style('font-size:12px;color:#ef4444;margin-bottom:16px;')
-            
-            with ui.row().classes('justify-end gap-2'):
-                ui.button("Cancelar", on_click=dialog.close).props('outline')
-                ui.button("Excluir", on_click=lambda: [excluir_usuario(usuario), dialog.close()]).style('background:#ef4444;color:white;')
-        dialog.open()
-    
-    def excluir_usuario(usuario):
-        try:
-            usuarios_lista = carregar_usuarios()
-            usuarios_lista = [u for u in usuarios_lista if u.get('email', '').lower() != usuario.get('email', '').lower()]
-            salvar_usuarios(usuarios_lista)
-            
-            # Remover arquivo de dados
-            arquivo = f"data/{usuario['email'].replace('@','_').replace('.','_').lower()}.json"
-            if os.path.exists(arquivo):
-                os.remove(arquivo)
-            
-            ui.notify(f"🗑️ Usuário {usuario['nome']} excluído!", type="warning")
-        except Exception as e:
-            ui.notify(f"❌ Erro: {str(e)}", type="negative")
-        ui.timer(0.3, lambda: ui.navigate.to('/admin/painel'), once=True)
-    
-    def gerar_relatorio():
-        texto = f"RELATÓRIO CARTÓMETRO - {datetime.now().strftime('%d/%m/%Y %H:%M')}\n"
-        texto += f"{'='*50}\n"
-        texto += f"Total Usuários: {total_usuarios}\n"
-        texto += f"Premium: {total_premium}\n"
-        texto += f"Gratuitos: {total_gratuito}\n"
-        texto += f"Demo: {total_demo}\n"
-        texto += f"Ativos: {total_ativos}\n"
-        texto += f"Receita: R$ {receita_total:,.2f}\n"
-        texto += f"{'='*50}\n"
-        texto += f"\nUSUÁRIOS:\n"
-        for u in usuarios:
-            texto += f"  {u.get('nome','-')} | {u.get('email','-')} | {u.get('plano','-')} | {'Ativo' if u.get('ativo',True) else 'Inativo'}\n"
-        
-        with ui.dialog() as dialog, ui.card().classes('p-6 rounded-2xl max-w-[600px] max-h-[80vh]'):
-            ui.label("📊 Relatório").style('font-size:18px;font-weight:700;margin-bottom:12px;')
-            ui.textarea(value=texto).props('outlined readonly').style('width:100%;height:400px;font-family:monospace;font-size:11px;')
-            ui.button("Fechar", on_click=dialog.close).props('outline').classes('mt-3')
-        dialog.open()
-    
-    def exportar_csv():
-        csv = "Nome,Email,Plano,Ativo,Data Cadastro,Expiração\n"
-        for u in usuarios:
-            csv += f"{u.get('nome','')},{u.get('email','')},{u.get('plano','')},{u.get('ativo',True)},{u.get('data_criacao','')},{u.get('data_expiracao','')}\n"
-        
-        with ui.dialog() as dialog, ui.card().classes('p-6 rounded-2xl max-w-[600px]'):
-            ui.label("📧 Exportar CSV").style('font-size:18px;font-weight:700;margin-bottom:12px;')
-            ui.textarea(value=csv).props('outlined readonly').style('width:100%;height:300px;font-family:monospace;font-size:11px;')
-            ui.label("Copie o conteúdo acima e salve como .csv").style('font-size:12px;color:#64748b;margin-top:8px;')
-            ui.button("Fechar", on_click=dialog.close).props('outline').classes('mt-3')
-        dialog.open()
-    
-    def abrir_form_novo_usuario():
-        with ui.dialog() as dialog, ui.card().classes('p-6 rounded-2xl max-w-[450px]'):
-            ui.label("➕ Novo Usuário").style('font-size:18px;font-weight:700;margin-bottom:16px;')
-            
-            nome_inp = ui.input("Nome completo").props('outlined').classes('w-full mb-3')
-            email_inp = ui.input("Email").props('outlined').classes('w-full mb-3')
-            senha_inp = ui.input("Senha", password=True, password_toggle_button=True).props('outlined').classes('w-full mb-3')
-            plano_inp = ui.select(["gratuito", "premium"], value="gratuito", label="Plano").props('outlined').classes('w-full mb-4')
-            
-            erro = ui.label('').style('color:#ef4444;font-size:12px;display:none;')
-            
-            def criar():
-                nome = nome_inp.value.strip() if nome_inp.value else ''
-                email = email_inp.value.strip() if email_inp.value else ''
-                senha = senha_inp.value or ''
-                
-                if not nome or not email or not senha:
-                    erro.style('display:block'); erro.set_text('Preencha todos os campos'); return
-                
-                from db import criar_usuario
-                sucesso, msg, _ = criar_usuario(nome, email, senha, plano_inp.value)
-                if sucesso:
-                    ui.notify(f"✅ Usuário criado!", type="positive")
-                    dialog.close()
-                    ui.timer(0.3, lambda: ui.navigate.to('/admin/painel'), once=True)
-                else:
-                    erro.style('display:block'); erro.set_text(msg)
-            
-            with ui.row().classes('justify-end gap-2'):
-                ui.button("Cancelar", on_click=dialog.close).props('outline')
-                ui.button("Criar", on_click=criar).style('background:#10b981;color:white;')
+                with ui.column().classes('gap-1'):
+                    ui.label(f"• Total de usuários: {total_usuarios}").style('font-size:13px;color:#475569;')
+                    ui.label(f"• Premium ativos: {total_premium}").style('font-size:13px;color:#475569;')
+                    ui.label(f"• Gratuitos: {total_gratuito}").style('font-size:13px;color:#475569;')
+                    ui.label(f"• Demo: {total_demo}").style('font-size:13px;color:#475569;')
+                    ui.label(f"• Ativos: {total_ativos} | Inativos: {total_inativos}").style('font-size:13px;color:#475569;')
+                    ui.label(f"• Receita total: R$ {receita_total:,.2f}").style('font-size:13px;color:#475569;')
 
 
 # ============================================================
