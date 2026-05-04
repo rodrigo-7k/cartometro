@@ -390,149 +390,268 @@ def login():
 # =========================
 @ui.page('/criar-conta')
 def criar_conta():
-    cor = config_service.get_primary_color()
+    """Tela de cadastro otimizada para mobile"""
 
-    ui.add_head_html(f"""
+    # ============================================================
+    # URLs DAS IMAGENS (CLOUDINARY)
+    # ============================================================
+    WORDMARK = "https://res.cloudinary.com/dxgyzvs8p/image/upload/v1777845635/wordmark_nf3put.png"
+    
+    ui.add_head_html("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
-    
-    *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
-    
-    html, body {{
-        height: 100%;
-        width: 100%;
-        overflow: hidden;
-        font-family: 'DM Sans', sans-serif;
-        background: #f3f4f6;
-    }}
-    
-    .cadastro-container {{
-        display: flex;
-        height: 100vh;
-        width: 100%;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-    }}
-    
-    .cadastro-card {{
-        background: white;
-        border-radius: 20px;
-        padding: 40px 32px;
-        max-width: 440px;
-        width: 100%;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-    }}
-    
-    .cadastro-logo {{
-        width: 150px;
-        height: auto;
-        margin: 0 auto 24px auto;
-        display: block;
-    }}
-    
-    .planos-grid {{
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-        margin-bottom: 24px;
-    }}
-    
-    .plano-card {{
-        border: 2px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 16px;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.2s;
-    }}
-    
-    .plano-card:hover {{
-        border-color: {cor};
-    }}
-    
-    .plano-card.selecionado {{
-        border-color: {cor};
-        background: {cor}08;
-    }}
-    
-    .plano-card h3 {{
-        font-size: 16px;
-        font-weight: 700;
-        margin-bottom: 8px;
-    }}
-    
-    .plano-card p {{
-        font-size: 11px;
-        color: #6b7280;
-        line-height: 1.5;
-    }}
-    
-    .plano-preco {{
-        font-size: 24px;
-        font-weight: 700;
-        color: {cor};
-        margin: 8px 0;
-    }}
-    
-    .campo {{
-        margin-bottom: 16px;
-    }}
-    
-    .campo label {{
-        font-size: 13px;
-        font-weight: 500;
-        color: #374151;
-        margin-bottom: 4px;
-        display: block;
-    }}
-    
-    .voltar-link {{
-        text-align: center;
-        margin-top: 16px;
-    }}
-    
-    .voltar-link span {{
-        color: {cor};
-        cursor: pointer;
-        font-size: 14px;
-    }}
-    
-    .voltar-link span:hover {{
-        text-decoration: underline;
-    }}
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #f3f4f6;
+            overflow-y: auto !important;
+            height: auto !important;
+        }
+        
+        .cadastro-page {
+            min-height: 100vh;
+            width: 100%;
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .cadastro-card {
+            background: white;
+            border-radius: 20px;
+            padding: 32px 20px;
+            width: 100%;
+            max-width: 440px;
+            margin: 0 auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .logo-img {
+            width: 140px;
+            height: auto;
+            margin: 0 auto 20px auto;
+            display: block;
+        }
+        
+        .planos-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        
+        .plano-card {
+            flex: 1;
+            border: 2px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 14px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+            position: relative;
+        }
+        
+        .plano-card:active {
+            transform: scale(0.97);
+        }
+        
+        .plano-card.selecionado {
+            border-color: #8b5cf6;
+            background: #faf5ff;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+        
+        .plano-icone {
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+        
+        .plano-nome {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .plano-preco {
+            font-size: 22px;
+            font-weight: 700;
+            color: #8b5cf6;
+            margin-bottom: 2px;
+        }
+        
+        .plano-periodo {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-bottom: 8px;
+        }
+        
+        .plano-beneficios {
+            text-align: left;
+            font-size: 10px;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+        
+        .plano-beneficios div {
+            padding: 1px 0;
+        }
+        
+        .campo {
+            margin-bottom: 14px;
+        }
+        
+        .campo label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+            display: block;
+        }
+        
+        .campo input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: 'DM Sans', sans-serif;
+            transition: border-color 0.2s;
+            background: #fafafa;
+        }
+        
+        .campo input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+            background: white;
+        }
+        
+        .btn-criar {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s;
+        }
+        
+        .btn-criar:active {
+            transform: scale(0.98);
+        }
+        
+        .erro-msg {
+            color: #ef4444;
+            font-size: 12px;
+            text-align: center;
+            padding: 8px;
+            background: #fef2f2;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: none;
+        }
+        
+        .erro-msg.show {
+            display: block;
+        }
+        
+        .login-link {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 13px;
+            color: #9ca3af;
+        }
+        
+        .login-link a {
+            color: #8b5cf6;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .selo-garantia {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 11px;
+            color: #9ca3af;
+        }
     </style>
     """)
-
-    plano_selecionado = {"plano": "gratuito"}
     
-    with ui.element('div').classes('cadastro-container'):
+    # Estado
+    plano_selecionado = {"plano": "gratuito"}
+    planos_refs = {}
+    
+    with ui.element('div').classes('cadastro-page'):
         with ui.element('div').classes('cadastro-card'):
-            ui.image(WORDMARK).classes('cadastro-logo')
+            # Logo
+            ui.image(WORDMARK).classes('logo-img')
             
-            ui.label('Criar sua Conta').style('font-size:24px;font-weight:700;text-align:center;color:#1f2937;margin-bottom:4px;')
-            ui.label('Comece gratuitamente e faça upgrade quando precisar').style('font-size:14px;color:#9ca3af;text-align:center;margin-bottom:24px;')
+            ui.label('Criar sua Conta').style('font-size:22px;font-weight:700;text-align:center;color:#1e293b;margin-bottom:4px;')
+            ui.label('Comece grátis, faça upgrade quando quiser').style('font-size:13px;color:#9ca3af;text-align:center;margin-bottom:20px;')
             
-            with ui.element('div').classes('planos-grid'):
-                with ui.element('div').classes('plano-card selecionado').on('click', lambda: selecionar_plano('gratuito')):
-                    ui.label('🆓 Gratuito').style('font-size:16px;font-weight:700;color:#1f2937;')
+            # ============================================================
+            # PLANOS (seleção visual)
+            # ============================================================
+            with ui.element('div').classes('planos-container'):
+                # Gratuito
+                plano_gratuito = ui.element('div').classes('plano-card selecionado')
+                with plano_gratuito:
+                    ui.label('🆓').classes('plano-icone')
+                    ui.label('Gratuito').classes('plano-nome')
                     ui.label('R$ 0').classes('plano-preco')
-                    ui.label('• 20 lançamentos/mês').style('font-size:11px;color:#6b7280;')
-                    ui.label('• 1 cartão').style('font-size:11px;color:#6b7280;')
-                    ui.label('• Modo Unificado').style('font-size:11px;color:#6b7280;')
-                    ui.label('• Alertas básicos').style('font-size:11px;color:#6b7280;')
+                    ui.label('para sempre').classes('plano-periodo')
+                    with ui.element('div').classes('plano-beneficios'):
+                        ui.label('✓ 20 lançamentos/mês')
+                        ui.label('✓ 1 cartão')
+                        ui.label('✓ Alertas básicos')
+                plano_gratuito.on('click', lambda: selecionar_plano('gratuito'))
+                planos_refs['gratuito'] = plano_gratuito
                 
-                with ui.element('div').classes('plano-card').on('click', lambda: selecionar_plano('premium')):
-                    ui.label('💎 Premium').style('font-size:16px;font-weight:700;color:#1f2937;')
-                    ui.label('R$ 19,90/mês').classes('plano-preco')
-                    ui.label('• Lançamentos ilimitados').style('font-size:11px;color:#6b7280;')
-                    ui.label('• Múltiplos cartões').style('font-size:11px;color:#6b7280;')
-                    ui.label('• Modo Individual').style('font-size:11px;color:#6b7280;')
-                    ui.label('• Consultor Premium').style('font-size:11px;color:#6b7280;')
+                # Premium
+                plano_premium = ui.element('div').classes('plano-card')
+                with plano_premium:
+                    ui.label('💎').classes('plano-icone')
+                    ui.label('Premium').classes('plano-nome')
+                    ui.label('R$ 4,99').classes('plano-preco')
+                    ui.label('/mês').classes('plano-periodo')
+                    with ui.element('div').classes('plano-beneficios'):
+                        ui.label('✓ Lançamentos ilimitados')
+                        ui.label('✓ Múltiplos cartões')
+                        ui.label('✓ Modo Individual')
+                        ui.label('✓ Consultor Premium')
+                plano_premium.on('click', lambda: selecionar_plano('premium'))
+                planos_refs['premium'] = plano_premium
             
+            def selecionar_plano(plano):
+                plano_selecionado["plano"] = plano
+                # Atualizar visual dos cards
+                for nome, ref in planos_refs.items():
+                    if nome == plano:
+                        ref.classes('plano-card selecionado')
+                        ref.style('border-color:#8b5cf6;background:#faf5ff;box-shadow:0 0 0 3px rgba(139,92,246,0.1);')
+                    else:
+                        ref.classes(remove='selecionado')
+                        ref.style('border-color:#e5e7eb;background:white;box-shadow:none;')
+                
+                # Atualizar texto e cor do botão
+                if plano == 'premium':
+                    btn_criar.style('background:#8b5cf6;')
+                    btn_criar.set_text('Criar Conta Premium')
+                else:
+                    btn_criar.style('background:#3b82f6;')
+                    btn_criar.set_text('Criar Conta Gratuita')
+            
+            # ============================================================
+            # CAMPOS
+            # ============================================================
             with ui.element('div').classes('campo'):
                 ui.label('Nome completo')
-                nome_input = ui.input(placeholder='Seu nome').props('outlined dense').classes('w-full')
+                nome_input = ui.input(placeholder='Seu nome completo').props('outlined dense').classes('w-full')
             
             with ui.element('div').classes('campo'):
                 ui.label('E-mail')
@@ -546,47 +665,67 @@ def criar_conta():
                 ui.label('Confirmar Senha')
                 confirmar_input = ui.input(placeholder='Repita a senha', password=True, password_toggle_button=True).props('outlined dense').classes('w-full')
             
-            erro_label = ui.label('').style('color:#ef4444;font-size:13px;text-align:center;display:none;margin-bottom:12px;')
+            # Erro
+            erro_label = ui.label('').classes('erro-msg')
             
-            def selecionar_plano(plano):
-                plano_selecionado["plano"] = plano
-            
+            # ============================================================
+            # BOTÃO CRIAR
+            # ============================================================
             def cadastrar():
                 nome = nome_input.value.strip() if nome_input.value else ''
                 email = email_input.value.strip() if email_input.value else ''
                 senha = senha_input.value or ''
                 confirmar = confirmar_input.value or ''
                 
+                # Reset erro
+                erro_label.classes(remove='show')
+                erro_label.style('display:none;')
+                
                 if not nome or not email or not senha:
-                    erro_label.style('display:block')
+                    erro_label.classes('erro-msg show')
+                    erro_label.style('display:block;')
                     erro_label.set_text('⚠️ Preencha todos os campos')
                     return
                 
                 if senha != confirmar:
-                    erro_label.style('display:block')
+                    erro_label.classes('erro-msg show')
+                    erro_label.style('display:block;')
                     erro_label.set_text('⚠️ Senhas não conferem')
+                    return
+                
+                if len(senha) < 4:
+                    erro_label.classes('erro-msg show')
+                    erro_label.style('display:block;')
+                    erro_label.set_text('⚠️ Senha deve ter pelo menos 4 caracteres')
                     return
                 
                 sucesso, msg, usuario = criar_usuario(nome, email, senha, plano_selecionado["plano"])
                 
                 if sucesso:
-                    ui.notify(f'✅ {msg}', type='positive', position='top', timeout=3000)
+                    plano_nome = 'Premium' if plano_selecionado["plano"] == 'premium' else 'Gratuito'
+                    ui.notify(f'✅ Conta {plano_nome} criada! Faça login.', type='positive', position='top', timeout=3000)
                     ui.timer(1.5, lambda: ui.navigate.to('/'), once=True)
                 else:
-                    erro_label.style('display:block')
+                    erro_label.classes('erro-msg show')
+                    erro_label.style('display:block;')
                     erro_label.set_text(f'❌ {msg}')
             
-            ui.button('Criar Conta', on_click=cadastrar).props('no-caps').style(
-                f'width:100%;height:48px;border-radius:11px;'
-                f'background:{cor};color:white;border:none;'
-                f'font-size:15px;font-weight:600;cursor:pointer;'
-                f'font-family:"DM Sans",sans-serif;'
+            btn_criar = ui.button('Criar Conta Gratuita', on_click=cadastrar).props('no-caps')
+            btn_criar.style(
+                'width:100%;padding:14px;border-radius:12px;'
+                'background:#3b82f6;color:white;border:none;'
+                'font-size:15px;font-weight:600;cursor:pointer;'
+                'font-family:"DM Sans",sans-serif;transition:all 0.2s;'
             )
             
-            with ui.element('div').classes('voltar-link'):
-                ui.label('Já tem conta? Fazer login').on('click', lambda: ui.navigate.to('/'))
-
-
+            # Link login
+            with ui.element('div').classes('login-link'):
+                ui.label('Já tem conta? ').style('display:inline;font-size:13px;color:#9ca3af;')
+                ui.label('Fazer login').style('display:inline;color:#8b5cf6;font-weight:600;cursor:pointer;font-size:13px;').on('click', lambda: ui.navigate.to('/'))
+            
+            # Selo
+            with ui.element('div').classes('selo-garantia'):
+                ui.label('🔒 Seus dados estão seguros')
 # =========================
 # TELA PRINCIPAL (PÓS-LOGIN)
 # =========================

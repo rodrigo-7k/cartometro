@@ -573,12 +573,25 @@ def tela_configuracoes(container, dialog_pai=None):
                     ui.button("Adicionar", on_click=add_fixo, icon='add').classes('w-full').style(f'background: {cor_primaria} !important; color: white !important; border-radius: 8px; font-weight: 600;')
     
     # =========================
-    # RENDER: PERFIL (substitui Usuários)
+    # RENDER: PERFIL
     # =========================
     def render_perfil():
-        usuario = buscar_usuario_por_email(_usuario_logado_email) if _usuario_logado_email else None
+        from db import get_usuario_logado_email, buscar_usuario_por_email, PLANOS
+        
+        email = get_usuario_logado_email()
+        
+        if not email:
+            with ui.card().classes('config-card text-center'):
+                ui.icon('person_off').classes('text-5xl text-gray-300 mb-2')
+                ui.label("Nenhum usuário logado").classes('text-gray-500')
+            return
+        
+        usuario = buscar_usuario_por_email(email)
+        
         if not usuario:
-            ui.label("Usuário não encontrado").classes('text-sm text-gray-400 text-center p-4')
+            with ui.card().classes('config-card text-center'):
+                ui.icon('person_off').classes('text-5xl text-gray-300 mb-2')
+                ui.label("Usuário não encontrado").classes('text-gray-500')
             return
         
         avatar_emoji = usuario.get('avatar_emoji', '👤')
@@ -588,63 +601,80 @@ def tela_configuracoes(container, dialog_pai=None):
         
         # Avatar e nome
         with ui.card().classes('config-card text-center'):
-            with ui.element('div').classes('perfil-avatar').style(f'background: {cor_primaria}15;'):
+            with ui.element('div').style(f'width:80px;height:80px;border-radius:50%;background:{cor_primaria}15;display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 16px auto;'):
                 ui.label(avatar_emoji)
             ui.label(usuario.get('nome', 'Usuário')).classes('text-lg font-bold')
             ui.label(usuario.get('email', '')).classes('text-sm text-gray-500')
             
             # Badge do plano
             cor_badge = '#10b981' if plano == 'premium' else '#f59e0b' if plano == 'gratuito' else '#3b82f6'
-            with ui.element('div').classes('plano-badge mt-2').style(f'background: {cor_badge}20; color: {cor_badge}; border: 1px solid {cor_badge}40;'):
-                ui.icon('star' if plano == 'premium' else 'person')
-                ui.label(f"Plano {plano_nome}")
+            icone_badge = '💎' if plano == 'premium' else '🆓' if plano == 'gratuito' else '👑'
+            with ui.element('div').style(f'display:inline-flex;align-items:center;gap:4px;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:600;background:{cor_badge}20;color:{cor_badge};border:1px solid {cor_badge}40;margin-top:8px;'):
+                ui.label(f"{icone_badge} Plano {plano_nome}")
         
         # Informações da conta
         with ui.card().classes('config-card'):
             ui.label("📋 Informações da Conta").classes('text-base font-bold mb-3')
             
-            with ui.element('div').classes('sobre-info-item').style(f'border-left-color: {cor_primaria} !important;'):
-                ui.label("Email").classes('sobre-info-label')
-                ui.label(usuario.get('email', '')).classes('sobre-info-value')
+            info_items = [
+                ("Email", usuario.get('email', '-')),
+                ("Plano", plano_nome),
+            ]
             
-            with ui.element('div').classes('sobre-info-item').style(f'border-left-color: {cor_primaria} !important;'):
-                ui.label("Plano").classes('sobre-info-label')
-                ui.label(plano_nome).classes('sobre-info-value')
-            
-            with ui.element('div').classes('sobre-info-item').style(f'border-left-color: {cor_primaria} !important;'):
-                ui.label("Membro desde").classes('sobre-info-label')
-                try:
-                    data = datetime.fromisoformat(usuario.get('data_criacao', '')).strftime('%d/%m/%Y')
-                except:
-                    data = 'N/A'
-                ui.label(data).classes('sobre-info-value')
+            try:
+                data_criacao = datetime.fromisoformat(usuario.get('data_criacao', '')).strftime('%d/%m/%Y')
+            except:
+                data_criacao = 'N/A'
+            info_items.append(("Membro desde", data_criacao))
             
             if usuario.get('data_expiracao'):
-                with ui.element('div').classes('sobre-info-item').style(f'border-left-color: #ef4444 !important;'):
-                    ui.label("Expira em").classes('sobre-info-label')
-                    try:
-                        exp = datetime.fromisoformat(usuario['data_expiracao']).strftime('%d/%m/%Y')
-                    except:
-                        exp = 'N/A'
-                    ui.label(exp).classes('sobre-info-value')
+                try:
+                    data_exp = datetime.fromisoformat(usuario['data_expiracao']).strftime('%d/%m/%Y')
+                except:
+                    data_exp = 'N/A'
+                info_items.append(("Premium expira em", data_exp))
+            
+            for label, valor in info_items:
+                with ui.element('div').style(f'background:white;border-radius:10px;padding:14px 16px;margin-bottom:8px;border-left:3px solid {cor_primaria};'):
+                    ui.label(label).style('font-size:10px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;')
+                    ui.label(valor).style('font-size:14px;font-weight:500;color:#1f2937;')
         
-        # Upgrade
+        # Limites do plano
+        with ui.card().classes('config-card'):
+            ui.label("📊 Seu Plano").classes('text-base font-bold mb-3')
+            
+            limites = [
+                ("Lançamentos por mês", "20" if plano == 'gratuito' else "Ilimitado"),
+                ("Cartões", "1" if plano == 'gratuito' else "Ilimitado"),
+                ("Modo Individual", "❌" if plano == 'gratuito' else "✅"),
+                ("Consultor Financeiro", "Básico (6 alertas)" if plano == 'gratuito' else "Premium (30+ alertas)"),
+            ]
+            
+            for label, valor in limites:
+                with ui.row().classes('items-center justify-between py-2'):
+                    ui.label(label).classes('text-sm text-gray-600')
+                    ui.label(valor).classes('text-sm font-semibold')
+        
+        # Upgrade (se gratuito)
         if plano == 'gratuito':
-            with ui.card().classes('config-card').style('background: linear-gradient(135deg, #8b5cf6, #6366f1);'):
-                ui.label("💎 Quer mais recursos?").classes('text-lg font-bold text-white mb-2')
-                ui.label("Faça upgrade para Premium e tenha:").classes('text-sm text-white/80 mb-3')
+            with ui.card().classes('config-card').style('background:linear-gradient(135deg,#8b5cf6,#6366f1);color:white;'):
+                ui.label("💎 Quer mais recursos?").classes('text-lg font-bold mb-2')
+                ui.label("Premium por apenas R$ 4,99/mês").classes('text-sm mb-3')
                 
                 beneficios = [
                     "✅ Lançamentos ilimitados",
                     "✅ Múltiplos cartões",
                     "✅ Modo Individual",
-                    "✅ Consultor Financeiro completo (30+ alertas)",
+                    "✅ Consultor Financeiro completo",
                 ]
                 for b in beneficios:
-                    ui.label(b).classes('text-sm text-white/90')
+                    ui.label(b).classes('text-sm')
                 
-                ui.button("Fazer Upgrade", icon='star').classes('w-full mt-4').style('background: white !important; color: #6366f1 !important; border-radius: 8px; font-weight: 600;')
-    
+                ui.button("Fazer Upgrade", icon='star', on_click=lambda: ui.navigate.to('/upgrade')).classes('w-full mt-4').style('background:white;color:#6366f1;border-radius:8px;font-weight:600;')
+        elif plano == 'demo':
+            with ui.card().classes('config-card').style('background:#eff6ff;'):
+                ui.label("👑 Conta Demo").classes('text-base font-bold mb-2')
+                ui.label("Esta é uma conta de demonstração. Crie sua conta gratuita para começar!").classes('text-sm text-gray-600')    
     # =========================
     # RENDER: SOBRE
     # =========================
