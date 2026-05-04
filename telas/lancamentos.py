@@ -7,7 +7,7 @@ from nicegui import ui, app
 from db import (
     carregar, salvar, remover_gasto, adicionar_gasto,
     verificar_limite_lancamentos, get_usuario_logado_email,
-    get_plano_usuario, tem_consultor_premium
+    get_plano_usuario, tem_consultor_premium, buscar_usuario_por_email
 )
 from config_service import config_service
 from auth_service import get_usuario_logado
@@ -17,8 +17,6 @@ from constantes import (
     GASTO_AVISTA, GASTO_PARCELADO, GASTO_FIXO,
     CORES_TIPOS, ICONES_TIPOS, CATEGORIAS_PADRAO
 )
-
-ARQUIVO = "dados.json"
 
 # ============================================================
 # URLS DAS IMAGENS (CLOUDINARY)
@@ -154,9 +152,8 @@ def tela_lancamentos(container):
     
     kpi_container = None
     lista = None
-    contador_label = None  # Para atualizar o contador de lançamentos
+    contador_label = None
     
-    # Persistência de notificações lidas
     if 'notif_lidas' not in app.storage.user:
         app.storage.user['notif_lidas'] = []
     notificacoes_lidas = set(app.storage.user['notif_lidas'])
@@ -165,9 +162,12 @@ def tela_lancamentos(container):
     # Info do plano
     email_logado = get_usuario_logado_email()
     plano_info = get_plano_usuario(email_logado) if email_logado else {}
-    plano_nome = plano_info.get('nome', 'Gratuito')
     max_lanc = plano_info.get('max_lancamentos_mes', 20)
     consultor_premium = tem_consultor_premium(email_logado) if email_logado else False
+    
+    # Identificar plano real (demo, gratuito, premium)
+    usuario_db = buscar_usuario_por_email(email_logado) if email_logado else None
+    plano_atual = usuario_db.get('plano', 'gratuito') if usuario_db else 'gratuito'
     
     def carregar_dados():
         dados = carregar()
@@ -265,7 +265,6 @@ def tela_lancamentos(container):
     # CONTADOR DE LANÇAMENTOS
     # ==========================================
     def contar_lancamentos_mes():
-        """Conta quantos lançamentos foram feitos este mês"""
         hoje = datetime.now()
         count = 0
         for g in gastos:
@@ -287,7 +286,7 @@ def tela_lancamentos(container):
         if max_lanc >= 9999:
             contador_label.set_text(f"📊 {count} lançamentos")
         else:
-            contador_label.set_text(f"📊 {count}/{max_lanc} lançamentos")
+            contador_label.set_text(f"📊 {count}/{max_lanc}")
             if count >= max_lanc:
                 contador_label.style('background: rgba(239,68,68,0.3) !important;')
             elif count >= max_lanc * 0.8:
@@ -295,62 +294,6 @@ def tela_lancamentos(container):
             else:
                 contador_label.style('background: rgba(255,255,255,0.2) !important;')
     
-    # ============================================================
-    # POPUP BOAS-VINDAS PARA DEMO
-    # ============================================================
-    if plano_atual == 'demo':
-        # Verificar se já mostrou o popup
-        if 'demo_popup_visto' not in app.storage.user:
-            app.storage.user['demo_popup_visto'] = False
-        
-        if not app.storage.user['demo_popup_visto']:
-            def mostrar_popup_demo():
-                with ui.dialog() as demo_dialog, ui.card().classes('p-6 rounded-2xl max-w-[450px] text-center'):
-                    ui.icon('👋').style('font-size:48px;margin-bottom:12px;')
-                    ui.label("Bem-vindo à Conta Demonstração!").style('font-size:20px;font-weight:700;color:#1e293b;margin-bottom:8px;')
-                    ui.label("Este é um ambiente para você conhecer o Cartometro.").style('font-size:13px;color:#64748b;margin-bottom:16px;')
-                    
-                    with ui.card().style('background:#fef3c7;border:1px solid #f59e0b;padding:12px;border-radius:8px;margin-bottom:16px;'):
-                        ui.label("⚠️ Limitações da conta demo:").style('font-size:12px;font-weight:600;color:#d97706;margin-bottom:8px;')
-                        ui.label("• Apenas 3 lançamentos de teste").style('font-size:11px;color:#92400e;')
-                        ui.label("• 1 cartão de crédito").style('font-size:11px;color:#92400e;')
-                        ui.label("• Consultor básico").style('font-size:11px;color:#92400e;')
-                        ui.label("• Dados NÃO são salvos permanentemente").style('font-size:11px;color:#92400e;')
-                    
-                    ui.label("Crie sua conta gratuita para começar a usar de verdade!").style('font-size:13px;color:#1e293b;margin-bottom:16px;')
-                    
-                    with ui.row().classes('gap-3 justify-center'):
-                        ui.button("Criar Conta Grátis", on_click=lambda: [demo_dialog.close(), ui.navigate.to('/criar-conta')]).style('background:#3b82f6;color:white;border-radius:8px;font-weight:600;')
-                        ui.button("Testar Agora", on_click=lambda: [demo_dialog.close(), marcar_popup_visto()]).style('background:#10b981;color:white;border-radius:8px;font-weight:600;')
-                
-                demo_dialog.open()
-            
-            def marcar_popup_visto():
-                app.storage.user['demo_popup_visto'] = True
-            
-            ui.timer(0.5, mostrar_popup_demo, once=True)
-    
-    # ============================================================
-    # VERIFICAR LIMITE DEMO E REDIRECIONAR
-    # ============================================================
-    if plano_atual == 'demo':
-        count = contar_lancamentos_mes()
-        if count >= max_lanc:
-            def mostrar_popup_limite():
-                with ui.dialog() as limite_dialog, ui.card().classes('p-6 rounded-2xl max-w-[450px] text-center'):
-                    ui.icon('🎉').style('font-size:48px;margin-bottom:12px;')
-                    ui.label("Você testou o Cartometro!").style('font-size:20px;font-weight:700;color:#1e293b;margin-bottom:8px;')
-                    ui.label(f"Você fez os {max_lanc} lançamentos disponíveis na conta demo.").style('font-size:13px;color:#64748b;margin-bottom:16px;')
-                    ui.label("Que tal criar sua conta gratuita agora?").style('font-size:14px;font-weight:600;color:#1e293b;margin-bottom:16px;')
-                    
-                    with ui.row().classes('gap-3 justify-center'):
-                        ui.button("Criar Conta Grátis", on_click=lambda: [limite_dialog.close(), ui.navigate.to('/criar-conta')]).style('background:#3b82f6;color:white;border-radius:8px;font-weight:600;padding:12px 24px;')
-                        ui.button("Fazer Login", on_click=lambda: [limite_dialog.close(), ui.navigate.to('/')]).props('outline').style('border-color:#3b82f6;color:#3b82f6;border-radius:8px;')
-                
-                limite_dialog.open()
-            
-            ui.timer(0.5, mostrar_popup_limite, once=True)
-
     # ==========================================
     # CONSULTOR FINANCEIRO
     # ==========================================
@@ -359,8 +302,8 @@ def tela_lancamentos(container):
     def atualizar_badge():
         if notif_badge is None: return
         
-        plano = "premium" if consultor_premium else "gratuito"
-        notificacoes = gerar_notificacoes(dados, gastos, fixos, cartoes, plano=plano)
+        plano_consultor = "premium" if consultor_premium else "gratuito"
+        notificacoes = gerar_notificacoes(dados, gastos, fixos, cartoes, plano=plano_consultor)
         nao_lidas = [n for n in notificacoes if n["id"] not in notificacoes_lidas]
         total = len(nao_lidas)
         if total > 0:
@@ -370,8 +313,8 @@ def tela_lancamentos(container):
             notif_badge.style('display: none')
     
     def abrir_notificacoes():
-        plano = "premium" if consultor_premium else "gratuito"
-        notificacoes = gerar_notificacoes(dados, gastos, fixos, cartoes, plano=plano)
+        plano_consultor = "premium" if consultor_premium else "gratuito"
+        notificacoes = gerar_notificacoes(dados, gastos, fixos, cartoes, plano=plano_consultor)
         
         with ui.dialog() as notif_dialog, ui.card().classes('notif-popup p-0 gap-0'):
             with ui.row().classes('w-full items-center justify-between p-3').style(f'background: linear-gradient(135deg, {cor_escura}, {cor_primaria}) !important;'):
@@ -388,7 +331,6 @@ def tela_lancamentos(container):
                 
                 ui.button(icon='close', on_click=lambda: [notif_dialog.close(), atualizar_badge()]).props('flat').style('color: white !important;')
             
-            # Banner upgrade para gratuito
             if not consultor_premium:
                 with ui.card().classes('m-2 p-3').style('background: linear-gradient(135deg, #8b5cf6, #6366f1); border-radius: 10px;'):
                     with ui.row().classes('items-center justify-between'):
@@ -720,7 +662,6 @@ def tela_lancamentos(container):
         atualizar_lista(); atualizar_badge()
     
     def abrir_cadastro():
-        # Verificar limite de lançamentos
         pode, msg = verificar_limite_lancamentos(email_logado) if email_logado else (True, "")
         if not pode:
             ui.notify(msg, type="warning", position="top", timeout=4000)
@@ -762,7 +703,6 @@ def tela_lancamentos(container):
         with ui.element('div').classes('lancamentos-header-fixo'):
             with ui.row().classes('header-bar items-center justify-between').style(f'background: linear-gradient(135deg, {cor_escura}, {cor_primaria}) !important;'):
                 with ui.row().classes('items-center gap-2'):
-                    # Logo
                     ui.image(LOGO_COMPLETA).style('width: 100px; height: auto;')
                     with ui.column().classes('gap-0'):
                         inicio, fim = get_ciclo_atual()
@@ -790,8 +730,7 @@ def tela_lancamentos(container):
                     notif_badge = ui.label('0').classes('notif-badge')
                     notif_badge.style('display: none')
                     
-                    icon_notif = 'notifications' if consultor_premium else 'notifications'
-                    ui.button(icon=icon_notif, on_click=abrir_notificacoes).props('flat round size=sm').classes('header-icon-btn').style('color: white !important;')
+                    ui.button(icon='notifications', on_click=abrir_notificacoes).props('flat round size=sm').classes('header-icon-btn').style('color: white !important;')
                     
                     if not consultor_premium:
                         ui.element('div').style('position:absolute;top:-1px;right:-1px;width:8px;height:8px;border-radius:50%;background:#f59e0b;')
@@ -905,5 +844,6 @@ def tela_lancamentos(container):
     atualizar_lista()
     atualizar_badge()
     atualizar_contador()
+
 
 __all__ = ['tela_lancamentos']
