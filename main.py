@@ -5,14 +5,14 @@ Cartometro - Controle Inteligente do seu Crédito
 from nicegui import ui
 from db import (
     inicializar, autenticar_usuario, criar_usuario,
-    set_usuario_logado, get_usuario_logado_email,
+    set_usuario_logado, get_usuario_logado_email, resetar_dados_demo,
     buscar_usuario_por_email, get_plano_usuario,
     verificar_limite_lancamentos, tem_consultor_premium,
     carregar, atualizar_config
 )
 from config_service import config_service
 from auth_service import get_usuario_logado
-import admin  # Painel administrativo
+import admin
 import os
 
 # ============================================================
@@ -212,20 +212,6 @@ def login():
         text-align: center;
     }}
 
-    .lp-criar-conta span {{
-        font-size: 13px;
-        color: #9ca3af;
-    }}
-
-    .lp-criar-conta a {{
-        color: {cor};
-        font-weight: 600;
-        cursor: pointer;
-        text-decoration: none;
-    }}
-
-    .lp-criar-conta a:hover {{ text-decoration: underline; }}
-
     @media (max-width: 768px) {{
         body {{ background: #fff; }}
         .lp-root {{ flex-direction: column; height: 100dvh; }}
@@ -323,6 +309,11 @@ def login():
         if usuario:
             global usuario_atual
             usuario_atual = usuario
+            
+            # Resetar dados demo SEMPRE que logar com demo
+            if email == 'demo':
+                resetar_dados_demo(email)
+            
             set_usuario_logado(email)
             ui.notify(f'✅ Bem-vindo, {usuario["nome"]}!', type='positive', position='top')
             ui.navigate.to('/app')
@@ -330,8 +321,8 @@ def login():
             error_label.style('display: block')
             error_label.set_text('❌ Email ou senha incorretos.')
 
-    def preencher_admin():
-        email_input.value = 'admin'
+    def preencher_demo():
+        email_input.value = 'demo'
         senha_input.value = 'admin'
 
     def abrir_cadastro():
@@ -361,7 +352,7 @@ def login():
 
                     with ui.element('div').classes('lp-field-wrap'):
                         ui.label('E-mail').classes('lp-field-label')
-                        email_input = ui.input(placeholder='admin').props('outlined dense').classes('w-full')
+                        email_input = ui.input(placeholder='demo').props('outlined dense').classes('w-full')
 
                     with ui.element('div').classes('lp-field-wrap'):
                         ui.label('Senha').classes('lp-field-label')
@@ -378,7 +369,7 @@ def login():
 
                     with ui.element('div').classes('lp-hint'):
                         ui.label('Acesso rápido').classes('lp-hint-label')
-                        ui.label('👑 admin / admin (Demo)').classes('lp-hint-item').on('click', preencher_admin)
+                        ui.label('👑 demo / admin (Demonstração)').classes('lp-hint-item').on('click', preencher_demo)
 
                     with ui.element('div').classes('lp-criar-conta'):
                         ui.label('Não tem conta?').classes('text-sm text-gray-400')
@@ -390,246 +381,58 @@ def login():
 # =========================
 @ui.page('/criar-conta')
 def criar_conta():
-    """Tela de cadastro otimizada para mobile"""
-
-    # ============================================================
-    # URLs DAS IMAGENS (CLOUDINARY)
-    # ============================================================
     WORDMARK = "https://res.cloudinary.com/dxgyzvs8p/image/upload/v1777845635/wordmark_nf3put.png"
     
     ui.add_head_html("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
-        
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: #f3f4f6;
-            overflow-y: auto !important;
-            height: auto !important;
-        }
-        
-        .cadastro-page {
-            min-height: 100vh;
-            width: 100%;
-            padding: 20px 16px;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .cadastro-card {
-            background: white;
-            border-radius: 20px;
-            padding: 32px 20px;
-            width: 100%;
-            max-width: 440px;
-            margin: 0 auto;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        }
-        
-        .logo-img {
-            width: 140px;
-            height: auto;
-            margin: 0 auto 20px auto;
-            display: block;
-        }
-        
-        .planos-container {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 24px;
-        }
-        
-        .plano-card {
-            flex: 1;
-            border: 2px solid #e5e7eb;
-            border-radius: 14px;
-            padding: 14px 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background: white;
-            position: relative;
-        }
-        
-        .plano-card:active {
-            transform: scale(0.97);
-        }
-        
-        .plano-card.selecionado {
-            border-color: #8b5cf6;
-            background: #faf5ff;
-            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
-        }
-        
-        .plano-icone {
-            font-size: 28px;
-            margin-bottom: 6px;
-        }
-        
-        .plano-nome {
-            font-size: 14px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-        
-        .plano-preco {
-            font-size: 22px;
-            font-weight: 700;
-            color: #8b5cf6;
-            margin-bottom: 2px;
-        }
-        
-        .plano-periodo {
-            font-size: 11px;
-            color: #9ca3af;
-            margin-bottom: 8px;
-        }
-        
-        .plano-beneficios {
-            text-align: left;
-            font-size: 10px;
-            color: #6b7280;
-            line-height: 1.6;
-        }
-        
-        .plano-beneficios div {
-            padding: 1px 0;
-        }
-        
-        .campo {
-            margin-bottom: 14px;
-        }
-        
-        .campo label {
-            font-size: 12px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 4px;
-            display: block;
-        }
-        
-        .campo input {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1.5px solid #e5e7eb;
-            border-radius: 10px;
-            font-size: 14px;
-            font-family: 'DM Sans', sans-serif;
-            transition: border-color 0.2s;
-            background: #fafafa;
-        }
-        
-        .campo input:focus {
-            outline: none;
-            border-color: #8b5cf6;
-            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
-            background: white;
-        }
-        
-        .btn-criar {
-            width: 100%;
-            padding: 14px;
-            border-radius: 12px;
-            border: none;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: 'DM Sans', sans-serif;
-            transition: all 0.2s;
-        }
-        
-        .btn-criar:active {
-            transform: scale(0.98);
-        }
-        
-        .erro-msg {
-            color: #ef4444;
-            font-size: 12px;
-            text-align: center;
-            padding: 8px;
-            background: #fef2f2;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            display: none;
-        }
-        
-        .erro-msg.show {
-            display: block;
-        }
-        
-        .login-link {
-            text-align: center;
-            margin-top: 16px;
-            font-size: 13px;
-            color: #9ca3af;
-        }
-        
-        .login-link a {
-            color: #8b5cf6;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        
-        .selo-garantia {
-            text-align: center;
-            margin-top: 12px;
-            font-size: 11px;
-            color: #9ca3af;
-        }
+        body { font-family: 'DM Sans', sans-serif; background: #f3f4f6; overflow-y: auto !important; height: auto !important; }
+        .cadastro-page { min-height: 100vh; width: 100%; padding: 20px 16px; display: flex; flex-direction: column; }
+        .cadastro-card { background: white; border-radius: 20px; padding: 32px 20px; width: 100%; max-width: 440px; margin: 0 auto; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .logo-img { width: 140px; height: auto; margin: 0 auto 20px auto; display: block; }
+        .planos-container { display: flex; gap: 10px; margin-bottom: 24px; }
+        .plano-card { flex: 1; border: 2px solid #e5e7eb; border-radius: 14px; padding: 14px 10px; text-align: center; cursor: pointer; transition: all 0.2s ease; background: white; }
+        .plano-card:active { transform: scale(0.97); }
+        .plano-card.selecionado { border-color: #8b5cf6; background: #faf5ff; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1); }
+        .campo { margin-bottom: 14px; }
+        .campo label { font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 4px; display: block; }
+        .erro-msg { color: #ef4444; font-size: 12px; text-align: center; padding: 8px; background: #fef2f2; border-radius: 8px; margin-bottom: 12px; display: none; }
+        .erro-msg.show { display: block; }
     </style>
     """)
-    
-    # Estado
+
     plano_selecionado = {"plano": "gratuito"}
     planos_refs = {}
     
     with ui.element('div').classes('cadastro-page'):
         with ui.element('div').classes('cadastro-card'):
-            # Logo
             ui.image(WORDMARK).classes('logo-img')
             
             ui.label('Criar sua Conta').style('font-size:22px;font-weight:700;text-align:center;color:#1e293b;margin-bottom:4px;')
             ui.label('Comece grátis, faça upgrade quando quiser').style('font-size:13px;color:#9ca3af;text-align:center;margin-bottom:20px;')
             
-            # ============================================================
-            # PLANOS (seleção visual)
-            # ============================================================
             with ui.element('div').classes('planos-container'):
-                # Gratuito
                 plano_gratuito = ui.element('div').classes('plano-card selecionado')
                 with plano_gratuito:
-                    ui.label('🆓').classes('plano-icone')
-                    ui.label('Gratuito').classes('plano-nome')
-                    ui.label('R$ 0').classes('plano-preco')
-                    ui.label('para sempre').classes('plano-periodo')
-                    with ui.element('div').classes('plano-beneficios'):
-                        ui.label('✓ 20 lançamentos/mês')
-                        ui.label('✓ 1 cartão')
-                        ui.label('✓ Alertas básicos')
+                    ui.label('🆓').style('font-size:28px;')
+                    ui.label('Gratuito').style('font-size:14px;font-weight:700;')
+                    ui.label('R$ 0').style('font-size:22px;font-weight:700;color:#8b5cf6;')
+                    ui.label('para sempre').style('font-size:11px;color:#9ca3af;')
                 plano_gratuito.on('click', lambda: selecionar_plano('gratuito'))
                 planos_refs['gratuito'] = plano_gratuito
                 
-                # Premium
                 plano_premium = ui.element('div').classes('plano-card')
                 with plano_premium:
-                    ui.label('💎').classes('plano-icone')
-                    ui.label('Premium').classes('plano-nome')
-                    ui.label('R$ 4,99').classes('plano-preco')
-                    ui.label('/mês').classes('plano-periodo')
-                    with ui.element('div').classes('plano-beneficios'):
-                        ui.label('✓ Lançamentos ilimitados')
-                        ui.label('✓ Múltiplos cartões')
-                        ui.label('✓ Modo Individual')
-                        ui.label('✓ Consultor Premium')
+                    ui.label('💎').style('font-size:28px;')
+                    ui.label('Premium').style('font-size:14px;font-weight:700;')
+                    ui.label('R$ 4,99').style('font-size:22px;font-weight:700;color:#8b5cf6;')
+                    ui.label('/mês').style('font-size:11px;color:#9ca3af;')
                 plano_premium.on('click', lambda: selecionar_plano('premium'))
                 planos_refs['premium'] = plano_premium
             
             def selecionar_plano(plano):
                 plano_selecionado["plano"] = plano
-                # Atualizar visual dos cards
                 for nome, ref in planos_refs.items():
                     if nome == plano:
                         ref.classes('plano-card selecionado')
@@ -637,8 +440,6 @@ def criar_conta():
                     else:
                         ref.classes(remove='selecionado')
                         ref.style('border-color:#e5e7eb;background:white;box-shadow:none;')
-                
-                # Atualizar texto e cor do botão
                 if plano == 'premium':
                     btn_criar.style('background:#8b5cf6;')
                     btn_criar.set_text('Criar Conta Premium')
@@ -646,9 +447,6 @@ def criar_conta():
                     btn_criar.style('background:#3b82f6;')
                     btn_criar.set_text('Criar Conta Gratuita')
             
-            # ============================================================
-            # CAMPOS
-            # ============================================================
             with ui.element('div').classes('campo'):
                 ui.label('Nome completo')
                 nome_input = ui.input(placeholder='Seu nome completo').props('outlined dense').classes('w-full')
@@ -665,19 +463,14 @@ def criar_conta():
                 ui.label('Confirmar Senha')
                 confirmar_input = ui.input(placeholder='Repita a senha', password=True, password_toggle_button=True).props('outlined dense').classes('w-full')
             
-            # Erro
             erro_label = ui.label('').classes('erro-msg')
             
-            # ============================================================
-            # BOTÃO CRIAR
-            # ============================================================
             def cadastrar():
                 nome = nome_input.value.strip() if nome_input.value else ''
                 email = email_input.value.strip() if email_input.value else ''
                 senha = senha_input.value or ''
                 confirmar = confirmar_input.value or ''
                 
-                # Reset erro
                 erro_label.classes(remove='show')
                 erro_label.style('display:none;')
                 
@@ -718,14 +511,95 @@ def criar_conta():
                 'font-family:"DM Sans",sans-serif;transition:all 0.2s;'
             )
             
-            # Link login
-            with ui.element('div').classes('login-link'):
+            with ui.element('div').style('text-align:center;margin-top:16px;'):
                 ui.label('Já tem conta? ').style('display:inline;font-size:13px;color:#9ca3af;')
                 ui.label('Fazer login').style('display:inline;color:#8b5cf6;font-weight:600;cursor:pointer;font-size:13px;').on('click', lambda: ui.navigate.to('/'))
+
+
+# =========================
+# TELA DE UPGRADE
+# =========================
+@ui.page('/upgrade')
+def tela_upgrade():
+    WORDMARK = "https://res.cloudinary.com/dxgyzvs8p/image/upload/v1777845635/wordmark_nf3put.png"
+    
+    ui.add_head_html("""
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'DM Sans', sans-serif; background: #f3f4f6; overflow-y: auto !important; height: auto !important; }
+        .upgrade-page { min-height: 100vh; width: 100%; padding: 20px 16px 40px; }
+        .preco-card { background: linear-gradient(135deg, #8b5cf6, #6366f1); border-radius: 20px; padding: 32px 24px; text-align: center; color: white; margin-bottom: 24px; box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3); max-width: 440px; margin-left: auto; margin-right: auto; }
+        .metodo-card { display: flex; align-items: center; gap: 12px; padding: 16px; background: white; border: 2px solid #e5e7eb; border-radius: 12px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; }
+        .metodo-card.selecionado { border-color: #8b5cf6; background: #faf5ff; }
+    </style>
+    """)
+    
+    metodo_selecionado = {"metodo": "pix"}
+    metodos_refs = {}
+    
+    with ui.element('div').classes('upgrade-page'):
+        with ui.element('div').style('text-align:center;margin-bottom:24px;'):
+            ui.image(WORDMARK).style('width:120px;height:auto;margin:0 auto 16px auto;display:block;')
+            ui.label("Faça Upgrade para Premium").style('font-size:24px;font-weight:800;color:#1e293b;')
+        
+        with ui.element('div').classes('preco-card'):
+            ui.label("R$ 4,99").style('font-size:48px;font-weight:800;')
+            ui.label("/mês").style('font-size:16px;opacity:0.8;')
+            ui.label("Cancele quando quiser").style('font-size:13px;opacity:0.7;')
+        
+        with ui.element('div').style('max-width:440px;margin:0 auto 24px;'):
+            ui.label("💳 Forma de pagamento").style('font-size:16px;font-weight:700;margin-bottom:12px;')
             
-            # Selo
-            with ui.element('div').classes('selo-garantia'):
-                ui.label('🔒 Seus dados estão seguros')
+            for metodo_id, icone, nome, desc in [
+                ("pix", "📱", "PIX", "Aprovação instantânea"),
+                ("cartao", "💳", "Cartão", "Crédito/Débito"),
+                ("boleto", "📄", "Boleto", "3 dias úteis"),
+            ]:
+                is_sel = metodo_id == metodo_selecionado["metodo"]
+                card = ui.element('div').classes(f'metodo-card {"selecionado" if is_sel else ""}')
+                if is_sel:
+                    card.style('border-color:#8b5cf6;background:#faf5ff;')
+                with card:
+                    ui.label(icone).style('font-size:24px;')
+                    with ui.column().classes('gap-0'):
+                        ui.label(nome).style('font-size:14px;font-weight:600;')
+                        ui.label(desc).style('font-size:11px;color:#64748b;')
+                card.on('click', lambda mid=metodo_id: selecionar_metodo(mid))
+                metodos_refs[metodo_id] = card
+            
+            def selecionar_metodo(metodo):
+                metodo_selecionado["metodo"] = metodo
+                for mid, ref in metodos_refs.items():
+                    if mid == metodo:
+                        ref.classes('metodo-card selecionado')
+                        ref.style('border-color:#8b5cf6;background:#faf5ff;')
+                    else:
+                        ref.classes(remove='selecionado')
+                        ref.style('border-color:#e5e7eb;background:white;')
+        
+        def assinar():
+            from db import get_usuario_logado_email, atualizar_plano_usuario
+            from admin import registrar_pagamento
+            
+            email = get_usuario_logado_email()
+            if email:
+                atualizar_plano_usuario(email, 'premium')
+                registrar_pagamento(email, metodo_selecionado["metodo"], 4.99, "confirmado", "sistema")
+                ui.notify("✅ Assinatura Premium ativada!", type="positive", position="top", timeout=3000)
+                ui.timer(1.5, lambda: ui.navigate.to('/app'), once=True)
+            else:
+                ui.notify("⚠️ Faça login primeiro", type="warning", position="top")
+        
+        ui.button("🚀 Assinar Premium - R$ 4,99/mês", on_click=assinar).style(
+            'width:100%;max-width:440px;margin:0 auto;display:block;padding:16px;border-radius:14px;'
+            'background:linear-gradient(135deg,#8b5cf6,#6366f1);color:white;border:none;'
+            'font-size:16px;font-weight:700;cursor:pointer;'
+        )
+        
+        ui.label("← Voltar para o app").style('text-align:center;margin-top:16px;color:#64748b;cursor:pointer;').on('click', lambda: ui.navigate.to('/app'))
+
+
 # =========================
 # TELA PRINCIPAL (PÓS-LOGIN)
 # =========================
@@ -741,489 +615,12 @@ def app():
     container_principal = ui.element('div').classes('w-full h-screen')
     tela_lancamentos(container_principal)
 
-@ui.page('/upgrade')
-def tela_upgrade():
-    """Tela de upgrade para Premium - Cartometro"""
-    
-    # URLs das imagens
-    WORDMARK = "https://res.cloudinary.com/dxgyzvs8p/image/upload/v1777845635/wordmark_nf3put.png"
-    
-    ui.add_head_html("""
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
-        
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: #f3f4f6;
-            overflow-y: auto !important;
-            height: auto !important;
-        }
-        
-        .upgrade-page {
-            min-height: 100vh;
-            width: 100%;
-            padding: 20px 16px 40px;
-        }
-        
-        .upgrade-header {
-            text-align: center;
-            margin-bottom: 32px;
-        }
-        
-        .upgrade-logo {
-            width: 120px;
-            height: auto;
-            margin: 0 auto 16px auto;
-            display: block;
-        }
-        
-        .upgrade-title {
-            font-size: 28px;
-            font-weight: 800;
-            color: #1e293b;
-            margin-bottom: 8px;
-        }
-        
-        .upgrade-subtitle {
-            font-size: 15px;
-            color: #64748b;
-            line-height: 1.5;
-        }
-        
-        .preco-card {
-            background: linear-gradient(135deg, #8b5cf6, #6366f1);
-            border-radius: 20px;
-            padding: 32px 24px;
-            text-align: center;
-            color: white;
-            margin-bottom: 24px;
-            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3);
-            max-width: 440px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .preco-valor {
-            font-size: 56px;
-            font-weight: 800;
-            line-height: 1;
-            margin-bottom: 4px;
-        }
-        
-        .preco-periodo {
-            font-size: 16px;
-            opacity: 0.8;
-            margin-bottom: 8px;
-        }
-        
-        .preco-descricao {
-            font-size: 13px;
-            opacity: 0.7;
-        }
-        
-        .beneficios-section {
-            max-width: 440px;
-            margin: 0 auto 24px;
-        }
-        
-        .beneficios-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 16px;
-        }
-        
-        .beneficio-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 14px 16px;
-            background: white;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-        }
-        
-        .beneficio-icone {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            flex-shrink: 0;
-        }
-        
-        .beneficio-texto h3 {
-            font-size: 14px;
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 2px;
-        }
-        
-        .beneficio-texto p {
-            font-size: 12px;
-            color: #64748b;
-            line-height: 1.4;
-        }
-        
-        .comparativo {
-            max-width: 440px;
-            margin: 0 auto 24px;
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-        }
-        
-        .comparativo-header {
-            display: flex;
-            background: #f8fafc;
-            font-weight: 600;
-            font-size: 12px;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .comparativo-header div {
-            padding: 12px 16px;
-            text-align: center;
-        }
-        
-        .comparativo-row {
-            display: flex;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: 13px;
-        }
-        
-        .comparativo-row:last-child {
-            border-bottom: none;
-        }
-        
-        .comparativo-row div {
-            padding: 12px 16px;
-            text-align: center;
-        }
-        
-        .comparativo-label {
-            text-align: left !important;
-            color: #1e293b;
-            font-weight: 500;
-        }
-        
-        .check { color: #10b981; font-weight: 600; }
-        .uncheck { color: #ef4444; }
-        
-        .metodos-pagamento {
-            max-width: 440px;
-            margin: 0 auto 24px;
-        }
-        
-        .metodo-card {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 16px;
-            background: white;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .metodo-card:hover {
-            border-color: #8b5cf6;
-        }
-        
-        .metodo-card.selecionado {
-            border-color: #8b5cf6;
-            background: #faf5ff;
-            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
-        }
-        
-        .metodo-icone {
-            font-size: 28px;
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        
-        .metodo-info h3 {
-            font-size: 14px;
-            font-weight: 600;
-            color: #1e293b;
-        }
-        
-        .metodo-info p {
-            font-size: 11px;
-            color: #64748b;
-        }
-        
-        .btn-assinar {
-            width: 100%;
-            max-width: 440px;
-            margin: 0 auto;
-            display: block;
-            padding: 16px;
-            border-radius: 14px;
-            border: none;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            font-family: 'DM Sans', sans-serif;
-            transition: all 0.2s;
-        }
-        
-        .btn-assinar:active {
-            transform: scale(0.98);
-        }
-        
-        .btn-voltar {
-            display: block;
-            text-align: center;
-            margin-top: 16px;
-            font-size: 14px;
-            color: #64748b;
-            cursor: pointer;
-        }
-        
-        .btn-voltar:hover {
-            color: #1e293b;
-        }
-        
-        .garantia {
-            text-align: center;
-            margin-top: 16px;
-            font-size: 12px;
-            color: #94a3b8;
-        }
-        
-        /* Mobile */
-        @media (max-width: 480px) {
-            .preco-valor { font-size: 44px; }
-            .upgrade-title { font-size: 24px; }
-        }
-    </style>
-    """)
-    
-    metodo_selecionado = {"metodo": "pix"}
-    metodos_refs = {}
-    
-    with ui.element('div').classes('upgrade-page'):
-        
-        # ============================================================
-        # HEADER
-        # ============================================================
-        with ui.element('div').classes('upgrade-header'):
-            ui.image(WORDMARK).classes('upgrade-logo')
-            ui.label("Faça Upgrade para Premium").classes('upgrade-title')
-            ui.label("Desbloqueie todos os recursos e tenha controle total das suas finanças").classes('upgrade-subtitle')
-        
-        # ============================================================
-        # CARD DE PREÇO
-        # ============================================================
-        with ui.element('div').classes('preco-card'):
-            ui.label("R$").style('font-size:20px;opacity:0.8;')
-            ui.label("4,99").classes('preco-valor')
-            ui.label("/mês").classes('preco-periodo')
-            ui.label("Cancele quando quiser • Sem taxas escondidas").classes('preco-descricao')
-        
-        # ============================================================
-        # BENEFÍCIOS
-        # ============================================================
-        with ui.element('div').classes('beneficios-section'):
-            ui.label("✨ O que você ganha:").classes('beneficios-title')
-            
-            beneficios = [
-                {
-                    "icone": "📊",
-                    "cor": "#3b82f6",
-                    "titulo": "Lançamentos Ilimitados",
-                    "descricao": "Registre quantos gastos quiser, sem limite mensal"
-                },
-                {
-                    "icone": "💳",
-                    "cor": "#8b5cf6",
-                    "titulo": "Múltiplos Cartões",
-                    "descricao": "Cadastre vários cartões e controle cada um individualmente"
-                },
-                {
-                    "icone": "🔀",
-                    "cor": "#10b981",
-                    "titulo": "Modo Individual",
-                    "descricao": "Cada cartão com seu próprio limite e data de fechamento"
-                },
-                {
-                    "icone": "🤖",
-                    "cor": "#f59e0b",
-                    "titulo": "Consultor Premium",
-                    "descricao": "30+ alertas inteligentes com análises detalhadas"
-                },
-                {
-                    "icone": "📈",
-                    "cor": "#ec4899",
-                    "titulo": "Relatórios Avançados",
-                    "descricao": "Análise de gastos por categoria, período e tendências"
-                },
-                {
-                    "icone": "⚡",
-                    "cor": "#6366f1",
-                    "titulo": "Suporte Prioritário",
-                    "descricao": "Atendimento rápido e personalizado"
-                },
-            ]
-            
-            for b in beneficios:
-                with ui.element('div').classes('beneficio-item'):
-                    with ui.element('div').classes('beneficio-icone').style(f'background:{b["cor"]}15;'):
-                        ui.label(b["icone"]).style('font-size:20px;')
-                    with ui.element('div').classes('beneficio-texto'):
-                        ui.label(b["titulo"]).style('font-size:14px;font-weight:600;color:#1e293b;margin-bottom:2px;')
-                        ui.label(b["descricao"]).style('font-size:12px;color:#64748b;')
-        
-        # ============================================================
-        # COMPARATIVO
-        # ============================================================
-        with ui.element('div').classes('comparativo'):
-            # Header
-            with ui.element('div').classes('comparativo-header'):
-                ui.label("Funcionalidade").style('flex:2;text-align:left;')
-                ui.label("Gratuito").style('flex:1;')
-                ui.label("Premium").style('flex:1;color:#8b5cf6;')
-            
-            comparativos = [
-                ("Lançamentos/mês", "20", "Ilimitado", True),
-                ("Cartões", "1", "Ilimitado", True),
-                ("Modo Individual", "❌", "✅", True),
-                ("Consultor Financeiro", "6 alertas", "30+ alertas", True),
-                ("Relatórios", "Básico", "Avançado", True),
-                ("Suporte", "Normal", "Prioritário", True),
-            ]
-            
-            for label, gratuito, premium, destaque in comparativos:
-                with ui.element('div').classes('comparativo-row'):
-                    ui.label(label).classes('comparativo-label').style('flex:2;')
-                    ui.label(gratuito).classes('uncheck').style('flex:1;')
-                    ui.label(premium).classes('check').style('flex:1;')
-        
-        # ============================================================
-        # MÉTODOS DE PAGAMENTO
-        # ============================================================
-        with ui.element('div').classes('metodos-pagamento'):
-            ui.label("💳 Forma de pagamento").classes('beneficios-title')
-            
-            metodos = [
-                {
-                    "id": "pix",
-                    "icone": "📱",
-                    "titulo": "PIX",
-                    "descricao": "Aprovação instantânea",
-                    "cor": "#10b981"
-                },
-                {
-                    "id": "cartao",
-                    "icone": "💳",
-                    "titulo": "Cartão de Crédito",
-                    "descricao": "Visa, Mastercard, Elo",
-                    "cor": "#3b82f6"
-                },
-                {
-                    "id": "boleto",
-                    "icone": "📄",
-                    "titulo": "Boleto Bancário",
-                    "descricao": "Compensação em até 3 dias",
-                    "cor": "#f59e0b"
-                },
-            ]
-            
-            for m in metodos:
-                is_selecionado = m["id"] == metodo_selecionado["metodo"]
-                card = ui.element('div').classes(f'metodo-card {"selecionado" if is_selecionado else ""}')
-                if is_selecionado:
-                    card.style('border-color:#8b5cf6;background:#faf5ff;box-shadow:0 0 0 3px rgba(139,92,246,0.1);')
-                
-                with card:
-                    with ui.element('div').classes('metodo-icone').style(f'background:{m["cor"]}15;'):
-                        ui.label(m["icone"]).style('font-size:24px;')
-                    with ui.element('div').classes('metodo-info'):
-                        ui.label(m["titulo"]).style('font-size:14px;font-weight:600;')
-                        ui.label(m["descricao"]).style('font-size:11px;color:#64748b;')
-                
-                card.on('click', lambda mid=m["id"]: selecionar_metodo(mid))
-                metodos_refs[m["id"]] = card
-            
-            def selecionar_metodo(metodo):
-                metodo_selecionado["metodo"] = metodo
-                for mid, ref in metodos_refs.items():
-                    if mid == metodo:
-                        ref.classes('metodo-card selecionado')
-                        ref.style('border-color:#8b5cf6;background:#faf5ff;box-shadow:0 0 0 3px rgba(139,92,246,0.1);')
-                    else:
-                        ref.classes(remove='selecionado')
-                        ref.style('border-color:#e5e7eb;background:white;box-shadow:none;')
-        
-        # ============================================================
-        # BOTÃO ASSINAR
-        # ============================================================
-        def assinar():
-            metodo = metodo_selecionado["metodo"]
-            nomes = {"pix": "PIX", "cartao": "Cartão de Crédito", "boleto": "Boleto"}
-            nome_metodo = nomes.get(metodo, metodo)
-            
-            from db import get_usuario_logado_email, atualizar_plano_usuario, registrar_pagamento
-            
-            email = get_usuario_logado_email()
-            if email:
-                try:
-                    atualizar_plano_usuario(email, 'premium')
-                    # Registrar pagamento simulado
-                    from db import carregar_pagamentos, salvar_pagamentos
-                    pagamentos = carregar_pagamentos() if hasattr(carregar_pagamentos, '__call__') else []
-                    pagamentos.append({
-                        "id": len(pagamentos) + 1,
-                        "email": email,
-                        "metodo": metodo,
-                        "valor": 4.99,
-                        "status": "confirmado",
-                        "admin": "sistema",
-                        "data": datetime.now().isoformat()
-                    })
-                    # Importar função correta
-                    from admin import registrar_pagamento
-                    registrar_pagamento(email, metodo, 4.99, "confirmado", "sistema")
-                    
-                    ui.notify(f"✅ Assinatura Premium ativada via {nome_metodo}!", type="positive", position="top", timeout=3000)
-                    ui.timer(1.5, lambda: ui.navigate.to('/app'), once=True)
-                except Exception as e:
-                    ui.notify(f"❌ Erro: {str(e)}", type="negative", position="top")
-            else:
-                ui.notify("⚠️ Faça login primeiro", type="warning", position="top")
-        
-        ui.button(f"🚀 Assinar Premium - R$ 4,99/mês", on_click=assinar).classes('btn-assinar').style(
-            'background:linear-gradient(135deg,#8b5cf6,#6366f1);color:white;'
-        )
-        
-        # Voltar
-        ui.label("← Voltar para o app").classes('btn-voltar').on('click', lambda: ui.navigate.to('/app'))
-        
-        # Garantia
-        with ui.element('div').classes('garantia'):
-            ui.label("🔒 Pagamento seguro • Cancele quando quiser • Satisfação garantida")
 
 # =========================
 # INICIALIZAÇÃO
 # =========================
 inicializar()
-admin.inicializar_admin()  # Inicializa o painel admin
+admin.inicializar_admin()
 set_usuario_logado(None)
 
 PORT = int(os.environ.get('PORT', 8080))
