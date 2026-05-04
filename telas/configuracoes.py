@@ -576,7 +576,7 @@ def tela_configuracoes(container, dialog_pai=None):
     # RENDER: PERFIL
     # =========================
     def render_perfil():
-        from db import get_usuario_logado_email, buscar_usuario_por_email, PLANOS
+        from db import get_usuario_logado_email, buscar_usuario_por_email, PLANOS, atualizar_perfil_usuario
         
         email = get_usuario_logado_email()
         
@@ -599,33 +599,85 @@ def tela_configuracoes(container, dialog_pai=None):
         plano_info = PLANOS.get(plano, {})
         plano_nome = plano_info.get('nome', 'Gratuito')
         
-        # Avatar e nome
+        # ============================================================
+        # AVATAR E NOME (com botão de trocar)
+        # ============================================================
         with ui.card().classes('config-card text-center'):
-            with ui.element('div').style(f'width:80px;height:80px;border-radius:50%;background:{cor_primaria}15;display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 16px auto;'):
-                ui.label(avatar_emoji)
+            # Avatar clicável
+            avatar_display = ui.element('div').style(
+                f'width:80px;height:80px;border-radius:50%;'
+                f'background:{cor_primaria}15;display:flex;align-items:center;'
+                f'justify-content:center;font-size:40px;margin:0 auto 12px auto;'
+                f'cursor:pointer;transition:all 0.2s;border:3px solid {cor_primaria}30;'
+            )
+            with avatar_display:
+                avatar_label = ui.label(avatar_emoji)
+            
+            ui.label("Clique no avatar para trocar").classes('text-[10px] text-gray-400 mb-2')
+            
+            def abrir_selector_avatar():
+                with ui.dialog() as avatar_dialog, ui.card().classes('w-[360px] max-w-[90vw] p-4 rounded-2xl'):
+                    ui.label("Escolha seu Avatar").classes('text-lg font-bold mb-3 text-center')
+                    
+                    with ui.element('div').classes('avatares-grid'):
+                        for av in AVATARES:
+                            is_sel = av == avatar_emoji
+                            av_div = ui.element('div').classes(f'avatar-option')
+                            if is_sel:
+                                av_div.style(f'border-color:{cor_primaria};background:{cor_primaria}15;box-shadow:0 0 0 3px {cor_primaria}30;transform:scale(1.05);')
+                            else:
+                                av_div.style('border-color:#e5e7eb;background:white;')
+                            
+                            with av_div:
+                                ui.label(av).style('font-size:32px;')
+                            
+                            av_div.on('click', lambda a=av: selecionar_avatar(a))
+                    
+                    def selecionar_avatar(a):
+                        # Atualizar no banco
+                        atualizar_perfil_usuario(email, avatar_emoji=a)
+                        # Atualizar display
+                        avatar_label.set_text(a)
+                        # Fechar dialog
+                        avatar_dialog.close()
+                        ui.notify(f"✅ Avatar atualizado!", type="positive", position="top", timeout=1000)
+                    
+                    ui.button("Fechar", on_click=avatar_dialog.close).props('outline').classes('w-full mt-3').style(f'color:{cor_primaria};border-color:{cor_primaria};border-radius:8px;')
+                
+                avatar_dialog.open()
+            
+            avatar_display.on('click', abrir_selector_avatar)
+            
             ui.label(usuario.get('nome', 'Usuário')).classes('text-lg font-bold')
             ui.label(usuario.get('email', '')).classes('text-sm text-gray-500')
             
             # Badge do plano
             cor_badge = '#10b981' if plano == 'premium' else '#f59e0b' if plano == 'gratuito' else '#3b82f6'
             icone_badge = '💎' if plano == 'premium' else '🆓' if plano == 'gratuito' else '👑'
-            with ui.element('div').style(f'display:inline-flex;align-items:center;gap:4px;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:600;background:{cor_badge}20;color:{cor_badge};border:1px solid {cor_badge}40;margin-top:8px;'):
+            with ui.element('div').style(
+                f'display:inline-flex;align-items:center;gap:4px;padding:6px 16px;'
+                f'border-radius:20px;font-size:11px;font-weight:600;'
+                f'background:{cor_badge}20;color:{cor_badge};'
+                f'border:1px solid {cor_badge}40;margin-top:8px;'
+            ):
                 ui.label(f"{icone_badge} Plano {plano_nome}")
         
-        # Informações da conta
+        # ============================================================
+        # INFORMAÇÕES DA CONTA
+        # ============================================================
         with ui.card().classes('config-card'):
             ui.label("📋 Informações da Conta").classes('text-base font-bold mb-3')
-            
-            info_items = [
-                ("Email", usuario.get('email', '-')),
-                ("Plano", plano_nome),
-            ]
             
             try:
                 data_criacao = datetime.fromisoformat(usuario.get('data_criacao', '')).strftime('%d/%m/%Y')
             except:
                 data_criacao = 'N/A'
-            info_items.append(("Membro desde", data_criacao))
+            
+            info_items = [
+                ("Email", usuario.get('email', '-')),
+                ("Plano", plano_nome),
+                ("Membro desde", data_criacao),
+            ]
             
             if usuario.get('data_expiracao'):
                 try:
@@ -635,31 +687,58 @@ def tela_configuracoes(container, dialog_pai=None):
                 info_items.append(("Premium expira em", data_exp))
             
             for label, valor in info_items:
-                with ui.element('div').style(f'background:white;border-radius:10px;padding:14px 16px;margin-bottom:8px;border-left:3px solid {cor_primaria};'):
-                    ui.label(label).style('font-size:10px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;')
+                with ui.element('div').style(
+                    f'background:white;border-radius:10px;padding:14px 16px;'
+                    f'margin-bottom:8px;border-left:3px solid {cor_primaria};'
+                ):
+                    ui.label(label).style(
+                        'font-size:10px;font-weight:600;color:#9ca3af;'
+                        'text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;'
+                    )
                     ui.label(valor).style('font-size:14px;font-weight:500;color:#1f2937;')
         
-        # Limites do plano
+        # ============================================================
+        # LIMITES DO PLANO
+        # ============================================================
         with ui.card().classes('config-card'):
             ui.label("📊 Seu Plano").classes('text-base font-bold mb-3')
             
-            limites = [
-                ("Lançamentos por mês", "20" if plano == 'gratuito' else "Ilimitado"),
-                ("Cartões", "1" if plano == 'gratuito' else "Ilimitado"),
-                ("Modo Individual", "❌" if plano == 'gratuito' else "✅"),
-                ("Consultor Financeiro", "Básico (6 alertas)" if plano == 'gratuito' else "Premium (30+ alertas)"),
-            ]
+            if plano == 'gratuito':
+                limites = [
+                    ("Lançamentos por mês", "20"),
+                    ("Cartões", "1"),
+                    ("Modo Individual", "❌"),
+                    ("Consultor Financeiro", "Básico (6 alertas)"),
+                ]
+            elif plano == 'premium':
+                limites = [
+                    ("Lançamentos por mês", "Ilimitado"),
+                    ("Cartões", "Ilimitado"),
+                    ("Modo Individual", "✅"),
+                    ("Consultor Financeiro", "Premium (30+ alertas)"),
+                ]
+            else:
+                limites = [
+                    ("Lançamentos por mês", "Ilimitado (Demo)"),
+                    ("Cartões", "Ilimitado (Demo)"),
+                    ("Modo Individual", "✅ (Demo)"),
+                    ("Consultor Financeiro", "Premium (Demo)"),
+                ]
             
             for label, valor in limites:
                 with ui.row().classes('items-center justify-between py-2'):
                     ui.label(label).classes('text-sm text-gray-600')
                     ui.label(valor).classes('text-sm font-semibold')
         
-        # Upgrade (se gratuito)
+        # ============================================================
+        # UPGRADE (se gratuito)
+        # ============================================================
         if plano == 'gratuito':
-            with ui.card().classes('config-card').style('background:linear-gradient(135deg,#8b5cf6,#6366f1);color:white;'):
-                ui.label("💎 Quer mais recursos?").classes('text-lg font-bold mb-2')
-                ui.label("Premium por apenas R$ 4,99/mês").classes('text-sm mb-3')
+            with ui.card().classes('config-card').style(
+                'background:linear-gradient(135deg,#8b5cf6,#6366f1);color:white;'
+            ):
+                ui.label("💎 Quer mais recursos?").classes('text-lg font-bold mb-2').style('color:white;')
+                ui.label("Premium por apenas R$ 4,99/mês").classes('text-sm mb-3').style('color:rgba(255,255,255,0.8);')
                 
                 beneficios = [
                     "✅ Lançamentos ilimitados",
@@ -668,13 +747,21 @@ def tela_configuracoes(container, dialog_pai=None):
                     "✅ Consultor Financeiro completo",
                 ]
                 for b in beneficios:
-                    ui.label(b).classes('text-sm')
+                    ui.label(b).classes('text-sm').style('color:rgba(255,255,255,0.9);')
                 
-                ui.button("Fazer Upgrade", icon='star', on_click=lambda: ui.navigate.to('/upgrade')).classes('w-full mt-4').style('background:white;color:#6366f1;border-radius:8px;font-weight:600;')
+                ui.button("💎 Fazer Upgrade", icon='star', on_click=lambda: ui.navigate.to('/upgrade')).classes('w-full mt-4').style(
+                    'background:white;color:#6366f1;border-radius:8px;font-weight:600;'
+                )
+        
         elif plano == 'demo':
-            with ui.card().classes('config-card').style('background:#eff6ff;'):
-                ui.label("👑 Conta Demo").classes('text-base font-bold mb-2')
-                ui.label("Esta é uma conta de demonstração. Crie sua conta gratuita para começar!").classes('text-sm text-gray-600')    
+            with ui.card().classes('config-card').style('background:#eff6ff;border:1px solid #bfdbfe;'):
+                with ui.row().classes('items-start gap-3'):
+                    ui.icon('info').classes('text-xl').style('color:#3b82f6;')
+                    with ui.column().classes('gap-2'):
+                        ui.label("👑 Conta Demonstração").classes('text-base font-bold text-blue-700')
+                        ui.label("Esta é uma conta de demonstração com todos os recursos liberados.").classes('text-sm text-gray-600')
+                        ui.label("Crie sua conta gratuita para começar a usar!").classes('text-sm text-gray-600')
+
     # =========================
     # RENDER: SOBRE
     # =========================
