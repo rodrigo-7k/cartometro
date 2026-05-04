@@ -27,10 +27,10 @@ LOGO_FULL_COLOR  = "https://res.cloudinary.com/dxgyzvs8p/image/upload/v177784564
 LOGO_COMPLETA    = "https://res.cloudinary.com/dxgyzvs8p/image/upload/v1777845648/logo_completa_nbtgcz.png"
 FAVICON          = "https://res.cloudinary.com/dxgyzvs8p/image/upload/v1777845656/favicon_crsq9e.ico"
 
-# Imagens placeholder (substitua depois)
-HERO_IMAGE      = "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=80"
-DASHBOARD_MOCKUP= "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=700&q=80"
-MOBILE_MOCKUP   = "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400&q=80"
+# Imagens de placeholder (substitua depois)
+HERO_DASHBOARD   = "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80"
+FEATURE_IMAGE    = "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80"
+MOBILE_MOCKUP    = "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400&q=80"
 
 # ============================================================
 # VARIÁVEIS GLOBAIS
@@ -45,736 +45,1730 @@ container_principal = None
 @ui.page('/')
 def landing_page():
     """Landing Page Profissional do Cartometro"""
-
-    ui.add_head_html("""
+    
+    # CSS Global
+    ui.add_head_html(f"""
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900;1,9..40,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{FAVICON}">
     <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    html { scroll-behavior: smooth; }
-    body {
-        font-family: 'DM Sans', sans-serif;
-        overflow-x: hidden;
-        background: #fff;
-        color: #1e293b;
-    }
-
-    /* ── Navbar ─────────────────────────────── */
-    .lp-nav {
-        position: fixed; top: 0; left: 0; right: 0; z-index: 999;
-        display: flex; align-items: center; justify-content: space-between;
-        padding: 0 40px; height: 68px;
-        background: rgba(255,255,255,0.92);
-        backdrop-filter: blur(14px);
-        border-bottom: 1px solid rgba(0,0,0,0.06);
-        transition: box-shadow 0.3s;
-    }
-    .lp-nav.scrolled { box-shadow: 0 4px 30px rgba(0,0,0,0.08); }
-    .lp-nav-logo { height: 34px; width: auto; display: block; }
-    .lp-nav-links { display: flex; align-items: center; gap: 8px; }
-    .lp-nav-link {
-        font-size: 14px; font-weight: 500; color: #475569;
-        padding: 8px 14px; border-radius: 8px;
-        cursor: pointer; transition: all 0.2s;
-    }
-    .lp-nav-link:hover { color: #7c3aed; background: #f5f3ff; }
-    .lp-btn-ghost {
-        font-size: 14px; font-weight: 600; color: #7c3aed !important;
-        padding: 9px 18px; border-radius: 10px;
-        border: 1.5px solid #ddd6fe; background: transparent;
-        cursor: pointer; transition: all 0.2s;
-        font-family: 'DM Sans', sans-serif;
-    }
-    .lp-btn-ghost:hover { border-color: #7c3aed; background: #f5f3ff; }
-    .lp-btn-solid {
-        font-size: 14px; font-weight: 600; color: #fff !important;
-        padding: 9px 20px; border-radius: 10px;
-        background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%);
-        border: none; cursor: pointer;
-        font-family: 'DM Sans', sans-serif;
-        transition: all 0.25s;
-        box-shadow: 0 2px 12px rgba(109,40,217,0.25);
-    }
-    .lp-btn-solid:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(109,40,217,0.35); }
-    .lp-nav-mobile-actions { display: none; }
-
-    /* ── Hero ────────────────────────────────── */
-    .lp-hero {
-        min-height: 100vh;
-        padding: 100px 40px 80px;
-        display: flex; align-items: center; justify-content: center;
-        background: linear-gradient(155deg, #faf5ff 0%, #f0f4ff 50%, #fff 100%);
-        position: relative; overflow: hidden;
-    }
-    .lp-hero::before {
-        content: '';
-        position: absolute; inset: 0;
-        background:
-            radial-gradient(ellipse 700px 500px at 80% 20%, rgba(124,58,237,0.08) 0%, transparent 70%),
-            radial-gradient(ellipse 500px 400px at 10% 80%, rgba(99,102,241,0.07) 0%, transparent 70%);
-        pointer-events: none;
-    }
-    .lp-hero-inner {
-        max-width: 1160px; width: 100%;
-        display: grid; grid-template-columns: 1fr 1fr;
-        gap: 64px; align-items: center;
-        position: relative; z-index: 1;
-    }
-    .lp-hero-badge {
-        display: inline-flex; align-items: center; gap: 8px;
-        background: #f5f3ff; border: 1px solid #ddd6fe;
-        color: #7c3aed; font-size: 13px; font-weight: 600;
-        padding: 6px 14px; border-radius: 100px;
-        margin-bottom: 24px;
-    }
-    .lp-hero-badge span { width: 6px; height: 6px; background: #7c3aed; border-radius: 50%; }
-    .lp-hero-h1 {
-        font-size: clamp(36px, 4.5vw, 58px);
-        font-weight: 900; line-height: 1.08;
-        letter-spacing: -1.5px; color: #1e293b;
-        margin-bottom: 22px;
-    }
-    .lp-hero-h1 em {
-        font-style: normal;
-        background: linear-gradient(135deg, #7c3aed, #6366f1);
-        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-    .lp-hero-sub {
-        font-size: 17px; color: #64748b; line-height: 1.75;
-        max-width: 480px; margin-bottom: 36px;
-    }
-    .lp-hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
-    .lp-hero-cta {
-        font-size: 15px; font-weight: 700; color: #fff !important;
-        padding: 14px 28px; border-radius: 12px;
-        background: linear-gradient(135deg, #7c3aed, #6366f1);
-        border: none; cursor: pointer;
-        font-family: 'DM Sans', sans-serif;
-        box-shadow: 0 4px 20px rgba(109,40,217,0.3);
-        transition: all 0.25s;
-    }
-    .lp-hero-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(109,40,217,0.4); }
-    .lp-hero-demo {
-        font-size: 15px; font-weight: 600; color: #475569 !important;
-        padding: 14px 28px; border-radius: 12px;
-        background: white; border: 1.5px solid #e2e8f0;
-        cursor: pointer; font-family: 'DM Sans', sans-serif;
+    * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+    
+    body {{
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: #ffffff;
+        color: #0f172a;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }}
+    
+    /* ========== NAVBAR ========== */
+    .navbar {{
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease;
+    }}
+    
+    .navbar.scrolled {{
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }}
+    
+    .navbar-container {{
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 32px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 72px;
+    }}
+    
+    .navbar-brand img {{
+        height: 36px;
+        width: auto;
+    }}
+    
+    .navbar-links {{
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }}
+    
+    .nav-link {{
+        color: #475569;
+        font-size: 14px;
+        font-weight: 500;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
         transition: all 0.2s;
-    }
-    .lp-hero-demo:hover { border-color: #c4b5fd; color: #7c3aed !important; background: #faf5ff; }
-    .lp-hero-trust {
-        margin-top: 32px; display: flex; align-items: center; gap: 10px;
-        font-size: 13px; color: #94a3b8;
-    }
-    .lp-hero-trust-dot { width: 5px; height: 5px; background: #cbd5e1; border-radius: 50%; }
-
-    /* Hero image panel */
-    .lp-hero-visual {
-        position: relative; display: flex; justify-content: center; align-items: center;
-    }
-    .lp-hero-img-wrap {
-        width: 100%; max-width: 520px;
-        border-radius: 24px; overflow: hidden;
-        box-shadow: 0 32px 80px rgba(0,0,0,0.14), 0 8px 24px rgba(0,0,0,0.08);
+        text-decoration: none;
+        border: none;
+        background: none;
+        font-family: inherit;
+    }}
+    
+    .nav-link:hover {{
+        color: #7c3aed;
+        background: #f5f3ff;
+    }}
+    
+    .btn-primary {{
+        background: #7c3aed;
+        color: white !important;
+        font-weight: 600;
+        padding: 10px 20px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        font-family: inherit;
+        transition: all 0.2s;
+        box-shadow: 0 1px 2px rgba(124, 58, 237, 0.3);
+    }}
+    
+    .btn-primary:hover {{
+        background: #6d28d9;
+        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+        transform: translateY(-1px);
+    }}
+    
+    .btn-secondary {{
+        background: transparent;
+        color: #7c3aed !important;
+        font-weight: 600;
+        padding: 10px 20px;
+        border-radius: 10px;
+        border: 2px solid #e9d5ff;
+        cursor: pointer;
+        font-size: 14px;
+        font-family: inherit;
+        transition: all 0.2s;
+    }}
+    
+    .btn-secondary:hover {{
+        background: #f5f3ff;
+        border-color: #7c3aed;
+    }}
+    
+    .mobile-menu-btn {{
+        display: none;
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #475569;
+        padding: 8px;
+    }}
+    
+    /* ========== HERO ========== */
+    .hero {{
+        padding: 120px 32px 80px;
+        background: linear-gradient(135deg, #faf5ff 0%, #f0f4ff 50%, #ffffff 100%);
         position: relative;
-    }
-    .lp-hero-img-wrap img { width: 100%; display: block; }
-    .lp-hero-float {
+        overflow: hidden;
+    }}
+    
+    .hero::before {{
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 800px;
+        height: 800px;
+        background: radial-gradient(circle, rgba(124, 58, 237, 0.06) 0%, transparent 70%);
+        border-radius: 50%;
+    }}
+    
+    .hero-container {{
+        max-width: 1280px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 64px;
+        align-items: center;
+        position: relative;
+        z-index: 1;
+    }}
+    
+    .hero-content {{
+        max-width: 560px;
+    }}
+    
+    .hero-badge {{
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: white;
+        border: 1px solid #e9d5ff;
+        color: #7c3aed;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 6px 16px;
+        border-radius: 100px;
+        margin-bottom: 24px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }}
+    
+    .hero-badge-dot {{
+        width: 6px;
+        height: 6px;
+        background: #7c3aed;
+        border-radius: 50%;
+    }}
+    
+    .hero-title {{
+        font-size: clamp(40px, 5vw, 64px);
+        font-weight: 900;
+        line-height: 1.1;
+        letter-spacing: -1.5px;
+        color: #0f172a;
+        margin-bottom: 20px;
+    }}
+    
+    .hero-title span {{
+        background: linear-gradient(135deg, #7c3aed, #6366f1);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }}
+    
+    .hero-description {{
+        font-size: 18px;
+        color: #64748b;
+        line-height: 1.7;
+        margin-bottom: 32px;
+        max-width: 480px;
+    }}
+    
+    .hero-actions {{
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 40px;
+    }}
+    
+    .hero-cta {{
+        background: #7c3aed;
+        color: white !important;
+        font-weight: 600;
+        font-size: 16px;
+        padding: 16px 32px;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.2s;
+        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+    }}
+    
+    .hero-cta:hover {{
+        background: #6d28d9;
+        box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+        transform: translateY(-2px);
+    }}
+    
+    .hero-demo {{
+        background: white;
+        color: #475569 !important;
+        font-weight: 600;
+        font-size: 16px;
+        padding: 16px 32px;
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.2s;
+    }}
+    
+    .hero-demo:hover {{
+        border-color: #c4b5fd;
+        color: #7c3aed !important;
+    }}
+    
+    .hero-trust {{
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        color: #94a3b8;
+        font-size: 13px;
+    }}
+    
+    .hero-trust-item {{
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }}
+    
+    .hero-trust-item svg {{
+        width: 16px;
+        height: 16px;
+    }}
+    
+    .hero-image {{
+        position: relative;
+    }}
+    
+    .hero-image-main {{
+        width: 100%;
+        border-radius: 16px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }}
+    
+    .hero-float-card {{
         position: absolute;
         background: white;
-        border-radius: 16px;
-        padding: 12px 18px;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-        display: flex; align-items: center; gap: 12px;
-        font-size: 13px; font-weight: 600; color: #1e293b;
-        white-space: nowrap; z-index: 2;
-    }
-    .lp-hero-float.f1 { bottom: -20px; left: -20px; }
-    .lp-hero-float.f2 { top: -16px; right: -16px; }
-    .lp-float-dot { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-
-    /* ── Logos / Social proof ─────────────────── */
-    .lp-social {
-        padding: 36px 40px;
-        border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 13px;
+        font-weight: 600;
+        z-index: 2;
+    }}
+    
+    .hero-float-card.card-1 {{
+        bottom: -20px;
+        left: -30px;
+    }}
+    
+    .hero-float-card.card-2 {{
+        top: -20px;
+        right: -30px;
+    }}
+    
+    /* ========== STATS BAR ========== */
+    .stats-bar {{
+        border-top: 1px solid #f1f5f9;
+        border-bottom: 1px solid #f1f5f9;
+        padding: 48px 32px;
+        background: white;
+    }}
+    
+    .stats-container {{
+        max-width: 1280px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 32px;
         text-align: center;
-    }
-    .lp-social-label { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; color: #cbd5e1; text-transform: uppercase; margin-bottom: 20px; }
-    .lp-social-stats { display: flex; justify-content: center; gap: 56px; flex-wrap: wrap; }
-    .lp-stat { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-    .lp-stat-num { font-size: 28px; font-weight: 900; color: #1e293b; letter-spacing: -1px; }
-    .lp-stat-label { font-size: 13px; color: #94a3b8; }
-
-    /* ── Features ─────────────────────────────── */
-    .lp-features {
-        padding: 100px 40px;
-        background: #fff;
-    }
-    .lp-section-tag {
-        display: inline-flex; align-items: center; gap: 8px;
-        font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-        color: #7c3aed; background: #f5f3ff; padding: 6px 14px; border-radius: 100px;
-        margin-bottom: 20px;
-    }
-    .lp-section-h { font-size: clamp(28px, 3.5vw, 42px); font-weight: 900; letter-spacing: -1px; color: #1e293b; margin-bottom: 14px; }
-    .lp-section-sub { font-size: 17px; color: #64748b; line-height: 1.7; max-width: 560px; }
-    .lp-features-inner { max-width: 1160px; margin: 0 auto; }
-    .lp-features-header { text-align: center; margin-bottom: 64px; }
-    .lp-features-header .lp-section-sub { margin: 0 auto; }
-    .lp-feat-grid {
+    }}
+    
+    .stat-number {{
+        font-size: 36px;
+        font-weight: 900;
+        color: #0f172a;
+        margin-bottom: 4px;
+    }}
+    
+    .stat-label {{
+        font-size: 14px;
+        color: #64748b;
+    }}
+    
+    /* ========== FEATURES ========== */
+    .features {{
+        padding: 100px 32px;
+        background: white;
+    }}
+    
+    .features-container {{
+        max-width: 1280px;
+        margin: 0 auto;
+    }}
+    
+    .section-header {{
+        text-align: center;
+        margin-bottom: 64px;
+    }}
+    
+    .section-badge {{
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #f5f3ff;
+        color: #7c3aed;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 6px 16px;
+        border-radius: 100px;
+        margin-bottom: 16px;
+        letter-spacing: 0.5px;
+    }}
+    
+    .section-title {{
+        font-size: clamp(32px, 4vw, 48px);
+        font-weight: 900;
+        color: #0f172a;
+        margin-bottom: 16px;
+        letter-spacing: -1px;
+    }}
+    
+    .section-description {{
+        font-size: 18px;
+        color: #64748b;
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }}
+    
+    .features-grid {{
         display: grid;
         grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+    }}
+    
+    .feature-card {{
+        padding: 32px;
+        background: #fafafa;
+        border: 1px solid #f1f5f9;
+        border-radius: 16px;
+        transition: all 0.3s;
+    }}
+    
+    .feature-card:hover {{
+        background: white;
+        border-color: #e9d5ff;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        transform: translateY(-4px);
+    }}
+    
+    .feature-icon {{
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 20px;
+    }}
+    
+    .feature-title {{
+        font-size: 18px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 8px;
+    }}
+    
+    .feature-description {{
+        font-size: 14px;
+        color: #64748b;
+        line-height: 1.6;
+    }}
+    
+    /* ========== HOW IT WORKS ========== */
+    .how-it-works {{
+        padding: 100px 32px;
+        background: #fafafa;
+    }}
+    
+    .how-container {{
+        max-width: 1280px;
+        margin: 0 auto;
+    }}
+    
+    .how-grid {{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 80px;
+        align-items: center;
+        margin-top: 64px;
+    }}
+    
+    .how-steps {{
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+    }}
+    
+    .how-step {{
+        display: flex;
         gap: 20px;
-    }
-    .lp-feat-card {
-        background: #fafafa; border: 1px solid #f1f5f9;
-        border-radius: 20px; padding: 32px 28px;
-        transition: all 0.3s; cursor: default;
-        position: relative; overflow: hidden;
-    }
-    .lp-feat-card::before {
-        content: ''; position: absolute; inset: 0;
-        background: linear-gradient(135deg, transparent 60%, rgba(124,58,237,0.03) 100%);
-        opacity: 0; transition: opacity 0.3s;
-    }
-    .lp-feat-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.08); border-color: #e0e7ff; }
-    .lp-feat-card:hover::before { opacity: 1; }
-    .lp-feat-icon {
-        width: 52px; height: 52px; border-radius: 14px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 24px; margin-bottom: 20px;
-    }
-    .lp-feat-title { font-size: 17px; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
-    .lp-feat-desc { font-size: 14px; color: #64748b; line-height: 1.65; }
-
-    /* ── How it works ─────────────────────────── */
-    .lp-how {
-        padding: 100px 40px;
-        background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);
-    }
-    .lp-how-inner { max-width: 1160px; margin: 0 auto; }
-    .lp-how-grid {
-        display: grid; grid-template-columns: 1fr 1fr;
-        gap: 80px; align-items: center; margin-top: 64px;
-    }
-    .lp-how-steps { display: flex; flex-direction: column; gap: 32px; }
-    .lp-step { display: flex; gap: 20px; align-items: flex-start; }
-    .lp-step-num {
-        width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
+    }}
+    
+    .step-number {{
+        width: 48px;
+        height: 48px;
         background: linear-gradient(135deg, #7c3aed, #6366f1);
-        color: white; font-size: 15px; font-weight: 800;
-        display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 4px 12px rgba(109,40,217,0.3);
-    }
-    .lp-step-title { font-size: 17px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
-    .lp-step-desc { font-size: 14px; color: #64748b; line-height: 1.65; }
-    .lp-how-visual {
-        border-radius: 24px; overflow: hidden;
-        box-shadow: 0 24px 64px rgba(0,0,0,0.12);
-    }
-    .lp-how-visual img { width: 100%; display: block; }
-
-    /* ── Pricing ──────────────────────────────── */
-    .lp-pricing {
-        padding: 100px 40px;
-        background: #fff;
-    }
-    .lp-pricing-inner { max-width: 1160px; margin: 0 auto; }
-    .lp-pricing-header { text-align: center; margin-bottom: 64px; }
-    .lp-pricing-header .lp-section-sub { margin: 0 auto; }
-    .lp-plans {
-        display: grid; grid-template-columns: 1fr 1fr;
-        gap: 24px; max-width: 780px; margin: 0 auto;
-    }
-    .lp-plan {
-        border: 1.5px solid #e5e7eb; border-radius: 24px;
-        padding: 40px 36px; background: #fff;
-        transition: all 0.3s; position: relative;
-    }
-    .lp-plan:hover { box-shadow: 0 16px 48px rgba(0,0,0,0.08); transform: translateY(-2px); }
-    .lp-plan.featured {
+        color: white;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: 800;
+        flex-shrink: 0;
+    }}
+    
+    .step-content h3 {{
+        font-size: 18px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 4px;
+    }}
+    
+    .step-content p {{
+        font-size: 14px;
+        color: #64748b;
+        line-height: 1.6;
+    }}
+    
+    .how-image img {{
+        width: 100%;
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }}
+    
+    /* ========== PRICING ========== */
+    .pricing {{
+        padding: 100px 32px;
+        background: white;
+    }}
+    
+    .pricing-container {{
+        max-width: 1280px;
+        margin: 0 auto;
+    }}
+    
+    .pricing-grid {{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        max-width: 800px;
+        margin: 64px auto 0;
+    }}
+    
+    .plan-card {{
+        border: 2px solid #e2e8f0;
+        border-radius: 20px;
+        padding: 40px;
+        background: white;
+        transition: all 0.3s;
+        position: relative;
+    }}
+    
+    .plan-card:hover {{
+        border-color: #c4b5fd;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }}
+    
+    .plan-card.featured {{
         border-color: #7c3aed;
-        background: linear-gradient(160deg, #faf5ff 0%, #fff 60%);
-        box-shadow: 0 20px 60px rgba(124,58,237,0.12);
-    }
-    .lp-plan-badge {
-        position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+        background: linear-gradient(135deg, #faf5ff, #ffffff);
+        box-shadow: 0 20px 40px rgba(124, 58, 237, 0.1);
+    }}
+    
+    .plan-badge {{
+        position: absolute;
+        top: -14px;
+        left: 50%;
+        transform: translateX(-50%);
         background: linear-gradient(135deg, #7c3aed, #6366f1);
-        color: white; font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
-        padding: 5px 16px; border-radius: 100px; text-transform: uppercase; white-space: nowrap;
-    }
-    .lp-plan-name { font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 8px; }
-    .lp-plan-price { font-size: 48px; font-weight: 900; color: #7c3aed; line-height: 1; margin: 16px 0 4px; }
-    .lp-plan-period { font-size: 14px; color: #94a3b8; margin-bottom: 24px; }
-    .lp-plan-divider { height: 1px; background: #f1f5f9; margin: 24px 0; }
-    .lp-plan-item { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; font-size: 14px; color: #475569; }
-    .lp-plan-check { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-    .lp-plan-btn {
-        width: 100%; margin-top: 28px; padding: 14px;
-        border-radius: 12px; font-size: 15px; font-weight: 700;
-        border: none; cursor: pointer;
-        font-family: 'DM Sans', sans-serif; transition: all 0.25s;
-    }
-    .lp-plan-btn.solid {
+        color: white;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 6px 20px;
+        border-radius: 100px;
+        letter-spacing: 0.5px;
+    }}
+    
+    .plan-name {{
+        font-size: 22px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 16px;
+    }}
+    
+    .plan-price {{
+        font-size: 48px;
+        font-weight: 900;
+        color: #7c3aed;
+        margin-bottom: 4px;
+    }}
+    
+    .plan-period {{
+        font-size: 14px;
+        color: #94a3b8;
+        margin-bottom: 32px;
+    }}
+    
+    .plan-divider {{
+        height: 1px;
+        background: #f1f5f9;
+        margin-bottom: 24px;
+    }}
+    
+    .plan-feature {{
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 0;
+        font-size: 14px;
+        color: #475569;
+    }}
+    
+    .plan-btn {{
+        width: 100%;
+        padding: 16px;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 700;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-top: 32px;
+        border: none;
+    }}
+    
+    .plan-btn.primary {{
         background: linear-gradient(135deg, #7c3aed, #6366f1);
-        color: white !important;
-        box-shadow: 0 4px 16px rgba(109,40,217,0.28);
-    }
-    .lp-plan-btn.solid:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(109,40,217,0.38); }
-    .lp-plan-btn.outline {
-        background: transparent; color: #7c3aed !important;
-        border: 1.5px solid #ddd6fe;
-    }
-    .lp-plan-btn.outline:hover { background: #f5f3ff; border-color: #7c3aed; }
-
-    /* ── CTA ──────────────────────────────────── */
-    .lp-cta {
-        padding: 100px 40px;
-        background: linear-gradient(135deg, #6d28d9 0%, #4f46e5 100%);
-        text-align: center; color: white; position: relative; overflow: hidden;
-    }
-    .lp-cta::before {
-        content: ''; position: absolute; inset: 0;
-        background:
-            radial-gradient(ellipse 600px 400px at 20% 50%, rgba(255,255,255,0.05) 0%, transparent 70%),
-            radial-gradient(ellipse 500px 300px at 80% 50%, rgba(255,255,255,0.04) 0%, transparent 70%);
-        pointer-events: none;
-    }
-    .lp-cta-inner { max-width: 680px; margin: 0 auto; position: relative; z-index: 1; }
-    .lp-cta h2 { font-size: clamp(28px, 4vw, 48px); font-weight: 900; letter-spacing: -1px; margin-bottom: 18px; }
-    .lp-cta p { font-size: 17px; opacity: 0.85; line-height: 1.7; margin-bottom: 40px; }
-    .lp-cta-btn {
-        display: inline-block;
-        background: white; color: #6d28d9 !important;
-        font-size: 16px; font-weight: 700;
-        padding: 16px 40px; border-radius: 14px;
-        border: none; cursor: pointer;
-        font-family: 'DM Sans', sans-serif;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-        transition: all 0.25s;
-    }
-    .lp-cta-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,0.28); }
-
-    /* ── Footer ───────────────────────────────── */
-    .lp-footer {
-        background: #0f172a; color: #94a3b8;
-        padding: 64px 40px 32px;
-    }
-    .lp-footer-inner { max-width: 1160px; margin: 0 auto; }
-    .lp-footer-top {
-        display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
-        gap: 48px; padding-bottom: 48px;
-        border-bottom: 1px solid rgba(255,255,255,0.07);
-    }
-    .lp-footer-brand-logo { height: 36px; width: auto; display: block; margin-bottom: 16px; }
-    .lp-footer-tagline { font-size: 13px; line-height: 1.7; color: #64748b; max-width: 220px; }
-    .lp-footer-col-title { font-size: 13px; font-weight: 700; color: #e2e8f0; margin-bottom: 18px; letter-spacing: 0.03em; }
-    .lp-footer-link { font-size: 13px; color: #64748b; margin-bottom: 12px; cursor: pointer; transition: color 0.2s; display: block; }
-    .lp-footer-link:hover { color: #e2e8f0; }
-    .lp-footer-bottom { padding-top: 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
-    .lp-footer-copy { font-size: 13px; color: #475569; }
-
-    /* ── Responsivo ───────────────────────────── */
-    @media (max-width: 1024px) {
-        .lp-feat-grid { grid-template-columns: repeat(2, 1fr); }
-        .lp-footer-top { grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 768px) {
-        .lp-nav { padding: 0 20px; }
-        .lp-nav-links { display: none; }
-        .lp-nav-mobile-actions { display: flex; gap: 8px; }
-        .lp-hero { padding: 88px 20px 60px; }
-        .lp-hero-inner { grid-template-columns: 1fr; gap: 40px; text-align: center; }
-        .lp-hero-actions { justify-content: center; }
-        .lp-hero-sub { margin: 0 auto 36px; }
-        .lp-hero-trust { justify-content: center; }
-        .lp-hero-visual { order: -1; }
-        .lp-hero-img-wrap { max-width: 100%; }
-        .lp-hero-float.f1 { display: none; }
-        .lp-hero-float.f2 { display: none; }
-        .lp-social { padding: 36px 20px; }
-        .lp-social-stats { gap: 28px; }
-        .lp-features, .lp-how, .lp-pricing, .lp-cta { padding: 72px 20px; }
-        .lp-feat-grid { grid-template-columns: 1fr; }
-        .lp-how-grid { grid-template-columns: 1fr; gap: 48px; }
-        .lp-plans { grid-template-columns: 1fr; max-width: 420px; }
-        .lp-footer { padding: 48px 20px 28px; }
-        .lp-footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
-        .lp-footer-bottom { flex-direction: column; text-align: center; }
-    }
-    @media (max-width: 480px) {
-        .lp-footer-top { grid-template-columns: 1fr; }
-    }
+        color: white;
+        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+    }}
+    
+    .plan-btn.primary:hover {{
+        box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+        transform: translateY(-2px);
+    }}
+    
+    .plan-btn.secondary {{
+        background: transparent;
+        color: #7c3aed;
+        border: 2px solid #e9d5ff;
+    }}
+    
+    .plan-btn.secondary:hover {{
+        background: #f5f3ff;
+        border-color: #7c3aed;
+    }}
+    
+    /* ========== CTA ========== */
+    .cta {{
+        padding: 100px 32px;
+        background: linear-gradient(135deg, #6d28d9, #4f46e5);
+        position: relative;
+        overflow: hidden;
+    }}
+    
+    .cta::before {{
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+        border-radius: 50%;
+    }}
+    
+    .cta-container {{
+        max-width: 800px;
+        margin: 0 auto;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+    }}
+    
+    .cta-title {{
+        font-size: clamp(32px, 4vw, 48px);
+        font-weight: 900;
+        color: white;
+        margin-bottom: 20px;
+        letter-spacing: -1px;
+    }}
+    
+    .cta-description {{
+        font-size: 18px;
+        color: rgba(255, 255, 255, 0.9);
+        line-height: 1.7;
+        margin-bottom: 40px;
+    }}
+    
+    .cta-btn {{
+        background: white;
+        color: #6d28d9 !important;
+        font-weight: 700;
+        font-size: 16px;
+        padding: 18px 40px;
+        border-radius: 14px;
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.2s;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }}
+    
+    .cta-btn:hover {{
+        transform: translateY(-2px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }}
+    
+    /* ========== FOOTER ========== */
+    .footer {{
+        background: #0f172a;
+        padding: 64px 32px 32px;
+        color: #94a3b8;
+    }}
+    
+    .footer-container {{
+        max-width: 1280px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 64px;
+        margin-bottom: 48px;
+        padding-bottom: 48px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }}
+    
+    .footer-brand img {{
+        height: 32px;
+        width: auto;
+        margin-bottom: 16px;
+    }}
+    
+    .footer-brand p {{
+        font-size: 13px;
+        line-height: 1.7;
+        color: #64748b;
+        max-width: 280px;
+    }}
+    
+    .footer-col h4 {{
+        font-size: 13px;
+        font-weight: 700;
+        color: #e2e8f0;
+        margin-bottom: 20px;
+        letter-spacing: 0.5px;
+    }}
+    
+    .footer-col a {{
+        display: block;
+        font-size: 13px;
+        color: #64748b;
+        margin-bottom: 12px;
+        text-decoration: none;
+        transition: color 0.2s;
+        cursor: pointer;
+    }}
+    
+    .footer-col a:hover {{
+        color: #e2e8f0;
+    }}
+    
+    .footer-bottom {{
+        max-width: 1280px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }}
+    
+    .footer-copyright {{
+        font-size: 13px;
+        color: #475569;
+    }}
+    
+    /* ========== RESPONSIVO ========== */
+    @media (max-width: 1024px) {{
+        .hero-container {{
+            grid-template-columns: 1fr;
+            gap: 48px;
+        }}
+        
+        .hero-image {{
+            order: -1;
+            max-width: 500px;
+            margin: 0 auto;
+        }}
+        
+        .features-grid {{
+            grid-template-columns: repeat(2, 1fr);
+        }}
+        
+        .how-grid {{
+            grid-template-columns: 1fr;
+            gap: 48px;
+        }}
+        
+        .how-image {{
+            order: -1;
+        }}
+        
+        .pricing-grid {{
+            max-width: 500px;
+            grid-template-columns: 1fr;
+        }}
+    }}
+    
+    @media (max-width: 768px) {{
+        .navbar-links {{
+            display: none;
+        }}
+        
+        .mobile-menu-btn {{
+            display: block;
+        }}
+        
+        .hero {{
+            padding: 100px 20px 60px;
+        }}
+        
+        .hero-title {{
+            font-size: 36px;
+        }}
+        
+        .hero-description {{
+            font-size: 16px;
+        }}
+        
+        .hero-float-card {{
+            display: none;
+        }}
+        
+        .stats-container {{
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }}
+        
+        .features {{
+            padding: 60px 20px;
+        }}
+        
+        .features-grid {{
+            grid-template-columns: 1fr;
+        }}
+        
+        .how-it-works {{
+            padding: 60px 20px;
+        }}
+        
+        .pricing {{
+            padding: 60px 20px;
+        }}
+        
+        .cta {{
+            padding: 60px 20px;
+        }}
+        
+        .footer-container {{
+            grid-template-columns: 1fr;
+            gap: 32px;
+        }}
+        
+        .footer-bottom {{
+            flex-direction: column;
+            gap: 12px;
+            text-align: center;
+        }}
+    }}
+    
+    @media (max-width: 480px) {{
+        .navbar-container {{
+            padding: 0 16px;
+        }}
+        
+        .hero-actions {{
+            flex-direction: column;
+        }}
+        
+        .stats-container {{
+            grid-template-columns: 1fr;
+        }}
+        
+        .stats-bar {{
+            padding: 32px 20px;
+        }}
+    }}
     </style>
+    
     <script>
-    window.addEventListener('scroll', function() {
-        var nav = document.querySelector('.lp-nav');
-        if(nav) nav.classList.toggle('scrolled', window.scrollY > 20);
-    });
+    window.addEventListener('scroll', function() {{
+        var nav = document.querySelector('.navbar');
+        if(nav) {{
+            if(window.scrollY > 20) {{
+                nav.classList.add('scrolled');
+            }} else {{
+                nav.classList.remove('scrolled');
+            }}
+        }}
+    }});
     </script>
     """)
-
-    # ── NAVBAR ────────────────────────────────────────────────────
-    with ui.element('div').classes('lp-nav'):
-        ui.image(LOGO_FULL_COLOR).classes('lp-nav-logo')
-        with ui.element('div').classes('lp-nav-links'):
-            ui.label('Funcionalidades').classes('lp-nav-link').on('click', lambda: ui.run_javascript('document.getElementById("features").scrollIntoView({behavior:"smooth"})'))
-            ui.label('Como funciona').classes('lp-nav-link').on('click', lambda: ui.run_javascript('document.getElementById("how").scrollIntoView({behavior:"smooth"})'))
-            ui.label('Planos').classes('lp-nav-link').on('click', lambda: ui.run_javascript('document.getElementById("pricing").scrollIntoView({behavior:"smooth"})'))
-            ui.button('Entrar', on_click=lambda: ui.navigate.to('/login')).classes('lp-btn-ghost')
-            ui.button('Criar Conta Grátis', on_click=lambda: ui.navigate.to('/criar-conta')).classes('lp-btn-solid')
-        with ui.element('div').classes('lp-nav-mobile-actions'):
-            ui.button('Entrar', on_click=lambda: ui.navigate.to('/login')).classes('lp-btn-ghost')
-            ui.button('Criar Conta', on_click=lambda: ui.navigate.to('/criar-conta')).classes('lp-btn-solid')
-
-    # ── HERO ──────────────────────────────────────────────────────
-    with ui.element('div').classes('lp-hero'):
-        with ui.element('div').classes('lp-hero-inner'):
-            # Texto
-            with ui.element('div').classes('lp-hero-text'):
-                with ui.element('div').classes('lp-hero-badge'):
-                    ui.element('span')
+    
+    # ========== NAVBAR ==========
+    with ui.element('nav').classes('navbar'):
+        with ui.element('div').classes('navbar-container'):
+            ui.image(LOGO_FULL_COLOR).style('height: 36px; width: auto;')
+            
+            with ui.element('div').classes('navbar-links'):
+                ui.button('Funcionalidades', on_click=lambda: ui.run_javascript('document.getElementById("features").scrollIntoView({behavior:"smooth"})')).classes('nav-link')
+                ui.button('Como Funciona', on_click=lambda: ui.run_javascript('document.getElementById("how").scrollIntoView({behavior:"smooth"})')).classes('nav-link')
+                ui.button('Planos', on_click=lambda: ui.run_javascript('document.getElementById("pricing").scrollIntoView({behavior:"smooth"})')).classes('nav-link')
+                ui.button('Entrar', on_click=lambda: ui.navigate.to('/login')).classes('btn-secondary')
+                ui.button('Começar Grátis', on_click=lambda: ui.navigate.to('/criar-conta')).classes('btn-primary')
+            
+            ui.button('☰').classes('mobile-menu-btn')
+    
+    # ========== HERO ==========
+    with ui.element('section').classes('hero'):
+        with ui.element('div').classes('hero-container'):
+            with ui.element('div').classes('hero-content'):
+                with ui.element('div').classes('hero-badge'):
+                    ui.element('div').classes('hero-badge-dot')
                     ui.label('Novo: Consultor com 30+ alertas inteligentes')
-                ui.html('<h1 class="lp-hero-h1">Controle inteligente<br>do seu <em>cartão de crédito</em></h1>')
-                ui.label('Gerencie seus gastos, defina limites e tenha total controle das suas finanças em um só lugar.').classes('lp-hero-sub')
-                with ui.element('div').classes('lp-hero-actions'):
-                    ui.button('🚀 Começar Grátis', on_click=lambda: ui.navigate.to('/criar-conta')).classes('lp-hero-cta')
-                    ui.button('Ver demonstração →', on_click=lambda: ui.navigate.to('/login')).classes('lp-hero-demo')
-                with ui.element('div').classes('lp-hero-trust'):
-                    ui.label('✓ Grátis para sempre')
-                    ui.element('div').classes('lp-hero-trust-dot')
-                    ui.label('✓ Sem cartão de crédito')
-                    ui.element('div').classes('lp-hero-trust-dot')
-                    ui.label('✓ Pronto em 2 minutos')
-
-            # Visual
-            with ui.element('div').classes('lp-hero-visual'):
-                with ui.element('div').classes('lp-hero-img-wrap'):
-                    ui.image(HERO_IMAGE)
-                with ui.element('div').classes('lp-hero-float f1'):
-                    with ui.element('div').classes('lp-float-dot').style('background:#dcfce7;'):
-                        ui.label('💳')
+                
+                ui.html('<h1 class="hero-title">Domine suas finanças com <span>inteligência</span></h1>')
+                ui.label('Controle total dos seus cartões de crédito, gastos organizados e alertas personalizados para você nunca perder o controle.').classes('hero-description')
+                
+                with ui.element('div').classes('hero-actions'):
+                    ui.button('🚀 Começar Agora', on_click=lambda: ui.navigate.to('/criar-conta')).classes('hero-cta')
+                    ui.button('Ver Demonstração →', on_click=lambda: ui.navigate.to('/login')).classes('hero-demo')
+                
+                with ui.element('div').classes('hero-trust'):
+                    with ui.element('div').classes('hero-trust-item'):
+                        ui.label('✓ Grátis para sempre')
+                    with ui.element('div').classes('hero-trust-item'):
+                        ui.label('✓ Sem cartão de crédito')
+                    with ui.element('div').classes('hero-trust-item'):
+                        ui.label('✓ 2 minutos para começar')
+            
+            with ui.element('div').classes('hero-image'):
+                ui.image(HERO_DASHBOARD).classes('hero-image-main')
+                
+                # Floating card 1
+                with ui.element('div').classes('hero-float-card card-1'):
+                    ui.label('💳').style('font-size: 24px;')
                     with ui.element('div'):
-                        ui.label('Limite disponível').style('font-size:11px;color:#94a3b8;font-weight:500;')
-                        ui.label('R$ 3.240,00').style('font-size:15px;font-weight:800;color:#1e293b;')
-                with ui.element('div').classes('lp-hero-float f2'):
-                    with ui.element('div').classes('lp-float-dot').style('background:#f0f4ff;'):
-                        ui.label('📊')
+                        ui.label('Limite Disponível').style('font-size: 11px; color: #94a3b8; font-weight: 500;')
+                        ui.label('R$ 3.240,00').style('font-size: 18px; font-weight: 800; color: #0f172a;')
+                
+                # Floating card 2
+                with ui.element('div').classes('hero-float-card card-2'):
+                    ui.label('📊').style('font-size: 24px;')
                     with ui.element('div'):
-                        ui.label('Gastos este mês').style('font-size:11px;color:#94a3b8;font-weight:500;')
-                        ui.label('↓ 12% vs anterior').style('font-size:14px;font-weight:700;color:#10b981;')
-
-    # ── SOCIAL PROOF ──────────────────────────────────────────────
-    with ui.element('div').classes('lp-social'):
-        ui.label('Números que falam por si').classes('lp-social-label')
-        with ui.element('div').classes('lp-social-stats'):
-            for num, label in [('10k+', 'Usuários ativos'), ('R$2M+', 'Gastos controlados'), ('30+', 'Alertas inteligentes'), ('4.9★', 'Avaliação média')]:
-                with ui.element('div').classes('lp-stat'):
-                    ui.label(num).classes('lp-stat-num')
-                    ui.label(label).classes('lp-stat-label')
-
-    # ── FEATURES ──────────────────────────────────────────────────
-    with ui.element('div').classes('lp-features').props('id=features'):
-        with ui.element('div').classes('lp-features-inner'):
-            with ui.element('div').classes('lp-features-header'):
-                ui.label('✦ Funcionalidades').classes('lp-section-tag')
-                ui.label('Tudo que você precisa').classes('lp-section-h')
-                ui.label('Do controle básico ao gerenciamento avançado — uma plataforma completa para dominar suas finanças.').classes('lp-section-sub')
-
-            with ui.element('div').classes('lp-feat-grid'):
+                        ui.label('Economia este mês').style('font-size: 11px; color: #94a3b8; font-weight: 500;')
+                        ui.label('↓ 12% vs anterior').style('font-size: 16px; font-weight: 700; color: #10b981;')
+    
+    # ========== STATS BAR ==========
+    with ui.element('section').classes('stats-bar'):
+        with ui.element('div').classes('stats-container'):
+            stats = [
+                ('10k+', 'Usuários Ativos'),
+                ('R$ 2M+', 'Gastos Controlados'),
+                ('30+', 'Alertas Inteligentes'),
+                ('4.9', 'Avaliação Média ★')
+            ]
+            for number, label in stats:
+                with ui.element('div'):
+                    ui.label(number).classes('stat-number')
+                    ui.label(label).classes('stat-label')
+    
+    # ========== FEATURES ==========
+    with ui.element('section').classes('features').props('id=features'):
+        with ui.element('div').classes('features-container'):
+            with ui.element('div').classes('section-header'):
+                ui.label('Funcionalidades').classes('section-badge')
+                ui.label('Tudo que você precisa em um só lugar').classes('section-title')
+                ui.label('Ferramentas completas para controle financeiro, do básico ao avançado.').classes('section-description')
+            
+            with ui.element('div').classes('features-grid'):
                 features = [
-                    ("📊", "#3b82f6", "Dashboard Inteligente",  "Visualize KPIs em tempo real: limite usado, gastos por categoria, tendência do mês e muito mais."),
-                    ("💳", "#7c3aed", "Múltiplos Cartões",       "Gerencie cada cartão individualmente ou de forma unificada, com limites e ciclos distintos."),
-                    ("🤖", "#10b981", "Consultor Financeiro",    "30+ alertas que analisam seus padrões de consumo e te avisam antes de problemas acontecerem."),
-                    ("📅", "#f59e0b", "Ciclo de Fatura",         "Acompanhe gastos pelo ciclo real da fatura ou pelo mês calendário — como você preferir."),
-                    ("🔁", "#ec4899", "Gastos Recorrentes",      "Cadastre assinaturas e fixos que entram automaticamente todo mês, sem trabalho manual."),
-                    ("🎯", "#6366f1", "Metas e Limites",         "Defina orçamentos por categoria e receba alertas em tempo real ao se aproximar do limite."),
+                    ('📊', '#3b82f6', 'Dashboard Inteligente', 'Visualize KPIs em tempo real: limite usado, gastos por categoria e tendências do mês.'),
+                    ('💳', '#7c3aed', 'Múltiplos Cartões', 'Gerencie cada cartão individualmente ou de forma unificada, com limites e ciclos distintos.'),
+                    ('🤖', '#10b981', 'Consultor Financeiro', '30+ alertas que analisam seus padrões de consumo antes que problemas aconteçam.'),
+                    ('📅', '#f59e0b', 'Ciclo de Fatura', 'Acompanhe gastos pelo ciclo real da fatura ou pelo mês calendário.'),
+                    ('🔁', '#ec4899', 'Gastos Recorrentes', 'Cadastre assinaturas e fixos que entram automaticamente todo mês.'),
+                    ('🎯', '#6366f1', 'Metas e Limites', 'Defina orçamentos por categoria e receba alertas ao se aproximar do limite.'),
                 ]
-                for icone, cor, titulo, desc in features:
-                    with ui.element('div').classes('lp-feat-card'):
-                        with ui.element('div').classes('lp-feat-icon').style(f'background:{cor}18;'):
-                            ui.label(icone)
-                        ui.label(titulo).classes('lp-feat-title')
-                        ui.label(desc).classes('lp-feat-desc')
-
-    # ── HOW IT WORKS ──────────────────────────────────────────────
-    with ui.element('div').classes('lp-how').props('id=how'):
-        with ui.element('div').classes('lp-how-inner'):
-            ui.label('✦ Como funciona').classes('lp-section-tag')
-            ui.label('Comece em minutos').classes('lp-section-h')
-            with ui.element('div').classes('lp-how-grid'):
-                with ui.element('div').classes('lp-how-steps'):
+                
+                for icon, color, title, description in features:
+                    with ui.element('div').classes('feature-card'):
+                        ui.label(icon).classes('feature-icon').style(f'background: {color}15;')
+                        ui.label(title).classes('feature-title')
+                        ui.label(description).classes('feature-description')
+    
+    # ========== HOW IT WORKS ==========
+    with ui.element('section').classes('how-it-works').props('id=how'):
+        with ui.element('div').classes('how-container'):
+            with ui.element('div').classes('section-header'):
+                ui.label('Como Funciona').classes('section-badge')
+                ui.label('Comece em minutos, sem complicação').classes('section-title')
+                ui.label('Quatro passos simples para transformar sua relação com o dinheiro.').classes('section-description')
+            
+            with ui.element('div').classes('how-grid'):
+                with ui.element('div').classes('how-steps'):
                     steps = [
-                        ("1", "Crie sua conta grátis", "Cadastre-se em menos de 2 minutos, sem precisar de cartão de crédito."),
-                        ("2", "Adicione seus cartões", "Cadastre seus cartões com limites e datas de vencimento da fatura."),
-                        ("3", "Lance seus gastos", "Registre compras manualmente ou importe via extrato. Simples e rápido."),
-                        ("4", "Receba insights", "O consultor financeiro analisa seus dados e envia alertas personalizados."),
+                        ('01', 'Crie sua conta gratuita', 'Cadastro rápido em menos de 2 minutos, sem necessidade de cartão de crédito.'),
+                        ('02', 'Adicione seus cartões', 'Cadastre seus cartões com limites e datas de vencimento da fatura.'),
+                        ('03', 'Registre seus gastos', 'Lance compras manualmente ou importe seu extrato. Simples e rápido.'),
+                        ('04', 'Receba insights inteligentes', 'O consultor analisa seus dados e envia alertas personalizados.'),
                     ]
-                    for num, title, desc in steps:
-                        with ui.element('div').classes('lp-step'):
-                            ui.label(num).classes('lp-step-num')
-                            with ui.element('div'):
-                                ui.label(title).classes('lp-step-title')
-                                ui.label(desc).classes('lp-step-desc')
+                    
+                    for number, title, description in steps:
+                        with ui.element('div').classes('how-step'):
+                            ui.label(number).classes('step-number')
+                            with ui.element('div').classes('step-content'):
+                                ui.label(title).style('font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 4px;')
+                                ui.label(description).style('font-size: 14px; color: #64748b; line-height: 1.6;')
+                
+                with ui.element('div').classes('how-image'):
+                    ui.image(FEATURE_IMAGE)
+    
+    # ========== PRICING ==========
+    with ui.element('section').classes('pricing').props('id=pricing'):
+        with ui.element('div').classes('pricing-container'):
+            with ui.element('div').classes('section-header'):
+                ui.label('Planos').classes('section-badge')
+                ui.label('Simples e transparente').classes('section-title')
+                ui.label('Sem taxas escondidas. Faça upgrade ou downgrade quando quiser.').classes('section-description')
+            
+            with ui.element('div').classes('pricing-grid'):
+                # Free Plan
+                with ui.element('div').classes('plan-card'):
+                    ui.label('🆓 Gratuito').classes('plan-name')
+                    ui.label('R$ 0').classes('plan-price')
+                    ui.label('para sempre').classes('plan-period')
+                    ui.element('div').classes('plan-divider')
+                    
+                    for feature in ['20 lançamentos/mês', '1 cartão', 'Modo Unificado', 'Consultor básico', 'Dashboard completo']:
+                        with ui.element('div').classes('plan-feature'):
+                            ui.label('✓').style('color: #10b981; font-weight: 700;')
+                            ui.label(feature)
+                    
+                    ui.button('Começar Grátis', on_click=lambda: ui.navigate.to('/criar-conta')).classes('plan-btn secondary')
+                
+                # Premium Plan
+                with ui.element('div').classes('plan-card featured'):
+                    ui.label('MAIS POPULAR').classes('plan-badge')
+                    ui.label('💎 Premium').classes('plan-name')
+                    ui.label('R$ 4,99').classes('plan-price')
+                    ui.label('/mês').classes('plan-period')
+                    ui.element('div').classes('plan-divider')
+                    
+                    for feature in ['Lançamentos ilimitados', 'Múltiplos cartões', 'Modo Individual', 'Consultor Premium (30+)', 'Relatórios avançados', 'Suporte prioritário']:
+                        with ui.element('div').classes('plan-feature'):
+                            ui.label('✓').style('color: #10b981; font-weight: 700;')
+                            ui.label(feature)
+                    
+                    ui.button('Assinar Premium', on_click=lambda: ui.navigate.to('/criar-conta')).classes('plan-btn primary')
+    
+    # ========== CTA ==========
+    with ui.element('section').classes('cta'):
+        with ui.element('div').classes('cta-container'):
+            ui.label('Pronto para controlar suas finanças?').classes('cta-title')
+            ui.label('Junte-se a milhares de pessoas que já transformaram sua relação com o dinheiro.').classes('cta-description')
+            ui.button('🚀 Criar Conta Gratuita', on_click=lambda: ui.navigate.to('/criar-conta')).classes('cta-btn')
+    
+    # ========== FOOTER ==========
+    with ui.element('footer').classes('footer'):
+        with ui.element('div').classes('footer-container'):
+            with ui.element('div').classes('footer-brand'):
+                ui.image(LOGO_BRANCA)
+                ui.label('Controle Inteligente do seu Crédito. Simples, rápido e eficiente.')
+            
+            with ui.element('div').classes('footer-col'):
+                ui.label('Produto').style('font-size: 13px; font-weight: 700; color: #e2e8f0; margin-bottom: 20px;')
+                for link in ['Funcionalidades', 'Planos', 'Demonstração']:
+                    ui.label(link).style('font-size: 13px; color: #64748b; margin-bottom: 12px; cursor: pointer;')
+            
+            with ui.element('div').classes('footer-col'):
+                ui.label('Suporte').style('font-size: 13px; font-weight: 700; color: #e2e8f0; margin-bottom: 20px;')
+                for link in ['Central de Ajuda', 'suporte@cartometro.app', 'FAQ']:
+                    ui.label(link).style('font-size: 13px; color: #64748b; margin-bottom: 12px; cursor: pointer;')
+            
+            with ui.element('div').classes('footer-col'):
+                ui.label('Legal').style('font-size: 13px; font-weight: 700; color: #e2e8f0; margin-bottom: 20px;')
+                for link in ['Termos de Uso', 'Privacidade']:
+                    ui.label(link).style('font-size: 13px; color: #64748b; margin-bottom: 12px; cursor: pointer;')
+        
+        with ui.element('div').classes('footer-bottom'):
+            ui.label(f'© 2025 Cartometro. Todos os direitos reservados.').classes('footer-copyright')
 
-                with ui.element('div').classes('lp-how-visual'):
-                    ui.image(DASHBOARD_MOCKUP)
 
-    # ── PRICING ───────────────────────────────────────────────────
-    with ui.element('div').classes('lp-pricing').props('id=pricing'):
-        with ui.element('div').classes('lp-pricing-inner'):
-            with ui.element('div').classes('lp-pricing-header'):
-                ui.label('✦ Planos').classes('lp-section-tag')
-                ui.label('Simples e transparente').classes('lp-section-h')
-                ui.label('Sem taxas escondidas. Faça upgrade ou downgrade quando quiser.').classes('lp-section-sub')
-
-            with ui.element('div').classes('lp-plans'):
-                # Gratuito
-                with ui.element('div').classes('lp-plan'):
-                    ui.label('🆓 Gratuito').classes('lp-plan-name')
-                    ui.label('R$ 0').classes('lp-plan-price')
-                    ui.label('para sempre').classes('lp-plan-period')
-                    ui.element('div').classes('lp-plan-divider')
-                    for item in ['20 lançamentos/mês', '1 cartão', 'Modo Unificado', 'Consultor básico', 'Dashboard completo']:
-                        with ui.element('div').classes('lp-plan-item'):
-                            ui.label('✅').classes('lp-plan-check')
-                            ui.label(item)
-                    ui.button('Começar Grátis', on_click=lambda: ui.navigate.to('/criar-conta')).classes('lp-plan-btn outline')
-
-                # Premium
-                with ui.element('div').classes('lp-plan featured'):
-                    ui.label('MAIS POPULAR').classes('lp-plan-badge')
-                    ui.label('💎 Premium').classes('lp-plan-name')
-                    ui.label('R$ 4,99').classes('lp-plan-price')
-                    ui.label('/mês').classes('lp-plan-period')
-                    ui.element('div').classes('lp-plan-divider')
-                    for item in ['Lançamentos ilimitados', 'Múltiplos cartões', 'Modo Individual', 'Consultor Premium (30+)', 'Relatórios avançados', 'Suporte prioritário']:
-                        with ui.element('div').classes('lp-plan-item'):
-                            ui.label('✅').classes('lp-plan-check')
-                            ui.label(item)
-                    ui.button('Assinar Premium', on_click=lambda: ui.navigate.to('/criar-conta')).classes('lp-plan-btn solid')
-
-    # ── CTA ───────────────────────────────────────────────────────
-    with ui.element('div').classes('lp-cta'):
-        with ui.element('div').classes('lp-cta-inner'):
-            ui.html('<h2>Pronto para controlar suas finanças?</h2>')
-            ui.label('Junte-se a milhares de usuários que já transformaram a relação com o dinheiro usando o Cartometro.').classes('lp-cta p')
-            ui.button('🚀 Criar Conta Gratuita', on_click=lambda: ui.navigate.to('/criar-conta')).classes('lp-cta-btn')
-
-    # ── FOOTER ────────────────────────────────────────────────────
-    with ui.element('div').classes('lp-footer'):
-        with ui.element('div').classes('lp-footer-inner'):
-            with ui.element('div').classes('lp-footer-top'):
-                with ui.element('div'):
-                    ui.image(LOGO_BRANCA).classes('lp-footer-brand-logo')
-                    ui.label('Controle Inteligente do seu Crédito. Simples, rápido e eficiente.').classes('lp-footer-tagline')
-                with ui.element('div'):
-                    ui.label('Produto').classes('lp-footer-col-title')
-                    for lbl in ['Funcionalidades', 'Planos', 'Ver Demo']:
-                        ui.label(lbl).classes('lp-footer-link')
-                with ui.element('div'):
-                    ui.label('Suporte').classes('lp-footer-col-title')
-                    for lbl in ['Central de Ajuda', 'suporte@cartometro.app', 'FAQ']:
-                        ui.label(lbl).classes('lp-footer-link')
-                with ui.element('div'):
-                    ui.label('Legal').classes('lp-footer-col-title')
-                    for lbl in ['Termos de Uso', 'Privacidade']:
-                        ui.label(lbl).classes('lp-footer-link')
-            with ui.element('div').classes('lp-footer-bottom'):
-                ui.label('© 2025 Cartometro. Todos os direitos reservados.').classes('lp-footer-copy')
-
-
-# =========================
-# TELA DE LOGIN (separada da landing)
-# =========================
+# ============================================================
+# TELA DE LOGIN REDESENHADA
+# ============================================================
 @ui.page('/login')
 def login():
     cor = config_service.get_primary_color()
     cor_escura = config_service.get_primary_dark()
-
+    
+    # Bullet points para o lado esquerdo
+    beneficios = [
+        ("📊", "Dashboard inteligente com KPIs em tempo real"),
+        ("🤖", "Consultor financeiro com 30+ alertas"),
+        ("💳", "Controle total de múltiplos cartões"),
+        ("🎯", "Metas e orçamentos personalizados"),
+        ("🔔", "Alertas antes de problemas acontecerem"),
+    ]
+    
     ui.add_head_html(f"""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="{FAVICON}">
-    *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
-    html, body {{ height: 100%; width: 100%; overflow: hidden; font-family: 'DM Sans', sans-serif; }}
-    .lp-root {{ display: flex; height: 100vh; width: 100%; }}
-    .lp-brand {{ flex: 1; background: linear-gradient(160deg, {cor_escura} 0%, {cor} 60%, {cor}bb 100%); display: flex; justify-content: center; align-items: center; position: relative; overflow: hidden; }}
-    .lp-brand::before {{ content: ''; position: absolute; width: 500px; height: 500px; border-radius: 50%; border: 80px solid rgba(255,255,255,0.04); top: -150px; right: -150px; }}
-    .lp-brand::after {{ content: ''; position: absolute; width: 350px; height: 350px; border-radius: 50%; border: 50px solid rgba(255,255,255,0.04); bottom: -80px; left: -80px; }}
-    .lp-brand-logo {{ width: 300px; height: auto; position: relative; z-index: 1; }}
-    .lp-form-side {{ width: 480px; height: 100%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: #fff; padding: 48px 44px; }}
-    .lp-form-box {{ width: 100%; max-width: 380px; }}
-    .lp-form-logo {{ width: 180px; height: auto; margin-bottom: 32px; align-self: center; display: block; margin-left: auto; margin-right: auto; }}
-    .lp-field-wrap {{ margin-bottom: 16px; }}
-    .lp-field-label {{ font-size: 13px; font-weight: 500; color: #4b5563; margin-bottom: 6px; display: block; }}
-    .lp-field-wrap .q-field--outlined .q-field__control {{ border-radius: 10px !important; height: 48px !important; background: #fafafa !important; font-size: 14px !important; }}
-    .lp-field-wrap .q-field--outlined.q-field--focused .q-field__control {{ border-color: {cor} !important; box-shadow: 0 0 0 3px {cor}22 !important; }}
-    .lp-error {{ font-size: 13px; color: #ef4444; background: #fef2f2; border-radius: 8px; padding: 10px 14px; margin-top: 12px; display: none; border-left: 3px solid #ef4444; }}
-    .lp-hint {{ margin-top: 28px; padding-top: 20px; border-top: 1px solid #f3f4f6; }}
-    .lp-hint-label {{ font-size: 11px; font-weight: 600; color: #d1d5db; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }}
-    .lp-hint-item {{ font-size: 12.5px; color: #9ca3af; cursor: pointer; transition: color 0.15s; padding: 3px 0; }}
-    .lp-hint-item:hover {{ color: #374151; }}
-    .lp-criar-conta {{ margin-top: 20px; text-align: center; }}
-    .lp-criar-conta span {{ font-size: 13px; color: #9ca3af; }}
-    .lp-criar-conta a {{ color: {cor}; font-weight: 600; cursor: pointer; text-decoration: none; }}
-    .lp-criar-conta a:hover {{ text-decoration: underline; }}
-    .back-link {{ text-align: center; margin-bottom: 24px; }}
-    .back-link a {{ color: #64748b; font-size: 13px; cursor: pointer; text-decoration: none; }}
-    .back-link a:hover {{ color: #1e293b; }}
-    @media (max-width: 768px) {{ .lp-brand {{ display: none; }} .lp-form-side {{ width: 100%; padding: 24px; }} }}
+    <style>
+    * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+    
+    body {{
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        height: 100vh;
+        overflow: hidden;
+    }}
+    
+    .login-page {{
+        display: flex;
+        height: 100vh;
+        width: 100%;
+    }}
+    
+    /* LADO ESQUERDO - BRAND COM LOGO FULL BRANCA */
+    .login-brand {{
+        flex: 1;
+        background: linear-gradient(160deg, {cor_escura} 0%, {cor} 60%, {cor}cc 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 60px;
+        position: relative;
+        overflow: hidden;
+    }}
+    
+    .login-brand::before {{
+        content: '';
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.05);
+        top: -200px;
+        right: -200px;
+    }}
+    
+    .login-brand::after {{
+        content: '';
+        position: absolute;
+        width: 500px;
+        height: 500px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
+        bottom: -150px;
+        left: -150px;
+    }}
+    
+    .login-brand-logo {{
+        width: 180px;
+        height: auto;
+        margin-bottom: 48px;
+        position: relative;
+        z-index: 1;
+    }}
+    
+    .login-brand-benefits {{
+        position: relative;
+        z-index: 1;
+        max-width: 400px;
+    }}
+    
+    .login-brand-title {{
+        font-size: 28px;
+        font-weight: 800;
+        color: white;
+        margin-bottom: 12px;
+        letter-spacing: -0.5px;
+    }}
+    
+    .login-brand-subtitle {{
+        font-size: 15px;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 40px;
+        line-height: 1.6;
+    }}
+    
+    .benefit-item {{
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 20px;
+        color: white;
+    }}
+    
+    .benefit-icon {{
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+    }}
+    
+    .benefit-text {{
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 1.4;
+    }}
+    
+    /* LADO DIREITO - LOGIN FORM */
+    .login-form-side {{
+        width: 520px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        padding: 48px;
+    }}
+    
+    .login-form-container {{
+        width: 100%;
+        max-width: 380px;
+    }}
+    
+    .login-logo-icon {{
+        width: 48px;
+        height: auto;
+        margin: 0 auto 24px;
+        display: block;
+    }}
+    
+    .login-wordmark {{
+        width: 160px;
+        height: auto;
+        margin: 0 auto 8px;
+        display: block;
+    }}
+    
+    .login-title {{
+        font-size: 28px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 4px;
+        text-align: center;
+        letter-spacing: -0.5px;
+    }}
+    
+    .login-subtitle {{
+        font-size: 14px;
+        color: #94a3b8;
+        text-align: center;
+        margin-bottom: 32px;
+    }}
+    
+    .field-wrapper {{
+        margin-bottom: 18px;
+    }}
+    
+    .field-label {{
+        font-size: 13px;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 6px;
+        display: block;
+    }}
+    
+    .error-message {{
+        display: none;
+        font-size: 13px;
+        color: #ef4444;
+        background: #fef2f2;
+        border-left: 3px solid #ef4444;
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+    }}
+    
+    .error-message.show {{
+        display: block;
+    }}
+    
+    .login-btn {{
+        width: 100%;
+        height: 48px;
+        background: {cor};
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.2s;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }}
+    
+    .login-btn:hover {{
+        background: {cor_escura};
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-1px);
+    }}
+    
+    .demo-section {{
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid #f1f5f9;
+    }}
+    
+    .demo-label {{
+        font-size: 11px;
+        font-weight: 700;
+        color: #cbd5e1;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+        text-align: center;
+    }}
+    
+    .demo-btn {{
+        width: 100%;
+        padding: 12px;
+        background: #f5f3ff;
+        color: #7c3aed;
+        border: 1px solid #e9d5ff;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.2s;
+        text-align: center;
+    }}
+    
+    .demo-btn:hover {{
+        background: #ede9fe;
+        border-color: #c4b5fd;
+    }}
+    
+    .register-link {{
+        text-align: center;
+        margin-top: 24px;
+        font-size: 13px;
+        color: #94a3b8;
+    }}
+    
+    .register-link a {{
+        color: #7c3aed;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+    }}
+    
+    .register-link a:hover {{
+        text-decoration: underline;
+    }}
+    
+    .back-link {{
+        text-align: center;
+        margin-bottom: 24px;
+    }}
+    
+    .back-link a {{
+        color: #64748b;
+        font-size: 13px;
+        text-decoration: none;
+        cursor: pointer;
+    }}
+    
+    .back-link a:hover {{
+        color: #0f172a;
+    }}
+    
+    /* Input styling */
+    .q-field--outlined .q-field__control {{
+        border-radius: 10px !important;
+        height: 48px !important;
+        background: #fafafa !important;
+    }}
+    
+    .q-field--outlined.q-field--focused .q-field__control {{
+        border-color: {cor} !important;
+        box-shadow: 0 0 0 3px {cor}15 !important;
+    }}
+    
+    @media (max-width: 1024px) {{
+        .login-brand {{
+            display: none;
+        }}
+        
+        .login-form-side {{
+            width: 100%;
+            padding: 32px 24px;
+        }}
+    }}
+    
+    @media (max-width: 480px) {{
+        .login-form-side {{
+            padding: 24px 20px;
+        }}
+        
+        .login-title {{
+            font-size: 24px;
+        }}
+    }}
     </style>
     """)
-
+    
     def fazer_login():
         email = email_input.value.strip() if email_input.value else ''
         senha = senha_input.value or ''
+        
         if not email or not senha:
-            error_label.style('display: block'); error_label.set_text('⚠️ Preencha todos os campos.'); return
+            error_label.classes('error-message show')
+            error_label.set_text('⚠️ Preencha todos os campos.')
+            return
+        
         usuario = autenticar_usuario(email, senha)
+        
         if usuario:
-            global usuario_atual; usuario_atual = usuario
-            if email == 'demo': resetar_dados_demo(email)
+            global usuario_atual
+            usuario_atual = usuario
+            
+            if email == 'demo':
+                resetar_dados_demo(email)
+            
             set_usuario_logado(email)
             ui.notify(f'✅ Bem-vindo, {usuario["nome"]}!', type='positive', position='top')
             ui.navigate.to('/app')
         else:
-            error_label.style('display: block'); error_label.set_text('❌ Email ou senha incorretos.')
-
+            error_label.classes('error-message show')
+            error_label.set_text('❌ Email ou senha incorretos.')
+    
     def preencher_demo():
-        email_input.value = 'demo'; senha_input.value = 'admin'
-
-    with ui.element('div').classes('lp-root'):
-        with ui.element('div').classes('lp-brand'):
-            ui.image(LOGO_BRANCA).classes('lp-brand-logo')
-        with ui.element('div').classes('lp-form-side'):
-            with ui.element('div').classes('lp-form-box'):
+        email_input.value = 'demo'
+        senha_input.value = 'admin'
+    
+    # Construir a página
+    with ui.element('div').classes('login-page'):
+        # LADO ESQUERDO - Marca e Benefícios
+        with ui.element('div').classes('login-brand'):
+            ui.image(LOGO_FULL_BRANCA).classes('login-brand-logo')
+            
+            with ui.element('div').classes('login-brand-benefits'):
+                ui.label('Controle inteligente do seu crédito').classes('login-brand-title')
+                ui.label('Tudo que você precisa para dominar suas finanças em um só lugar.').classes('login-brand-subtitle')
+                
+                for icon, text in beneficios:
+                    with ui.element('div').classes('benefit-item'):
+                        ui.label(icon).classes('benefit-icon')
+                        ui.label(text).classes('benefit-text')
+        
+        # LADO DIREITO - Formulário
+        with ui.element('div').classes('login-form-side'):
+            with ui.element('div').classes('login-form-container'):
+                # Back link
                 with ui.element('div').classes('back-link'):
-                    ui.label('← Voltar para o site').on('click', lambda: ui.navigate.to('/'))
-                ui.image(WORDMARK).classes('lp-form-logo')
-                ui.label('Entrar na conta').style('font-size:26px;font-weight:700;letter-spacing:-0.8px;color:#0f0f0f;margin-bottom:6px;')
-                ui.label('Bem-vindo de volta!').style('font-size:14px;color:#9ca3af;margin-bottom:32px;')
-                with ui.element('div').classes('lp-field-wrap'):
-                    ui.label('E-mail').classes('lp-field-label')
-                    email_input = ui.input(placeholder='demo').props('outlined dense').classes('w-full')
-                with ui.element('div').classes('lp-field-wrap'):
-                    ui.label('Senha').classes('lp-field-label')
+                    ui.html('<a onclick="window.location.href=\'/\'">← Voltar para o site</a>')
+                
+                # Logo icon
+                ui.image(LOGO).classes('login-logo-icon')
+                
+                # Wordmark
+                ui.image(WORDMARK).classes('login-wordmark')
+                
+                ui.label('Bem-vindo de volta').classes('login-title')
+                ui.label('Entre para continuar').classes('login-subtitle')
+                
+                # Campos
+                with ui.element('div').classes('field-wrapper'):
+                    ui.label('Email').classes('field-label')
+                    email_input = ui.input(placeholder='seu@email.com').props('outlined dense').classes('w-full')
+                
+                with ui.element('div').classes('field-wrapper'):
+                    ui.label('Senha').classes('field-label')
                     senha_input = ui.input(placeholder='••••••••', password=True, password_toggle_button=True).props('outlined dense').classes('w-full')
-                error_label = ui.label('').classes('lp-error')
-                ui.button('Entrar', on_click=fazer_login).props('no-caps').style(f'width:100%;height:48px;border-radius:11px;background:{cor};color:white;border:none;font-size:15px;font-weight:600;cursor:pointer;margin-top:10px;')
-                with ui.element('div').classes('lp-hint'):
-                    ui.label('Acesso rápido').classes('lp-hint-label')
-                    ui.label('👑 demo / admin (Demonstração)').classes('lp-hint-item').on('click', preencher_demo)
-                with ui.element('div').classes('lp-criar-conta'):
-                    ui.label('Não tem conta? ').style('display:inline;font-size:13px;color:#9ca3af;')
-                    ui.label('Criar conta gratuita').style('display:inline;color:#8b5cf6;font-weight:600;cursor:pointer;font-size:13px;').on('click', lambda: ui.navigate.to('/criar-conta'))
+                
+                # Mensagem de erro
+                error_label = ui.label('').classes('error-message')
+                
+                # Botão de login
+                ui.button('Entrar', on_click=fazer_login).props('no-caps').classes('login-btn')
+                
+                # Demo section
+                with ui.element('div').classes('demo-section'):
+                    ui.label('Acesso rápido').classes('demo-label')
+                    ui.button('👑 Demo: demo / admin', on_click=preencher_demo).classes('demo-btn')
+                
+                # Register link
+                with ui.element('div').classes('register-link'):
+                    ui.label('Não tem conta? ').style('display: inline;')
+                    ui.html('<a onclick="window.location.href=\'/criar-conta\'">Criar conta gratuita</a>')
 
 
-# =========================
+# ============================================================
 # TELA DE CADASTRO
-# =========================
+# ============================================================
 @ui.page('/criar-conta')
 def criar_conta():
-    WORDMARK = "https://res.cloudinary.com/dxgyzvs8p/image/upload/v1777845635/wordmark_nf3put.png"
-    
-    ui.add_head_html("""
+    ui.add_head_html(f"""
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{FAVICON}">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'DM Sans', sans-serif; background: #f3f4f6; overflow-y: auto !important; height: auto !important; }
-        .cadastro-page { min-height: 100vh; width: 100%; padding: 20px 16px; display: flex; flex-direction: column; }
-        .cadastro-card { background: white; border-radius: 20px; padding: 32px 20px; width: 100%; max-width: 440px; margin: 0 auto; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-        .logo-img { width: 140px; height: auto; margin: 0 auto 20px auto; display: block; }
-        .planos-container { display: flex; gap: 10px; margin-bottom: 24px; }
-        .plano-card { flex: 1; border: 2px solid #e5e7eb; border-radius: 14px; padding: 14px 10px; text-align: center; cursor: pointer; transition: all 0.2s; background: white; }
-        .plano-card:active { transform: scale(0.97); }
-        .plano-card.selecionado { border-color: #8b5cf6; background: #faf5ff; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1); }
-        .campo { margin-bottom: 14px; }
-        .campo label { font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 4px; display: block; }
-        .erro-msg { color: #ef4444; font-size: 12px; text-align: center; padding: 8px; background: #fef2f2; border-radius: 8px; margin-bottom: 12px; display: none; }
-        .erro-msg.show { display: block; }
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ 
+            font-family: 'Inter', sans-serif; 
+            background: #f8fafc; 
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }}
+        .register-container {{
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 460px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }}
+        .register-logo {{
+            width: 140px;
+            height: auto;
+            margin: 0 auto 24px;
+            display: block;
+        }}
+        .register-title {{
+            font-size: 24px;
+            font-weight: 800;
+            color: #0f172a;
+            text-align: center;
+            margin-bottom: 4px;
+        }}
+        .register-subtitle {{
+            font-size: 14px;
+            color: #94a3b8;
+            text-align: center;
+            margin-bottom: 32px;
+        }}
+        .plan-selector {{
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }}
+        .plan-option {{
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }}
+        .plan-option.selected {{
+            border-color: #7c3aed;
+            background: #faf5ff;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }}
+        .plan-option-icon {{
+            font-size: 28px;
+            margin-bottom: 8px;
+        }}
+        .plan-option-name {{
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }}
+        .plan-option-price {{
+            font-size: 20px;
+            font-weight: 800;
+            color: #7c3aed;
+        }}
+        .plan-option-period {{
+            font-size: 11px;
+            color: #94a3b8;
+        }}
+        .form-group {{
+            margin-bottom: 16px;
+        }}
+        .form-label {{
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 6px;
+            display: block;
+        }}
+        .q-field--outlined .q-field__control {{
+            border-radius: 10px !important;
+            height: 48px !important;
+            background: #fafafa !important;
+        }}
+        .register-btn {{
+            width: 100%;
+            height: 48px;
+            background: #7c3aed;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }}
+        .register-btn:hover {{
+            background: #6d28d9;
+        }}
+        .login-link {{
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #94a3b8;
+        }}
+        .login-link a {{
+            color: #7c3aed;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }}
+        .error-msg {{
+            background: #fef2f2;
+            border-left: 3px solid #ef4444;
+            color: #ef4444;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+        }}
+        .error-msg.show {{
+            display: block;
+        }}
     </style>
     """)
-
+    
     plano_selecionado = {"plano": "gratuito"}
     planos_refs = {}
     
-    with ui.element('div').classes('cadastro-page'):
-        with ui.element('div').classes('cadastro-card'):
-            ui.image(WORDMARK).classes('logo-img')
-            ui.label('Criar sua Conta').style('font-size:22px;font-weight:700;text-align:center;color:#1e293b;margin-bottom:4px;')
-            ui.label('Comece grátis, faça upgrade quando quiser').style('font-size:13px;color:#9ca3af;text-align:center;margin-bottom:20px;')
+    with ui.element('div').classes('register-container'):
+        ui.image(WORDMARK).classes('register-logo')
+        ui.label('Criar sua Conta').classes('register-title')
+        ui.label('Comece grátis, faça upgrade quando quiser').classes('register-subtitle')
+        
+        # Seletor de plano
+        with ui.element('div').classes('plan-selector'):
+            # Plano Gratuito
+            plano_free = ui.element('div').classes('plan-option selected')
+            with plano_free:
+                ui.label('🆓').classes('plan-option-icon')
+                ui.label('Gratuito').classes('plan-option-name')
+                ui.label('R$ 0').classes('plan-option-price')
+                ui.label('para sempre').classes('plan-option-period')
+            plano_free.on('click', lambda: selecionar_plano('gratuito'))
+            planos_refs['gratuito'] = plano_free
             
-            with ui.element('div').classes('planos-container'):
-                plano_gratuito = ui.element('div').classes('plano-card selecionado')
-                with plano_gratuito:
-                    ui.label('🆓').style('font-size:28px;'); ui.label('Gratuito').style('font-size:14px;font-weight:700;')
-                    ui.label('R$ 0').style('font-size:22px;font-weight:700;color:#8b5cf6;'); ui.label('para sempre').style('font-size:11px;color:#9ca3af;')
-                plano_gratuito.on('click', lambda: selecionar_plano('gratuito')); planos_refs['gratuito'] = plano_gratuito
-                
-                plano_premium = ui.element('div').classes('plano-card')
-                with plano_premium:
-                    ui.label('💎').style('font-size:28px;'); ui.label('Premium').style('font-size:14px;font-weight:700;')
-                    ui.label('R$ 4,99').style('font-size:22px;font-weight:700;color:#8b5cf6;'); ui.label('/mês').style('font-size:11px;color:#9ca3af;')
-                plano_premium.on('click', lambda: selecionar_plano('premium')); planos_refs['premium'] = plano_premium
+            # Plano Premium
+            plano_premium = ui.element('div').classes('plan-option')
+            with plano_premium:
+                ui.label('💎').classes('plan-option-icon')
+                ui.label('Premium').classes('plan-option-name')
+                ui.label('R$ 4,99').classes('plan-option-price')
+                ui.label('/mês').classes('plan-option-period')
+            plano_premium.on('click', lambda: selecionar_plano('premium'))
+            planos_refs['premium'] = plano_premium
+        
+        def selecionar_plano(plano):
+            plano_selecionado["plano"] = plano
+            for nome, ref in planos_refs.items():
+                if nome == plano:
+                    ref.classes('plan-option selected')
+                else:
+                    ref.classes(remove='selected')
+        
+        # Campos do formulário
+        with ui.element('div').classes('form-group'):
+            ui.label('Nome completo').classes('form-label')
+            nome_input = ui.input(placeholder='Seu nome completo').props('outlined dense').classes('w-full')
+        
+        with ui.element('div').classes('form-group'):
+            ui.label('Email').classes('form-label')
+            email_input = ui.input(placeholder='seu@email.com').props('outlined dense').classes('w-full')
+        
+        with ui.element('div').classes('form-group'):
+            ui.label('Senha').classes('form-label')
+            senha_input = ui.input(placeholder='Mínimo 4 caracteres', password=True, password_toggle_button=True).props('outlined dense').classes('w-full')
+        
+        with ui.element('div').classes('form-group'):
+            ui.label('Confirmar Senha').classes('form-label')
+            confirmar_input = ui.input(placeholder='Repita a senha', password=True, password_toggle_button=True).props('outlined dense').classes('w-full')
+        
+        erro_label = ui.label('').classes('error-msg')
+        
+        def cadastrar():
+            nome = nome_input.value.strip() if nome_input.value else ''
+            email = email_input.value.strip() if email_input.value else ''
+            senha = senha_input.value or ''
+            confirmar = confirmar_input.value or ''
             
-            def selecionar_plano(plano):
-                plano_selecionado["plano"] = plano
-                for nome, ref in planos_refs.items():
-                    if nome == plano: ref.classes('plano-card selecionado'); ref.style('border-color:#8b5cf6;background:#faf5ff;box-shadow:0 0 0 3px rgba(139,92,246,0.1);')
-                    else: ref.classes(remove='selecionado'); ref.style('border-color:#e5e7eb;background:white;box-shadow:none;')
-                btn_criar.style('background:#8b5cf6;' if plano == 'premium' else 'background:#3b82f6;')
-                btn_criar.set_text('Criar Conta Premium' if plano == 'premium' else 'Criar Conta Gratuita')
+            erro_label.classes(remove='show')
             
-            with ui.element('div').classes('campo'):
-                ui.label('Nome completo'); nome_input = ui.input(placeholder='Seu nome completo').props('outlined dense').classes('w-full')
-            with ui.element('div').classes('campo'):
-                ui.label('E-mail'); email_input = ui.input(placeholder='seu@email.com').props('outlined dense').classes('w-full')
-            with ui.element('div').classes('campo'):
-                ui.label('Senha'); senha_input = ui.input(placeholder='Mínimo 4 caracteres', password=True, password_toggle_button=True).props('outlined dense').classes('w-full')
-            with ui.element('div').classes('campo'):
-                ui.label('Confirmar Senha'); confirmar_input = ui.input(placeholder='Repita a senha', password=True, password_toggle_button=True).props('outlined dense').classes('w-full')
+            if not nome or not email or not senha:
+                erro_label.classes('error-msg show')
+                erro_label.set_text('⚠️ Preencha todos os campos')
+                return
             
-            erro_label = ui.label('').classes('erro-msg')
+            if senha != confirmar:
+                erro_label.classes('error-msg show')
+                erro_label.set_text('⚠️ Senhas não conferem')
+                return
             
-            def cadastrar():
-                nome = nome_input.value.strip() if nome_input.value else ''; email = email_input.value.strip() if email_input.value else ''
-                senha = senha_input.value or ''; confirmar = confirmar_input.value or ''
-                erro_label.classes(remove='show'); erro_label.style('display:none;')
-                if not nome or not email or not senha: erro_label.classes('erro-msg show'); erro_label.style('display:block;'); erro_label.set_text('⚠️ Preencha todos os campos'); return
-                if senha != confirmar: erro_label.classes('erro-msg show'); erro_label.style('display:block;'); erro_label.set_text('⚠️ Senhas não conferem'); return
-                if len(senha) < 4: erro_label.classes('erro-msg show'); erro_label.style('display:block;'); erro_label.set_text('⚠️ Senha deve ter pelo menos 4 caracteres'); return
-                sucesso, msg, usuario = criar_usuario(nome, email, senha, plano_selecionado["plano"])
-                if sucesso:
-                    plano_nome = 'Premium' if plano_selecionado["plano"] == 'premium' else 'Gratuito'
-                    ui.notify(f'✅ Conta {plano_nome} criada! Faça login.', type='positive', position='top', timeout=3000)
-                    ui.timer(1.5, lambda: ui.navigate.to('/login'), once=True)
-                else: erro_label.classes('erro-msg show'); erro_label.style('display:block;'); erro_label.set_text(f'❌ {msg}')
+            if len(senha) < 4:
+                erro_label.classes('error-msg show')
+                erro_label.set_text('⚠️ Senha deve ter pelo menos 4 caracteres')
+                return
             
-            btn_criar = ui.button('Criar Conta Gratuita', on_click=cadastrar).props('no-caps')
-            btn_criar.style('width:100%;padding:14px;border-radius:12px;background:#3b82f6;color:white;border:none;font-size:15px;font-weight:600;cursor:pointer;')
-            with ui.element('div').style('text-align:center;margin-top:16px;'):
-                ui.label('Já tem conta? ').style('display:inline;font-size:13px;color:#9ca3af;')
-                ui.label('Fazer login').style('display:inline;color:#8b5cf6;font-weight:600;cursor:pointer;font-size:13px;').on('click', lambda: ui.navigate.to('/login'))
+            sucesso, msg, usuario = criar_usuario(nome, email, senha, plano_selecionado["plano"])
+            
+            if sucesso:
+                plano_nome = 'Premium' if plano_selecionado["plano"] == 'premium' else 'Gratuito'
+                ui.notify(f'✅ Conta {plano_nome} criada! Redirecionando...', type='positive', position='top', timeout=3000)
+                ui.timer(1.5, lambda: ui.navigate.to('/login'), once=True)
+            else:
+                erro_label.classes('error-msg show')
+                erro_label.set_text(f'❌ {msg}')
+        
+        ui.button('Criar Conta', on_click=cadastrar).props('no-caps').classes('register-btn')
+        
+        with ui.element('div').classes('login-link'):
+            ui.label('Já tem conta? ').style('display: inline;')
+            ui.html('<a onclick="window.location.href=\'/login\'">Fazer login</a>')
 
 
-# =========================
+# ============================================================
 # TELA PRINCIPAL (PÓS-LOGIN)
-# =========================
+# ============================================================
 @ui.page('/app')
 def app():
     global usuario_atual, container_principal
-    if not usuario_atual: ui.navigate.to('/login'); return
+    if not usuario_atual:
+        ui.navigate.to('/login')
+        return
+    
     from telas.lancamentos import tela_lancamentos
     container_principal = ui.element('div').classes('w-full h-screen')
     tela_lancamentos(container_principal)
 
 
-# =========================
+# ============================================================
 # INICIALIZAÇÃO
-# =========================
+# ============================================================
 inicializar()
 admin.inicializar_admin()
 set_usuario_logado(None)
