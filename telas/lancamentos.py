@@ -1,9 +1,14 @@
 """
-Tela de Lançamentos - Versão Mobile com Consultor Financeiro Inteligente
+Tela de Lançamentos - Cartometro
+Versão Mobile com Consultor Financeiro Inteligente
 """
 
 from nicegui import ui, app
-from db import carregar, remover_gasto, salvar
+from db import (
+    carregar, salvar, remover_gasto, adicionar_gasto,
+    verificar_limite_lancamentos, get_usuario_logado_email,
+    get_plano_usuario, tem_consultor_premium
+)
 from config_service import config_service
 from auth_service import get_usuario_logado
 from datetime import datetime, timedelta
@@ -35,10 +40,20 @@ CUSTOM_CSS = """
 .lancamentos-tela { position: fixed !important; top: 0; left: 0; right: 0; bottom: 0; width: 100% !important; height: 100% !important; display: flex !important; flex-direction: column !important; background: #f3f4f6 !important; overflow: hidden !important; }
 .lancamentos-header-fixo { flex-shrink: 0 !important; width: 100% !important; z-index: 10 !important; }
 .header-bar { padding: 8px 14px !important; box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important; }
-.header-logo-small { width: 28px; height: 28px; border-radius: 7px; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; }
-.header-title-text { font-size: 14px !important; font-weight: 700 !important; line-height: 1.1 !important; }
 .header-subtitle-text { font-size: 9px !important; opacity: 0.7 !important; line-height: 1 !important; }
 .header-icon-btn { width: 28px; height: 28px; min-width: 28px; padding: 0 !important; border-radius: 50% !important; }
+
+.limite-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    padding: 2px 8px !important;
+    border-radius: 10px !important;
+    font-size: 9px !important;
+    font-weight: 600 !important;
+    background: rgba(255,255,255,0.2) !important;
+    color: white !important;
+}
 
 .busca-row { padding: 4px 8px !important; background: white !important; display: flex; align-items: center; gap: 4px; }
 .busca-row .q-field__native, .busca-row .q-field__control { min-height: 32px !important; font-size: 13px !important; }
@@ -77,7 +92,6 @@ CUSTOM_CSS = """
 .lancamento-valor { font-size: 14px !important; font-weight: 600; }
 .chevron-icon { font-size: 14px !important; color: #d1d5db; }
 .estado-vazio { padding: 40px 20px; text-align: center; }
-.alerta-card { padding: 8px 12px; margin: 4px 8px; border-radius: 10px; background: #fffbeb; border: 1px solid #fde68a; font-size: 11px; }
 
 .fab-button { position: fixed !important; bottom: 72px; right: 16px; z-index: 999; width: 50px; height: 50px; border-radius: 25px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; }
 
@@ -140,13 +154,20 @@ def tela_lancamentos(container):
     
     kpi_container = None
     lista = None
-    alerta_container = None
+    contador_label = None  # Para atualizar o contador de lançamentos
     
-    # Persistência de notificações lidas via app.storage
+    # Persistência de notificações lidas
     if 'notif_lidas' not in app.storage.user:
         app.storage.user['notif_lidas'] = []
     notificacoes_lidas = set(app.storage.user['notif_lidas'])
     notif_badge = None
+    
+    # Info do plano
+    email_logado = get_usuario_logado_email()
+    plano_info = get_plano_usuario(email_logado) if email_logado else {}
+    plano_nome = plano_info.get('nome', 'Gratuito')
+    max_lanc = plano_info.get('max_lancamentos_mes', 20)
+    consultor_premium = tem_consultor_premium(email_logado) if email_logado else False
     
     def carregar_dados():
         dados = carregar()
@@ -174,6 +195,7 @@ def tela_lancamentos(container):
         dados, categorias, gastos, fixos, cartoes, mapa_icones, mapa_cores = carregar_dados()
         atualizar_lista()
         atualizar_badge()
+        atualizar_contador()
     
     def get_ciclo_atual():
         config = dados.get("config", {})
@@ -240,13 +262,49 @@ def tela_lancamentos(container):
         }
     
     # ==========================================
+    # CONTADOR DE LANÇAMENTOS
+    # ==========================================
+    def contar_lancamentos_mes():
+        """Conta quantos lançamentos foram feitos este mês"""
+        hoje = datetime.now()
+        count = 0
+        for g in gastos:
+            if g.get('data'):
+                try:
+                    dt = datetime.strptime(g['data'], "%Y-%m-%d")
+                    if dt.month == hoje.month and dt.year == hoje.year:
+                        count += 1
+                except:
+                    pass
+        return count
+    
+    def atualizar_contador():
+        nonlocal contador_label
+        if contador_label is None:
+            return
+        
+        count = contar_lancamentos_mes()
+        if max_lanc >= 9999:
+            contador_label.set_text(f"📊 {count} lançamentos")
+        else:
+            contador_label.set_text(f"📊 {count}/{max_lanc} lançamentos")
+            if count >= max_lanc:
+                contador_label.style('background: rgba(239,68,68,0.3) !important;')
+            elif count >= max_lanc * 0.8:
+                contador_label.style('background: rgba(245,158,11,0.3) !important;')
+            else:
+                contador_label.style('background: rgba(255,255,255,0.2) !important;')
+    
+    # ==========================================
     # CONSULTOR FINANCEIRO
     # ==========================================
     from consultor import gerar_notificacoes
     
     def atualizar_badge():
         if notif_badge is None: return
-        notificacoes = gerar_notificacoes(dados, gastos, fixos, cartoes)
+        
+        plano = "premium" if consultor_premium else "gratuito"
+        notificacoes = gerar_notificacoes(dados, gastos, fixos, cartoes, plano=plano)
         nao_lidas = [n for n in notificacoes if n["id"] not in notificacoes_lidas]
         total = len(nao_lidas)
         if total > 0:
@@ -256,16 +314,32 @@ def tela_lancamentos(container):
             notif_badge.style('display: none')
     
     def abrir_notificacoes():
-        notificacoes = gerar_notificacoes(dados, gastos, fixos, cartoes)
+        plano = "premium" if consultor_premium else "gratuito"
+        notificacoes = gerar_notificacoes(dados, gastos, fixos, cartoes, plano=plano)
         
         with ui.dialog() as notif_dialog, ui.card().classes('notif-popup p-0 gap-0'):
             with ui.row().classes('w-full items-center justify-between p-3').style(f'background: linear-gradient(135deg, {cor_escura}, {cor_primaria}) !important;'):
                 with ui.row().classes('items-center gap-2'):
                     ui.icon('notifications').classes('text-xl text-white')
-                    ui.label("Consultor Financeiro").classes('text-white font-bold text-sm')
+                    
+                    if consultor_premium:
+                        ui.label("Consultor Premium").classes('text-white font-bold text-sm')
+                    else:
+                        ui.label("Consultor").classes('text-white font-bold text-sm')
+                    
                     nao_lidas = len([n for n in notificacoes if n["id"] not in notificacoes_lidas])
                     ui.label(f"({nao_lidas} novas)").classes('text-white/70 text-xs')
+                
                 ui.button(icon='close', on_click=lambda: [notif_dialog.close(), atualizar_badge()]).props('flat').style('color: white !important;')
+            
+            # Banner upgrade para gratuito
+            if not consultor_premium:
+                with ui.card().classes('m-2 p-3').style('background: linear-gradient(135deg, #8b5cf6, #6366f1); border-radius: 10px;'):
+                    with ui.row().classes('items-center justify-between'):
+                        with ui.row().classes('items-center gap-2'):
+                            ui.icon('star').classes('text-white')
+                            ui.label("💎 Consultor Premium").classes('text-white text-sm font-bold')
+                        ui.label("30+ alertas").classes('text-white/80 text-xs')
             
             with ui.element('div').style('max-height: 65vh; overflow-y: auto;'):
                 if not notificacoes:
@@ -315,10 +389,10 @@ def tela_lancamentos(container):
             with ui.element('div').classes('dialog-scroll w-full p-4'):
                 with ui.column().classes('w-full gap-4'):
                     ui.input(label="Descrição", value=gasto.get("descricao", "")).props('outlined dense readonly').classes('w-full bg-gray-50')
-                    ui.input(label="Valor", value=config_service.formatar_valor(gasto.get("valor", 0))).props('outlined dense readonly').classes('w-full bg-gray-50')
+                    ui.input(label="Valor", value=f"R$ {gasto.get('valor', 0):.2f}").props('outlined dense readonly').classes('w-full bg-gray-50')
                     ui.input(label="Categoria", value=categoria).props('outlined dense readonly').classes('w-full bg-gray-50')
                     if gasto.get("cartao"): ui.input(label="Cartão", value=gasto.get("cartao")).props('outlined dense readonly').classes('w-full bg-gray-50')
-                    if gasto.get("data"): ui.input(label="Data", value=config_service.formatar_data(gasto["data"])).props('outlined dense readonly').classes('w-full bg-gray-50')
+                    if gasto.get("data"): ui.input(label="Data", value=gasto["data"]).props('outlined dense readonly').classes('w-full bg-gray-50')
                     if gasto.get("parcelas", 1) > 1: ui.input(label="Parcelas", value=f"{gasto.get('parcela_atual', 1)}/{gasto.get('parcelas', 1)}").props('outlined dense readonly').classes('w-full bg-gray-50')
             
             with ui.row().classes('botoes-fixos justify-end gap-2 p-4'):
@@ -385,7 +459,6 @@ def tela_lancamentos(container):
                     
                     def abrir_calendario():
                         with ui.dialog() as cal_dialog, ui.card().classes('p-4 rounded-xl'):
-                            ui.label("Selecione a data").classes('text-sm font-bold mb-2').style(f'color: {cor_primaria} !important;')
                             cal = ui.date().props('today-btn minimal')
                             def confirmar_data():
                                 if cal.value:
@@ -426,17 +499,16 @@ def tela_lancamentos(container):
             ui.icon('warning').classes('text-red-500 text-2xl mb-2')
             ui.label("Excluir gasto?").classes('text-lg font-bold')
             ui.label(f"📝 {gasto.get('descricao', 'Sem descrição')}").classes('text-sm')
-            ui.label(f"💰 {config_service.formatar_valor(gasto.get('valor', 0))}").classes('text-sm font-bold text-red-500')
+            ui.label(f"💰 R$ {gasto.get('valor', 0):.2f}").classes('text-sm font-bold text-red-500')
             with ui.row().classes('justify-end gap-2 mt-4'):
                 ui.button("Cancelar", on_click=confirm_dialog.close).props('outline').style(f'color: {cor_primaria} !important; border-color: {cor_primaria} !important;')
                 ui.button("Excluir", on_click=excluir).style(f'background: #ef4444 !important; color: white !important; border-radius: 8px;')
         confirm_dialog.open()
     
     def atualizar_lista():
-        nonlocal kpi_container, lista, alerta_container
+        nonlocal kpi_container, lista
         if lista is None or kpi_container is None: return
         lista.clear(); kpi_container.clear()
-        if alerta_container: alerta_container.clear()
         
         totais = calcular_totais()
         
@@ -447,7 +519,7 @@ def tela_lancamentos(container):
                     with ui.card().classes('kpi-card').style(f'border-left-color: {borda_cor} !important;'):
                         ui.icon(icone_nome).classes('kpi-icon').style(f'color: {borda_cor} !important;')
                         ui.label(label).classes('kpi-label')
-                        ui.label(config_service.formatar_valor(valor)).classes('kpi-valor')
+                        ui.label(f"R$ {valor:,.2f}").classes('kpi-valor')
             
             with ui.element('div').classes('progresso-container'):
                 with ui.card().classes('progresso-card'):
@@ -508,8 +580,12 @@ def tela_lancamentos(container):
             for data_str in sorted(por_data.keys(), reverse=True):
                 grupo = por_data[data_str]
                 with ui.row().classes('dia-header justify-between items-center'):
-                    ui.label(f"📅 {config_service.formatar_data(data_str)}").classes('dia-titulo')
-                    ui.label(config_service.formatar_valor(sum(g[1].get("valor", 0) for g in grupo))).classes('dia-total text-red-500')
+                    try:
+                        data_formatada = datetime.strptime(data_str, "%Y-%m-%d").strftime("%d/%m")
+                    except:
+                        data_formatada = data_str
+                    ui.label(f"📅 {data_formatada}").classes('dia-titulo')
+                    ui.label(f"R$ {sum(g[1].get('valor', 0) for g in grupo):,.2f}").classes('dia-total text-red-500')
                 
                 for idx, g in grupo:
                     categoria = g.get("categoria", "Sem categoria")
@@ -527,13 +603,13 @@ def tela_lancamentos(container):
                                     ui.label(g.get("descricao", "Sem descrição")).classes('lancamento-desc')
                                     if detalhes: ui.label(" • ".join(detalhes)).classes('lancamento-detalhe')
                             with ui.row().classes('items-center gap-2'):
-                                ui.label(config_service.formatar_valor(g.get("valor", 0))).classes('lancamento-valor text-red-500')
+                                ui.label(f"R$ {g.get('valor', 0):,.2f}").classes('lancamento-valor text-red-500')
                                 ui.icon('chevron_right').classes('chevron-icon')
             
             if sem_data:
                 with ui.row().classes('dia-header justify-between items-center'):
                     ui.label("🔁 Fixos").classes('dia-titulo text-purple-600')
-                    ui.label(config_service.formatar_valor(sum(g[1].get("valor", 0) for g in sem_data))).classes('dia-total text-purple-600')
+                    ui.label(f"R$ {sum(g[1].get('valor', 0) for g in sem_data):,.2f}").classes('dia-total text-purple-600')
                 
                 for idx, g in sem_data:
                     categoria = g.get("categoria", "Sem categoria")
@@ -545,7 +621,7 @@ def tela_lancamentos(container):
                                 with ui.column().classes('gap-0 flex-1'):
                                     ui.label(g.get("descricao", "Sem descrição")).classes('lancamento-desc')
                                     ui.label("Mensal").classes('lancamento-detalhe text-purple-400')
-                            ui.label(config_service.formatar_valor(g.get("valor", 0))).classes('lancamento-valor text-purple-600')
+                            ui.label(f"R$ {g.get('valor', 0):,.2f}").classes('lancamento-valor text-purple-600')
     
     # ==========================================
     # FILTROS
@@ -553,8 +629,12 @@ def tela_lancamentos(container):
     def set_filtro_tipo(valor):
         nonlocal tipo_filtro
         tipo_filtro = str(valor).lower() if valor else "ciclo"
-        if tipo_filtro == "ciclo": botoes_toggle['ciclo'].style(f'background: {cor_primaria} !important; color: white !important;'); botoes_toggle['mes'].style('background: #f3f4f6 !important; color: #6b7280 !important;')
-        else: botoes_toggle['ciclo'].style('background: #f3f4f6 !important; color: #6b7280 !important;'); botoes_toggle['mes'].style(f'background: {cor_primaria} !important; color: white !important;')
+        if tipo_filtro == "ciclo": 
+            botoes_toggle['ciclo'].style(f'background: {cor_primaria} !important; color: white !important;')
+            botoes_toggle['mes'].style('background: #f3f4f6 !important; color: #6b7280 !important;')
+        else: 
+            botoes_toggle['ciclo'].style('background: #f3f4f6 !important; color: #6b7280 !important;')
+            botoes_toggle['mes'].style(f'background: {cor_primaria} !important; color: white !important;')
         atualizar_lista(); atualizar_badge()
     
     def set_filtro_busca(valor):
@@ -584,6 +664,12 @@ def tela_lancamentos(container):
         atualizar_lista(); atualizar_badge()
     
     def abrir_cadastro():
+        # Verificar limite de lançamentos
+        pode, msg = verificar_limite_lancamentos(email_logado) if email_logado else (True, "")
+        if not pode:
+            ui.notify(msg, type="warning", position="top", timeout=4000)
+            return
+        
         from telas.cadastro import tela_cadastro
         tela_cadastro(callback=atualizar_dados)
     
@@ -595,6 +681,8 @@ def tela_lancamentos(container):
         dialog_config.open()
     
     def fazer_logout():
+        from db import set_usuario_logado
+        set_usuario_logado(None)
         ui.notify("👋 Até logo!", type="info", position="top")
         ui.timer(0.5, lambda: ui.navigate.to('/'), once=True)
     
@@ -617,19 +705,32 @@ def tela_lancamentos(container):
     with ui.element('div').classes('lancamentos-tela'):
         with ui.element('div').classes('lancamentos-header-fixo'):
             with ui.row().classes('header-bar items-center justify-between').style(f'background: linear-gradient(135deg, {cor_escura}, {cor_primaria}) !important;'):
-                # ============================================================
-                # HEADER COM LOGO (URL CLOUDINARY)
-                # ============================================================
                 with ui.row().classes('items-center gap-2'):
-                    ui.image(LOGO_COMPLETA).style('width: 120px; height: auto;')
+                    # Logo
+                    ui.image(LOGO_COMPLETA).style('width: 100px; height: auto;')
                     with ui.column().classes('gap-0'):
                         inicio, fim = get_ciclo_atual()
                         ui.label(f"Fecha dia {fim.day}").classes('header-subtitle-text text-white')
+                        
+                        # Contador de lançamentos
+                        count = contar_lancamentos_mes()
+                        if max_lanc >= 9999:
+                            contador_label = ui.label(f"📊 {count} lançamentos").classes('limite-badge')
+                        else:
+                            cor_badge = 'rgba(239,68,68,0.3)' if count >= max_lanc else 'rgba(245,158,11,0.3)' if count >= max_lanc * 0.8 else 'rgba(255,255,255,0.2)'
+                            contador_label = ui.label(f"📊 {count}/{max_lanc}").classes('limite-badge')
+                            contador_label.style(f'background: {cor_badge} !important;')
                 
                 with ui.element('div').classes('notificacoes-container'):
                     notif_badge = ui.label('0').classes('notif-badge')
                     notif_badge.style('display: none')
-                    ui.button(icon='notifications', on_click=abrir_notificacoes).props('flat round size=sm').classes('header-icon-btn').style('color: white !important;')
+                    
+                    # Ícone diferente para premium
+                    icon_notif = 'notifications' if consultor_premium else 'notifications'
+                    ui.button(icon=icon_notif, on_click=abrir_notificacoes).props('flat round size=sm').classes('header-icon-btn').style('color: white !important;')
+                    
+                    if not consultor_premium:
+                        ui.element('div').style('position:absolute;top:-1px;right:-1px;width:8px;height:8px;border-radius:50%;background:#f59e0b;')
             
             with ui.element('div').classes('busca-row'):
                 busca_input = ui.input(placeholder="🔍 Buscar...").props('dense clearable').classes('flex-1').style('font-size: 13px;')
@@ -653,17 +754,24 @@ def tela_lancamentos(container):
         
         with ui.element('div').classes('lancamentos-rolagem'):
             kpi_container = ui.column().classes('w-full')
-            alerta_container = ui.column().classes('w-full')
             lista = ui.column().classes('w-full')
         
         with ui.element('div').classes('fab-button').style(f'background-color: {cor_primaria} !important;'):
             ui.button(icon='add', on_click=abrir_cadastro).props('round flat').style('color: white !important; width: 50px; height: 50px; font-size: 22px;')
         
         with ui.element('div').classes('bottom-nav-bar'):
-            with ui.element('div').classes('bottom-nav-item'): ui.label(usuario_avatar).classes('bottom-nav-icon').style('font-size: 18px'); ui.label(usuario_nome).classes('bottom-nav-label').style(f'color: {cor_primaria} !important;')
-            with ui.element('div').classes('bottom-nav-item active'): ui.icon('receipt_long').classes('bottom-nav-icon').style(f'color: {cor_primaria} !important;'); ui.label("Gastos").classes('bottom-nav-label')
-            with ui.element('div').classes('bottom-nav-item').on('click', abrir_configuracoes): ui.icon('settings').classes('bottom-nav-icon'); ui.label("Config").classes('bottom-nav-label')
-            with ui.element('div').classes('bottom-nav-item').on('click', fazer_logout): ui.icon('logout').classes('bottom-nav-icon').style('color: #ef4444 !important;'); ui.label("Sair").classes('bottom-nav-label').style('color: #ef4444 !important;')
+            with ui.element('div').classes('bottom-nav-item'): 
+                ui.label(usuario_avatar).classes('bottom-nav-icon').style('font-size: 18px')
+                ui.label(usuario_nome[:10]).classes('bottom-nav-label').style(f'color: {cor_primaria} !important;')
+            with ui.element('div').classes('bottom-nav-item active'): 
+                ui.icon('receipt_long').classes('bottom-nav-icon').style(f'color: {cor_primaria} !important;')
+                ui.label("Gastos").classes('bottom-nav-label')
+            with ui.element('div').classes('bottom-nav-item').on('click', abrir_configuracoes): 
+                ui.icon('settings').classes('bottom-nav-icon')
+                ui.label("Config").classes('bottom-nav-label')
+            with ui.element('div').classes('bottom-nav-item').on('click', fazer_logout): 
+                ui.icon('logout').classes('bottom-nav-icon').style('color: #ef4444 !important;')
+                ui.label("Sair").classes('bottom-nav-label').style('color: #ef4444 !important;')
     
     def verificar_mudancas():
         nonlocal dados, categorias, gastos, fixos, cartoes
@@ -672,10 +780,12 @@ def tela_lancamentos(container):
             dados, categorias, gastos, fixos, cartoes, mapa_icones, mapa_cores = carregar_dados()
             atualizar_lista()
             atualizar_badge()
+            atualizar_contador()
     
     ui.timer(2.0, verificar_mudancas)
     atualizar_lista()
     atualizar_badge()
+    atualizar_contador()
 
 
 __all__ = ['tela_lancamentos']

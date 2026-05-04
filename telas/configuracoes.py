@@ -1,9 +1,15 @@
 """
-Tela de Configurações - Limites, Tema, Gastos Fixos, Cartões, Usuários e Sobre
+Tela de Configurações - Limites, Tema, Gastos Fixos, Cartões, Perfil e Sobre
 """
 
 from nicegui import ui
-from db import carregar, atualizar_config, adicionar_gasto, remover_gasto, adicionar_cartao, remover_cartao, atualizar_cartao
+from db import (
+    carregar, atualizar_config, adicionar_gasto, remover_gasto,
+    adicionar_cartao, remover_cartao, atualizar_cartao,
+    buscar_usuario_por_email, salvar_usuarios, carregar_usuarios,
+    pode_usar_modo_individual, verificar_limite_cartoes,
+    get_limites_usuario, PLANOS
+)
 from config_service import config_service
 from constantes import CATEGORIAS_PADRAO
 from datetime import datetime
@@ -34,8 +40,6 @@ CORES_TEMA = [
     {"nome": "Vermelho", "cor": "#ef4444", "escura": "#b91c1c"},
     {"nome": "Âmbar", "cor": "#d97706", "escura": "#92400e"},
 ]
-
-USUARIOS_ARQ = 'usuarios.json'
 
 CUSTOM_CSS = """
 <style>
@@ -117,6 +121,16 @@ CUSTOM_CSS = """
     margin-bottom: 12px !important;
 }
 
+.plano-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 3px 10px !important;
+    border-radius: 12px !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+}
+
 .cores-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 10px !important; width: 100% !important; }
 .cor-item { display: flex !important; flex-direction: column !important; align-items: center !important; gap: 6px !important; cursor: pointer !important; padding: 4px !important; }
 .cor-circle {
@@ -128,24 +142,13 @@ CUSTOM_CSS = """
 }
 .cor-circle:hover { transform: scale(1.12) !important; }
 
-.avatares-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 8px !important; width: 100% !important; }
-.avatar-option {
-    aspect-ratio: 1 !important; width: 100% !important;
-    border-radius: 14px !important;
-    display: flex !important; align-items: center !important; justify-content: center !important;
-    font-size: 32px !important; cursor: pointer !important;
-    transition: all 0.15s ease !important;
-    border: 2px solid #e5e7eb !important; background: white !important;
-}
-.avatar-option:hover { transform: scale(1.05) !important; }
-
 .fixo-card {
     width: 100% !important; padding: 12px !important;
     background: #faf5ff !important; border-radius: 8px !important;
     margin-bottom: 8px !important; border: 1px solid #e9d5ff !important;
 }
 
-.usuario-card, .cartao-card {
+.cartao-card {
     background: #f9fafb !important; border-radius: 10px !important;
     padding: 12px !important; margin-bottom: 8px !important;
     border: 1px solid #f3f4f6 !important;
@@ -208,6 +211,17 @@ CUSTOM_CSS = """
     padding: 4px 0 !important;
 }
 
+.perfil-avatar {
+    width: 80px !important;
+    height: 80px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 40px !important;
+    margin: 0 auto 16px auto !important;
+}
+
 .btn-sm { padding: 6px 12px !important; font-size: 11px !important; border-radius: 6px !important; min-height: 30px !important; }
 
 .q-field--outlined.q-field--focused .q-field__control:before { border-color: var(--cor-primaria) !important; }
@@ -235,35 +249,23 @@ def tela_configuracoes(container, dialog_pai=None):
     
     aba_ativa = {"atual": "limites"}
     dados = carregar()
-    usuarios_ref = {"lista": []}
     tab_content = None
+    
+    # Buscar info do usuário logado
+    from db import _usuario_logado_email
+    usuario_info = buscar_usuario_por_email(_usuario_logado_email) if _usuario_logado_email else None
+    plano_atual = usuario_info.get('plano', 'gratuito') if usuario_info else 'gratuito'
+    plano_nome = PLANOS.get(plano_atual, {}).get('nome', 'Gratuito')
     
     def carregar_dados():
         nonlocal dados
         dados = carregar()
     
-    def carregar_usuarios():
-        if os.path.exists(USUARIOS_ARQ):
-            with open(USUARIOS_ARQ, "r", encoding="utf-8") as f:
-                usuarios_ref["lista"] = json.load(f)
-        else:
-            usuarios_ref["lista"] = []
-    
-    def hash_senha(senha):
-        return hashlib.sha256(senha.encode()).hexdigest()
-    
-    def salvar_usuarios():
-        with open(USUARIOS_ARQ, "w", encoding="utf-8") as f:
-            json.dump(usuarios_ref["lista"], f, indent=2, ensure_ascii=False)
-    
-    def fechar():
+    def recarregar_principal():
         if dialog_pai is not None:
             dialog_pai.close()
         else:
             container.clear()
-    
-    def recarregar_principal():
-        fechar()
         ui.run_javascript('location.reload()')
     
     # =========================
@@ -272,39 +274,50 @@ def tela_configuracoes(container, dialog_pai=None):
     def render_limites():
         config = dados.get("config", {})
         modo_atual = config.get("modo_cartao", "Unificado")
+        pode_individual = pode_usar_modo_individual(_usuario_logado_email) if _usuario_logado_email else False
         
         with ui.card().classes('config-card'):
             with ui.row().classes('items-center gap-2 mb-3'):
                 ui.icon('tune').classes('text-lg').style(f'color: {cor_primaria} !important;')
                 ui.label("Configuração do Cartão").classes('text-base font-bold')
             
-            # ============================================================
-            # DICA INFORMATIVA
-            # ============================================================
+            # Dica
             with ui.card().classes('dica-card').style(f'background: {cor_primaria}08; border-left: 3px solid {cor_primaria};'):
                 with ui.row().classes('items-start gap-2'):
                     ui.icon('info').classes('text-sm mt-0.5').style(f'color: {cor_primaria} !important;')
                     with ui.column().classes('gap-1'):
                         ui.label("💡 Como funciona").classes('text-xs font-semibold').style(f'color: {cor_primaria} !important;')
-                        ui.label("Escolha o modo de controle primeiro. No modo Unificado, você define limites gerais. No Individual, cada cartão tem seus próprios limites.").classes('text-[11px] text-gray-600')
+                        if not pode_individual:
+                            ui.label("No plano Gratuito você usa o modo Unificado. Para usar múltiplos cartões, faça upgrade para Premium!").classes('text-[11px] text-gray-600')
+                        else:
+                            ui.label("Escolha o modo de controle. No Unificado, limites gerais. No Individual, cada cartão tem seus limites.").classes('text-[11px] text-gray-600')
             
-            # ============================================================
-            # MODO DE CONTROLE (PRIMEIRO)
-            # ============================================================
+            # Modo de Controle
             with ui.column().classes('w-full gap-1 mb-4'):
                 ui.label("💳 Modo de Controle").classes('campo-label')
-                modo_cartao = ui.select(
-                    options=["Unificado", "Individual"], 
-                    label="Modo", 
-                    value=modo_atual
-                ).props('outlined dense').classes('w-full')
                 
-                # Container para campos condicionais
+                if not pode_individual:
+                    modo_cartao = ui.select(
+                        options=["Unificado"], 
+                        label="Modo (Premium para Individual)", 
+                        value="Unificado"
+                    ).props('outlined dense').classes('w-full')
+                    
+                    with ui.card().classes('dica-card mt-2').style('background: #fef3c7; border: 1px solid #f59e0b;'):
+                        with ui.row().classes('items-start gap-2'):
+                            ui.icon('lock').classes('text-sm mt-0.5').style('color: #f59e0b !important;')
+                            with ui.column().classes('gap-1'):
+                                ui.label("🔒 Modo Individual é Premium").classes('text-xs font-semibold text-yellow-700')
+                                ui.label("Faça upgrade para gerenciar múltiplos cartões.").classes('text-[10px] text-yellow-600')
+                else:
+                    modo_cartao = ui.select(
+                        options=["Unificado", "Individual"], 
+                        label="Modo", 
+                        value=modo_atual
+                    ).props('outlined dense').classes('w-full')
+                
                 container_limites = ui.column().classes('w-full')
             
-            # ============================================================
-            # CAMPOS CONDICIONAIS
-            # ============================================================
             campos_limites = {}
             
             def atualizar_campos_limites():
@@ -312,34 +325,20 @@ def tela_configuracoes(container, dialog_pai=None):
                 campos_limites.clear()
                 
                 if modo_cartao.value == "Unificado":
-                    # MODO UNIFICADO - Mostrar limites gerais
                     with container_limites:
-                        with ui.card().classes('dica-card mt-2').style('background: #eff6ff; border-left: 3px solid #3b82f6;'):
-                            with ui.row().classes('items-start gap-2'):
-                                ui.icon('check_circle').classes('text-sm mt-0.5').style('color: #3b82f6 !important;')
-                                with ui.column().classes('gap-1'):
-                                    ui.label("🔹 Modo Unificado").classes('text-xs font-semibold text-blue-700')
-                                    ui.label("• Um único limite para controlar todos os gastos").classes('text-[11px] text-gray-600')
-                                    ui.label("• Perfeito para quem tem apenas um cartão de crédito").classes('text-[11px] text-gray-600')
-                                    ui.label("• Os KPIs mostram o limite total consolidado").classes('text-[11px] text-gray-600')
-                                    ui.label("✅ Configuração mais simples e direta").classes('text-[11px] text-blue-600 font-medium')
-                        
                         with ui.column().classes('w-full gap-1 mb-3 mt-3'):
                             ui.label("💰 Limite Total (R$)").classes('campo-label')
                             lt = ui.number(value=config.get("limite_total", 3000), format="%.2f").props('outlined dense').classes('w-full')
-                            ui.label("Valor máximo disponível para todas as compras").classes('text-[10px] text-gray-400')
                             campos_limites['limite_total'] = lt
                         
                         with ui.column().classes('w-full gap-1 mb-3'):
                             ui.label("📦 Limite Parcelado (R$)").classes('campo-label')
                             lp = ui.number(value=config.get("limite_parcelado", 1500), format="%.2f").props('outlined dense').classes('w-full')
-                            ui.label("Controle extra para não acumular muitas parcelas").classes('text-[10px] text-gray-400')
                             campos_limites['limite_parcelado'] = lp
                         
                         with ui.column().classes('w-full gap-1 mb-3'):
                             ui.label("📅 Dia de Fechamento").classes('campo-label')
                             df = ui.select(options=list(range(1, 32)), label="Dia", value=config.get("dia_fechamento", 10)).props('outlined dense').classes('w-full')
-                            ui.label("📌 Dica: Compras após o fechamento entram na próxima fatura").classes('text-[10px] text-gray-400')
                             campos_limites['dia_fechamento'] = df
                         
                         def salvar_unificado():
@@ -347,71 +346,41 @@ def tela_configuracoes(container, dialog_pai=None):
                             lp_val = campos_limites.get('limite_parcelado')
                             df_val = campos_limites.get('dia_fechamento')
                             atualizar_config(
-                                limite_total=lt_val.value if lt_val else 3000, 
-                                limite_parcelado=lp_val.value if lp_val else 1500, 
-                                dia_fechamento=df_val.value if df_val else 10, 
-                                modo_cartao=modo_cartao.value
+                                limite_total=lt_val.value if lt_val else 3000,
+                                limite_parcelado=lp_val.value if lp_val else 1500,
+                                dia_fechamento=df_val.value if df_val else 10,
+                                modo_cartao="Unificado"
                             )
-                            ui.notify("✅ Limites salvos! Recarregando...", type="positive", position="top", timeout=1000)
+                            ui.notify("✅ Limites salvos!", type="positive", position="top", timeout=1000)
                             recarregar_principal()
                         
                         ui.button("Salvar Limites", on_click=salvar_unificado, icon='save').classes('w-full mt-2').style(
                             f'background: {cor_primaria} !important; color: white !important; border-radius: 8px; font-weight: 600;'
                         )
-                
                 else:
-                    # MODO INDIVIDUAL - Cada cartão tem seus limites
                     with container_limites:
                         with ui.card().classes('dica-card mt-2').style('background: #faf5ff; border-left: 3px solid #8b5cf6;'):
-                            with ui.row().classes('items-start gap-2'):
-                                ui.icon('account_balance_wallet').classes('text-sm mt-0.5').style('color: #8b5cf6 !important;')
-                                with ui.column().classes('gap-1'):
-                                    ui.label("🔹 Modo Individual").classes('text-xs font-semibold text-purple-700')
-                                    ui.label("• Cada cartão tem seu próprio limite e controle").classes('text-[11px] text-gray-600')
-                                    ui.label("• Cadastre seus cartões na aba '💳 Cartões'").classes('text-[11px] text-gray-600')
-                                    ui.label("• Filtre gastos por cartão na tela principal").classes('text-[11px] text-gray-600')
-                                    ui.label("• Ideal para quem tem múltiplos cartões").classes('text-[11px] text-gray-600')
-                                    
-                                    cartoes = dados.get("cartoes", [])
-                                    if not cartoes:
-                                        with ui.card().classes('p-3 mt-2 rounded').style('background: #fef3c7; border: 1px solid #f59e0b;'):
-                                            with ui.row().classes('items-start gap-2'):
-                                                ui.icon('warning').classes('text-sm mt-0.5').style('color: #f59e0b !important;')
-                                                with ui.column().classes('gap-1'):
-                                                    ui.label("⚠️ Nenhum cartão cadastrado!").classes('text-xs font-semibold text-yellow-700')
-                                                    ui.label("Vá na aba '💳 Cartões' para cadastrar seus cartões com limites individuais.").classes('text-[10px] text-yellow-600')
-                                    else:
-                                        with ui.card().classes('p-3 mt-2 rounded').style('background: #ecfdf5; border: 1px solid #10b981;'):
-                                            with ui.row().classes('items-start gap-2'):
-                                                ui.icon('check_circle').classes('text-sm mt-0.5').style('color: #10b981 !important;')
-                                                with ui.column().classes('gap-1'):
-                                                    ui.label(f"✅ {len(cartoes)} cartão(ões) cadastrado(s)").classes('text-xs font-semibold text-green-700')
-                                                    ui.label("Os limites são gerenciados individualmente na aba de cartões.").classes('text-[10px] text-green-600')
-                                        
-                                        # Mostrar resumo dos cartões
-                                        for c in cartoes:
-                                            with ui.card().classes('dica-card mt-2').style('background: #f9fafb;'):
-                                                with ui.row().classes('items-center justify-between'):
-                                                    ui.label(f"💳 {c.get('nome', '')}").classes('text-sm font-semibold')
-                                                    with ui.column().classes('gap-0 items-end'):
-                                                        ui.label(f"Limite: {config_service.formatar_valor(c.get('limite_total', 0))}").classes('text-xs text-gray-600')
-                                                        ui.label(f"Fecha dia {c.get('dia_fechamento', 10)}").classes('text-[10px] text-gray-400')
+                            ui.label("🔹 Modo Individual").classes('text-xs font-semibold text-purple-700')
+                            ui.label("Cadastre seus cartões na aba '💳 Cartões' com limites individuais.").classes('text-[11px] text-gray-600')
+                        
+                        cartoes = dados.get("cartoes", [])
+                        if cartoes:
+                            for c in cartoes:
+                                with ui.card().classes('dica-card mt-2').style('background: #f9fafb;'):
+                                    with ui.row().classes('items-center justify-between'):
+                                        ui.label(f"💳 {c.get('nome', '')}").classes('text-sm font-semibold')
+                                        ui.label(f"Limite: R$ {c.get('limite_total', 0):.2f}").classes('text-xs text-gray-600')
                         
                         def salvar_individual():
-                            atualizar_config(modo_cartao=modo_cartao.value)
-                            ui.notify("✅ Modo Individual ativado! Configure os cartões na aba Cartões.", type="positive", position="top", timeout=2000)
+                            atualizar_config(modo_cartao="Individual")
+                            ui.notify("✅ Modo Individual ativado!", type="positive", position="top", timeout=1000)
                             recarregar_principal()
                         
                         ui.button("Salvar Modo", on_click=salvar_individual, icon='save').classes('w-full mt-2').style(
                             f'background: {cor_primaria} !important; color: white !important; border-radius: 8px; font-weight: 600;'
                         )
             
-            # ============================================================
-            # EVENTO DE MUDANÇA
-            # ============================================================
             modo_cartao.on('update:model-value', lambda e: atualizar_campos_limites())
-            
-            # Renderizar campos iniciais
             atualizar_campos_limites()
     
     # =========================
@@ -436,6 +405,13 @@ def tela_configuracoes(container, dialog_pai=None):
                     if not nome_inp.value:
                         ui.notify("⚠️ Informe o nome do cartão", type="warning", position="top")
                         return
+                    
+                    if not is_edicao:
+                        pode, msg = verificar_limite_cartoes(_usuario_logado_email)
+                        if not pode:
+                            ui.notify(f"⚠️ {msg}", type="warning", position="top", timeout=3000)
+                            return
+                    
                     if is_edicao:
                         atualizar_cartao(cartao["id"], nome=nome_inp.value, limite_total=float(limite_inp.value or 0), limite_parcelado=float(parc_inp.value or 0), dia_fechamento=int(dia_inp.value or 10))
                     else:
@@ -459,13 +435,12 @@ def tela_configuracoes(container, dialog_pai=None):
                 recarregar_principal()
             
             with ui.dialog() as confirm_dialog, ui.card().classes('w-[320px] p-4 rounded-xl'):
-                with ui.row().classes('items-center gap-2 mb-3'):
-                    ui.icon('warning').classes('text-lg').style(f'color: {cor_primaria} !important;')
-                    ui.label("Excluir cartão?").classes('text-lg font-bold')
+                ui.icon('warning').classes('text-red-500 text-2xl mb-2')
+                ui.label("Excluir cartão?").classes('text-lg font-bold')
                 ui.label(f"{cartao.get('nome')}").classes('text-sm text-gray-500')
                 with ui.row().classes('justify-end gap-2 mt-4'):
-                    ui.button("Cancelar", on_click=confirm_dialog.close).props('outline').style(f'color: {cor_primaria} !important; border-color: {cor_primaria} !important; border-radius: 8px;')
-                    ui.button("Excluir", on_click=confirmar).style(f'background: {cor_primaria} !important; color: white !important; border-radius: 8px; font-weight: 600;')
+                    ui.button("Cancelar", on_click=confirm_dialog.close).props('outline').style(f'color: {cor_primaria} !important; border-color: {cor_primaria} !important;')
+                    ui.button("Excluir", on_click=confirmar).style(f'background: #ef4444 !important; color: white !important; border-radius: 8px;')
             confirm_dialog.open()
         
         with ui.card().classes('config-card'):
@@ -473,8 +448,8 @@ def tela_configuracoes(container, dialog_pai=None):
                 with ui.row().classes('items-start gap-2'):
                     ui.icon('info').classes('text-sm mt-0.5').style(f'color: {cor_primaria} !important;')
                     with ui.column().classes('gap-1'):
-                        ui.label("💡 Controle individual").classes('text-xs font-semibold').style(f'color: {cor_primaria} !important;')
-                        ui.label("Cadastre cada cartão com seu limite. No modo Individual, você pode filtrar gastos por cartão na tela principal.").classes('text-[11px] text-gray-600')
+                        ui.label("💳 Seus Cartões").classes('text-xs font-semibold').style(f'color: {cor_primaria} !important;')
+                        ui.label("Cadastre seus cartões de crédito com limites individuais para controle detalhado.").classes('text-[11px] text-gray-600')
             
             with ui.row().classes('items-center justify-between mb-3'):
                 with ui.row().classes('items-center gap-2'):
@@ -491,7 +466,7 @@ def tela_configuracoes(container, dialog_pai=None):
                     with ui.row().classes('items-center justify-between w-full'):
                         with ui.column().classes('gap-0 flex-1'):
                             ui.label(c.get("nome", "")).classes('text-sm font-semibold text-gray-800')
-                            ui.label(f"Limite: {config_service.formatar_valor(c.get('limite_total', 0))}").classes('text-[11px] text-gray-500')
+                            ui.label(f"Limite: R$ {c.get('limite_total', 0):.2f}").classes('text-[11px] text-gray-500')
                             ui.label(f"Fecha dia {c.get('dia_fechamento', 10)}").classes('text-[10px] text-gray-400')
                         with ui.row().classes('gap-1'):
                             ui.button(icon='edit', on_click=lambda c=c: abrir_form_cartao(c)).props('flat round size=sm').style(f'color: {cor_primaria} !important;')
@@ -527,13 +502,6 @@ def tela_configuracoes(container, dialog_pai=None):
             recarregar_principal()
         
         with ui.card().classes('config-card'):
-            with ui.card().classes('dica-card').style(f'background: {cor_primaria}08; border-left: 3px solid {cor_primaria};'):
-                with ui.row().classes('items-start gap-2'):
-                    ui.icon('info').classes('text-sm mt-0.5').style(f'color: {cor_primaria} !important;')
-                    with ui.column().classes('gap-1'):
-                        ui.label("🎨 Personalização").classes('text-xs font-semibold').style(f'color: {cor_primaria} !important;')
-                        ui.label("Escolha a cor principal do sistema. Ela será aplicada em botões, ícones e destaques em todo o aplicativo.").classes('text-[11px] text-gray-600')
-            
             with ui.row().classes('items-center gap-2 mb-3'):
                 ui.icon('palette').classes('text-lg').style(f'color: {cor_primaria} !important;')
                 ui.label("Tema").classes('text-base font-bold')
@@ -566,14 +534,14 @@ def tela_configuracoes(container, dialog_pai=None):
                     ui.icon('info').classes('text-sm mt-0.5').style(f'color: {cor_primaria} !important;')
                     with ui.column().classes('gap-1'):
                         ui.label("💡 Gastos recorrentes").classes('text-xs font-semibold').style(f'color: {cor_primaria} !important;')
-                        ui.label("Streaming, academias, assinaturas. Eles sempre aparecem nos lançamentos e são contabilizados nos limites mensais.").classes('text-[11px] text-gray-600')
+                        ui.label("Streaming, academias, assinaturas. Eles sempre aparecem nos lançamentos.").classes('text-[11px] text-gray-600')
             
             with ui.row().classes('items-center justify-between mb-3'):
                 with ui.row().classes('items-center gap-2'):
                     ui.icon('repeat').classes('text-lg').style(f'color: {cor_primaria} !important;')
                     ui.label("Gastos Fixos").classes('text-base font-bold')
                 total = sum(g.get("valor", 0) for g in fixos)
-                ui.label(config_service.formatar_valor(total)).classes('text-sm font-bold').style(f'color: {cor_primaria} !important;')
+                ui.label(f"R$ {total:.2f}").classes('text-sm font-bold').style(f'color: {cor_primaria} !important;')
             
             if fixos:
                 for g in fixos:
@@ -583,7 +551,7 @@ def tela_configuracoes(container, dialog_pai=None):
                                 ui.label(g.get("descricao", "")).classes('text-sm font-semibold text-gray-800')
                                 if g.get("categoria"): ui.label(g.get("categoria")).classes('text-[10px] text-purple-500')
                             with ui.row().classes('items-center gap-3'):
-                                ui.label(config_service.formatar_valor(g.get("valor", 0))).classes('text-sm font-bold').style(f'color: {cor_primaria} !important;')
+                                ui.label(f"R$ {g.get('valor', 0):.2f}").classes('text-sm font-bold').style(f'color: {cor_primaria} !important;')
                                 ui.button(icon='delete', on_click=lambda gid=g["id"]: remover_fixo(gid)).props('flat round size=sm').style(f'color: {cor_primaria} !important;')
             else:
                 ui.label("Nenhum gasto fixo").classes('text-sm text-gray-400 text-center p-4')
@@ -605,144 +573,85 @@ def tela_configuracoes(container, dialog_pai=None):
                     ui.button("Adicionar", on_click=add_fixo, icon='add').classes('w-full').style(f'background: {cor_primaria} !important; color: white !important; border-radius: 8px; font-weight: 600;')
     
     # =========================
-    # RENDER: USUÁRIOS
+    # RENDER: PERFIL (substitui Usuários)
     # =========================
-    def render_usuarios():
-        carregar_usuarios()
-        usuarios = usuarios_ref["lista"]
+    def render_perfil():
+        usuario = buscar_usuario_por_email(_usuario_logado_email) if _usuario_logado_email else None
+        if not usuario:
+            ui.label("Usuário não encontrado").classes('text-sm text-gray-400 text-center p-4')
+            return
         
-        def confirmar_exclusao(usuario):
-            def confirmar():
-                usuarios_ref["lista"] = [u for u in usuarios_ref["lista"] if u.get("id") != usuario.get("id")]
-                salvar_usuarios()
-                ui.notify("🗑️ Usuário removido!", type="warning", position="top", timeout=1000)
-                confirm_dialog.close()
-                recarregar_principal()
+        avatar_emoji = usuario.get('avatar_emoji', '👤')
+        plano = usuario.get('plano', 'gratuito')
+        plano_info = PLANOS.get(plano, {})
+        plano_nome = plano_info.get('nome', 'Gratuito')
+        
+        # Avatar e nome
+        with ui.card().classes('config-card text-center'):
+            with ui.element('div').classes('perfil-avatar').style(f'background: {cor_primaria}15;'):
+                ui.label(avatar_emoji)
+            ui.label(usuario.get('nome', 'Usuário')).classes('text-lg font-bold')
+            ui.label(usuario.get('email', '')).classes('text-sm text-gray-500')
             
-            with ui.dialog() as confirm_dialog, ui.card().classes('w-[320px] p-4 rounded-xl'):
-                with ui.row().classes('items-center gap-2 mb-3'):
-                    ui.icon('warning').classes('text-lg').style(f'color: {cor_primaria} !important;')
-                    ui.label("Excluir usuário?").classes('text-lg font-bold')
-                ui.label(f"{usuario.get('nome')} - {usuario.get('email')}").classes('text-sm text-gray-500')
-                with ui.row().classes('justify-end gap-2 mt-4'):
-                    ui.button("Cancelar", on_click=confirm_dialog.close).props('outline').style(f'color: {cor_primaria} !important; border-color: {cor_primaria} !important; border-radius: 8px;')
-                    ui.button("Excluir", on_click=confirmar).style(f'background: {cor_primaria} !important; color: white !important; border-radius: 8px; font-weight: 600;')
-            confirm_dialog.open()
+            # Badge do plano
+            cor_badge = '#10b981' if plano == 'premium' else '#f59e0b' if plano == 'gratuito' else '#3b82f6'
+            with ui.element('div').classes('plano-badge mt-2').style(f'background: {cor_badge}20; color: {cor_badge}; border: 1px solid {cor_badge}40;'):
+                ui.icon('star' if plano == 'premium' else 'person')
+                ui.label(f"Plano {plano_nome}")
         
-        def abrir_form_usuario(usuario=None):
-            is_edicao = usuario is not None
-            avatar_selecionado = [usuario.get("avatar_emoji", "🐶") if is_edicao else "🐶"]
-            
-            with ui.dialog() as form_dialog, ui.card().classes('w-[400px] max-w-[90vw] p-4 rounded-xl'):
-                with ui.row().classes('items-center gap-2 mb-4'):
-                    ui.icon('person').classes('text-lg').style(f'color: {cor_primaria} !important;')
-                    ui.label("Editar Usuário" if is_edicao else "Novo Usuário").classes('text-lg font-bold')
-                
-                nome_inp = ui.input("Nome completo", value=usuario.get("nome", "") if is_edicao else "").props('outlined dense').classes('w-full mb-3')
-                email_inp = ui.input("E-mail", value=usuario.get("email", "") if is_edicao else "").props('outlined dense').classes('w-full mb-3')
-                role_inp = ui.select(["admin", "visitante"], label="Função", value=usuario.get("role", "visitante") if is_edicao else "visitante").props('outlined dense').classes('w-full mb-3')
-                senha_inp = ui.input("Senha" if not is_edicao else "Nova senha (deixe vazio para manter)", password=True).props('outlined dense').classes('w-full mb-4')
-                
-                with ui.card().classes('dica-card mb-3').style(f'background: {cor_primaria}08; border-left: 3px solid {cor_primaria};'):
-                    ui.label("👤 Escolha um avatar que te represente").classes('text-[11px] text-gray-600')
-                
-                avatares_refs = []
-                with ui.element('div').classes('avatares-grid mb-4'):
-                    for av in AVATARES:
-                        is_sel = av == avatar_selecionado[0]
-                        av_div = ui.element('div').classes(f'avatar-option {"selected" if is_sel else ""}')
-                        if is_sel:
-                            av_div.style(f'border-color: {cor_primaria} !important; background: {cor_primaria}15 !important; box-shadow: 0 0 0 3px {cor_primaria}30 !important;')
-                        with av_div: ui.label(av)
-                        av_div.on('click', lambda a=av: selecionar_avatar(a))
-                        avatares_refs.append((av_div, av))
-                
-                def selecionar_avatar(a):
-                    avatar_selecionado[0] = a
-                    for div, av in avatares_refs:
-                        if av == a:
-                            div.classes('selected')
-                            div.style(f'border-color: {cor_primaria} !important; background: {cor_primaria}15 !important; box-shadow: 0 0 0 3px {cor_primaria}30 !important; transform: scale(1.05) !important;')
-                        else:
-                            div.classes(remove='selected')
-                            div.style('border-color: #e5e7eb !important; background: white !important; box-shadow: none !important; transform: scale(1) !important;')
-                
-                def salvar():
-                    if not nome_inp.value or not email_inp.value:
-                        ui.notify("⚠️ Nome e email são obrigatórios", type="warning", position="top")
-                        return
-                    if not is_edicao and not senha_inp.value:
-                        ui.notify("⚠️ Informe uma senha", type="warning", position="top")
-                        return
-                    
-                    if is_edicao:
-                        usuario["nome"] = nome_inp.value
-                        usuario["email"] = email_inp.value
-                        usuario["role"] = role_inp.value
-                        usuario["avatar_emoji"] = avatar_selecionado[0]
-                        usuario["avatar"] = avatar_selecionado[0]
-                        if senha_inp.value: usuario["senha"] = hash_senha(senha_inp.value)
-                    else:
-                        novo_id = max([u.get("id", 0) for u in usuarios_ref["lista"]]) + 1 if usuarios_ref["lista"] else 1
-                        usuarios_ref["lista"].append({
-                            "id": novo_id, "nome": nome_inp.value, "email": email_inp.value,
-                            "senha": hash_senha(senha_inp.value), "role": role_inp.value,
-                            "avatar_emoji": avatar_selecionado[0], "avatar": avatar_selecionado[0],
-                            "ativo": True, "data_cadastro": datetime.now().isoformat()
-                        })
-                    
-                    salvar_usuarios()
-                    form_dialog.close()
-                    ui.notify("✅ Usuário salvo!", type="positive", position="top", timeout=1000)
-                    recarregar_principal()
-                
-                with ui.row().classes('justify-end gap-2 mt-2'):
-                    ui.button("Cancelar", on_click=form_dialog.close).props('outline').style(f'color: {cor_primaria} !important; border-color: {cor_primaria} !important; border-radius: 8px;')
-                    ui.button("Salvar", on_click=salvar, icon='save').style(f'background: {cor_primaria} !important; color: white !important; border-radius: 8px; font-weight: 600;')
-            form_dialog.open()
-        
+        # Informações da conta
         with ui.card().classes('config-card'):
-            with ui.card().classes('dica-card').style(f'background: {cor_primaria}08; border-left: 3px solid {cor_primaria};'):
-                with ui.row().classes('items-start gap-2'):
-                    ui.icon('info').classes('text-sm mt-0.5').style(f'color: {cor_primaria} !important;')
-                    with ui.column().classes('gap-1'):
-                        ui.label("👥 Gerenciamento de acesso").classes('text-xs font-semibold').style(f'color: {cor_primaria} !important;')
-                        ui.label("Admin tem acesso total. Visitante pode visualizar mas não alterar configurações do sistema.").classes('text-[11px] text-gray-600')
+            ui.label("📋 Informações da Conta").classes('text-base font-bold mb-3')
             
-            with ui.row().classes('items-center justify-between mb-4'):
-                with ui.row().classes('items-center gap-2'):
-                    ui.icon('people').classes('text-lg').style(f'color: {cor_primaria} !important;')
-                    ui.label("Usuários").classes('text-base font-bold')
-                ui.button("+ Novo", on_click=lambda: abrir_form_usuario(), icon='person_add').classes('btn-sm').style(f'background: {cor_primaria} !important; color: white !important;')
+            with ui.element('div').classes('sobre-info-item').style(f'border-left-color: {cor_primaria} !important;'):
+                ui.label("Email").classes('sobre-info-label')
+                ui.label(usuario.get('email', '')).classes('sobre-info-value')
             
-            if not usuarios:
-                ui.label("Nenhum usuário cadastrado").classes('text-sm text-gray-400 text-center p-4')
-                return
+            with ui.element('div').classes('sobre-info-item').style(f'border-left-color: {cor_primaria} !important;'):
+                ui.label("Plano").classes('sobre-info-label')
+                ui.label(plano_nome).classes('sobre-info-value')
             
-            for u in usuarios:
-                with ui.card().classes('usuario-card'):
-                    with ui.row().classes('items-center justify-between w-full'):
-                        with ui.row().classes('items-center gap-3 flex-1'):
-                            with ui.element('div').classes('w-10 h-10 rounded-full flex items-center justify-center').style(f'background: {cor_primaria}15 !important;'):
-                                ui.label(u.get("avatar_emoji", "👤")).classes('text-xl')
-                            with ui.column().classes('gap-0'):
-                                ui.label(u.get("nome", "-")).classes('text-sm font-semibold text-gray-800')
-                                ui.label(u.get("email", "-")).classes('text-[11px] text-gray-500')
-                                role = u.get("role", "visitante")
-                                ui.label(role.upper()).classes('text-[10px] font-bold').style(f'color: {cor_primaria} !important;' if role == "admin" else 'color: #6b7280 !important;')
-                        with ui.row().classes('gap-1'):
-                            ui.button(icon='edit', on_click=lambda u=u: abrir_form_usuario(u)).props('flat round size=sm').style(f'color: {cor_primaria} !important;')
-                            ui.button(icon='delete', on_click=lambda u=u: confirmar_exclusao(u)).props('flat round size=sm').style(f'color: {cor_primaria} !important;')
+            with ui.element('div').classes('sobre-info-item').style(f'border-left-color: {cor_primaria} !important;'):
+                ui.label("Membro desde").classes('sobre-info-label')
+                try:
+                    data = datetime.fromisoformat(usuario.get('data_criacao', '')).strftime('%d/%m/%Y')
+                except:
+                    data = 'N/A'
+                ui.label(data).classes('sobre-info-value')
+            
+            if usuario.get('data_expiracao'):
+                with ui.element('div').classes('sobre-info-item').style(f'border-left-color: #ef4444 !important;'):
+                    ui.label("Expira em").classes('sobre-info-label')
+                    try:
+                        exp = datetime.fromisoformat(usuario['data_expiracao']).strftime('%d/%m/%Y')
+                    except:
+                        exp = 'N/A'
+                    ui.label(exp).classes('sobre-info-value')
+        
+        # Upgrade
+        if plano == 'gratuito':
+            with ui.card().classes('config-card').style('background: linear-gradient(135deg, #8b5cf6, #6366f1);'):
+                ui.label("💎 Quer mais recursos?").classes('text-lg font-bold text-white mb-2')
+                ui.label("Faça upgrade para Premium e tenha:").classes('text-sm text-white/80 mb-3')
+                
+                beneficios = [
+                    "✅ Lançamentos ilimitados",
+                    "✅ Múltiplos cartões",
+                    "✅ Modo Individual",
+                    "✅ Consultor Financeiro completo (30+ alertas)",
+                ]
+                for b in beneficios:
+                    ui.label(b).classes('text-sm text-white/90')
+                
+                ui.button("Fazer Upgrade", icon='star').classes('w-full mt-4').style('background: white !important; color: #6366f1 !important; border-radius: 8px; font-weight: 600;')
     
     # =========================
     # RENDER: SOBRE
     # =========================
     def render_sobre():
-        # Logo em destaque (URL Cloudinary)
         with ui.element('div').classes('sobre-logo-container'):
             ui.image(LOGO_COMPLETA).classes('sobre-logo')
         
-        # Informações do App
         with ui.card().classes('config-card'):
             with ui.row().classes('items-center justify-between mb-4'):
                 with ui.row().classes('items-center gap-2'):
@@ -764,57 +673,19 @@ def tela_configuracoes(container, dialog_pai=None):
                     ui.label(label).classes('sobre-info-label')
                     ui.label(valor).classes('sobre-info-value')
         
-        # Desenvolvedor
-        with ui.card().classes('config-card'):
-            with ui.row().classes('items-center gap-2 mb-4'):
-                ui.icon('code').classes('text-lg').style(f'color: {cor_primaria} !important;')
-                ui.label("Desenvolvedor").classes('text-base font-bold')
-            
-            dev_items = [
-                ("Desenvolvido por", "Cartometro Tech"),
-                ("Contato", "suporte@cartometro.app"),
-                ("Website", "www.cartometro.app"),
-            ]
-            
-            for label, valor in dev_items:
-                with ui.element('div').classes('sobre-info-item').style(f'border-left-color: {cor_primaria} !important;'):
-                    ui.label(label).classes('sobre-info-label')
-                    ui.label(valor).classes('sobre-info-value')
-        
-        # Tecnologias
-        with ui.card().classes('config-card'):
-            with ui.row().classes('items-center gap-2 mb-4'):
-                ui.icon('build').classes('text-lg').style(f'color: {cor_primaria} !important;')
-                ui.label("Tecnologias").classes('text-base font-bold')
-            
-            tech_items = [
-                ("Framework", "NiceGUI + Quasar Framework"),
-                ("Linguagem", "Python 3.10+"),
-                ("Banco de Dados", "JSON (Local)"),
-            ]
-            
-            for label, valor in tech_items:
-                with ui.element('div').classes('sobre-info-item').style(f'border-left-color: {cor_primaria} !important;'):
-                    ui.label(label).classes('sobre-info-label')
-                    ui.label(valor).classes('sobre-info-value')
-        
-        # Funcionalidades
         with ui.card().classes('config-card'):
             with ui.row().classes('items-center gap-2 mb-4'):
                 ui.icon('star').classes('text-lg').style(f'color: {cor_primaria} !important;')
-                ui.label("Principais Funcionalidades").classes('text-base font-bold')
+                ui.label("Funcionalidades").classes('text-base font-bold')
             
             funcionalidades = [
                 "📊 Dashboard financeiro em tempo real",
-                "💳 Controle de cartão de crédito (Unificado/Individual)",
+                "💳 Controle de cartão de crédito",
                 "📅 Gestão por ciclo de fatura ou mês",
                 "🔁 Gastos fixos e parcelados",
-                "🎯 Metas e limites personalizados",
-                "🤖 Consultor Financeiro Inteligente (30+ regras)",
-                "🎨 Temas personalizáveis (8 cores)",
-                "👥 Suporte a múltiplos usuários",
-                "📱 Interface 100% responsiva (Desktop + Mobile)",
-                "🔔 Notificações e alertas inteligentes",
+                "🤖 Consultor Financeiro Inteligente",
+                "🎨 Temas personalizáveis",
+                "📱 Interface 100% responsiva",
             ]
             
             for func in funcionalidades:
@@ -822,7 +693,6 @@ def tela_configuracoes(container, dialog_pai=None):
                     ui.icon('check_circle').classes('text-xs').style(f'color: {cor_primaria} !important;')
                     ui.label(func).classes('text-sm text-gray-700')
         
-        # Copyright
         with ui.card().classes('config-card').style('text-align: center;'):
             ui.label("© 2025 Cartometro").classes('text-sm font-semibold text-gray-600')
             ui.label("Todos os direitos reservados.").classes('text-xs text-gray-400 mt-1')
@@ -841,17 +711,17 @@ def tela_configuracoes(container, dialog_pai=None):
             elif aba == "cartoes": render_cartoes()
             elif aba == "tema": render_tema()
             elif aba == "fixos": render_fixos()
-            elif aba == "usuarios": render_usuarios()
+            elif aba == "perfil": render_perfil()
             elif aba == "sobre": render_sobre()
     
     def mudar_aba(aba, btns):
         aba_ativa["atual"] = aba
         for nome, btn in btns.items():
             btn.classes(remove='active')
-            btn.style('color: #6b7280 !important; background: transparent !important; border-bottom: 2px solid transparent !important;')
+            btn.style('color: #6b7280 !important; background: transparent !important;')
         if aba in btns:
             btns[aba].classes('active')
-            btns[aba].style(f'color: {cor_primaria} !important; font-weight: 600 !important; border-bottom: 2px solid {cor_primaria} !important; background: {cor_primaria}10 !important;')
+            btns[aba].style(f'color: {cor_primaria} !important; font-weight: 600 !important; background: {cor_primaria}10 !important;')
         atualizar_conteudo()
     
     # =========================
@@ -861,15 +731,16 @@ def tela_configuracoes(container, dialog_pai=None):
         nonlocal tab_content
         config = dados.get("config", {})
         modo = config.get("modo_cartao", "Unificado")
+        pode_individual = pode_usar_modo_individual(_usuario_logado_email) if _usuario_logado_email else False
         
         abas_list = [
             ("limites", "⚙️ Limites"),
             ("tema", "🎨 Tema"),
             ("fixos", "🔁 Fixos"),
-            ("usuarios", "👥 Users"),
+            ("perfil", "👤 Perfil"),
             ("sobre", "ℹ️ Sobre"),
         ]
-        if modo == "Individual":
+        if modo == "Individual" and pode_individual:
             abas_list.insert(1, ("cartoes", "💳 Cartões"))
         
         with ui.element('div').classes('config-tela'):
@@ -880,6 +751,11 @@ def tela_configuracoes(container, dialog_pai=None):
                         with ui.element('div').classes('w-8 h-8 rounded-full flex items-center justify-center').style('background: rgba(255,255,255,0.2) !important;'):
                             ui.icon('settings').classes('text-sm text-white')
                         ui.label("Configurações").classes('text-lg font-bold text-white')
+                    
+                    # Badge do plano no header
+                    cor_badge = '#10b981' if plano_atual == 'premium' else '#f59e0b' if plano_atual == 'gratuito' else '#3b82f6'
+                    with ui.element('div').classes('plano-badge').style(f'background: rgba(255,255,255,0.2); color: white;'):
+                        ui.label(f"{'💎' if plano_atual == 'premium' else '🆓'} {plano_nome}")
             
             ui.element('div').style(f'height: 3px; background: linear-gradient(90deg, {cor_primaria}, {cor_primaria}60, transparent); position: relative; flex-shrink: 0;')
             
@@ -889,7 +765,7 @@ def tela_configuracoes(container, dialog_pai=None):
                     is_active = nome == aba_ativa["atual"]
                     btn = ui.label(label).classes(f'tab-btn {"active" if is_active else ""}')
                     if is_active:
-                        btn.style(f'color: {cor_primaria} !important; font-weight: 600 !important; border-bottom: 2px solid {cor_primaria} !important; background: {cor_primaria}10 !important;')
+                        btn.style(f'color: {cor_primaria} !important; font-weight: 600 !important; background: {cor_primaria}10 !important;')
                     btn.on('click', lambda n=nome: mudar_aba(n, tabs))
                     tabs[nome] = btn
             
