@@ -27,9 +27,11 @@ LOGO_FULL_COLOR  = "https://res.cloudinary.com/dxgyzvs8p/image/upload/v177784564
 LOGO_COMPLETA    = "https://res.cloudinary.com/dxgyzvs8p/image/upload/v1777845648/logo_completa_nbtgcz.png"
 FAVICON          = "https://res.cloudinary.com/dxgyzvs8p/image/upload/v1777845656/favicon_crsq9e.ico"
 
-# Imagens de placeholder (substitua depois)
-HERO_DASHBOARD   = "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80"
-FEATURE_IMAGE    = "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80"
+# Imagens placeholder para prints do app
+PRINT_DASHBOARD  = "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80"
+PRINT_CARTOES    = "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&q=80"
+PRINT_LANCAMENTOS = "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=80"
+PRINT_RELATORIOS = "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80"
 
 # ============================================================
 # VARIÁVEIS GLOBAIS
@@ -45,7 +47,6 @@ container_principal = None
 def landing_page():
     """Landing Page Profissional do Cartometro"""
     
-    # CSS Global
     ui.add_head_html(f"""
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -70,9 +71,7 @@ def landing_page():
         z-index: 1000;
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
         border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-        transition: all 0.3s ease;
     }}
     
     .navbar.scrolled {{
@@ -80,25 +79,18 @@ def landing_page():
     }}
     
     .navbar-container {{
-        width: 85%;
-        max-width: 1400px;
+        max-width: 1280px;
+        width: 90%;
         margin: 0 auto;
-        padding: 0 16px;
         display: flex;
         align-items: center;
         justify-content: space-between;
         height: 72px;
     }}
     
-    .navbar-brand {{
-        display: flex;
-        align-items: center;
-    }}
-    
-    .navbar-brand img {{
-        height: 38px;
+    .navbar-logo {{
+        height: 40px;
         width: auto;
-        display: block;
     }}
     
     .navbar-links {{
@@ -115,7 +107,6 @@ def landing_page():
         border-radius: 8px;
         cursor: pointer;
         transition: all 0.2s;
-        text-decoration: none;
         border: none;
         background: none;
         font-family: inherit;
@@ -138,9 +129,6 @@ def landing_page():
         font-family: inherit;
         transition: all 0.2s;
         box-shadow: 0 1px 2px rgba(124, 58, 237, 0.3);
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
     }}
     
     .btn-primary:hover {{
@@ -185,20 +173,9 @@ def landing_page():
         overflow: hidden;
     }}
     
-    .hero::before {{
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -20%;
-        width: 800px;
-        height: 800px;
-        background: radial-gradient(circle, rgba(124, 58, 237, 0.06) 0%, transparent 70%);
-        border-radius: 50%;
-    }}
-    
     .hero-container {{
-        width: 85%;
-        max-width: 1400px;
+        max-width: 1280px;
+        width: 90%;
         margin: 0 auto;
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -276,9 +253,6 @@ def landing_page():
         font-family: inherit;
         transition: all 0.2s;
         box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
     }}
     
     .hero-cta:hover {{
@@ -332,31 +306,19 @@ def landing_page():
         max-width: 520px;
         border-radius: 16px;
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        border: 1px solid rgba(0, 0, 0, 0.05);
     }}
     
-    .hero-float-card {{
-        position: absolute;
+    /* ========== LOGO SECTION AFTER HERO ========== */
+    .logo-showcase {{
+        padding: 60px 0;
         background: white;
-        border-radius: 12px;
-        padding: 16px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-size: 13px;
-        font-weight: 600;
-        z-index: 2;
+        text-align: center;
     }}
     
-    .hero-float-card.card-1 {{
-        bottom: -20px;
-        left: -30px;
-    }}
-    
-    .hero-float-card.card-2 {{
-        top: -20px;
-        right: -30px;
+    .logo-showcase img {{
+        height: 60px;
+        width: auto;
+        opacity: 0.3;
     }}
     
     /* ========== FEATURES ========== */
@@ -366,8 +328,8 @@ def landing_page():
     }}
     
     .features-container {{
-        width: 85%;
-        max-width: 1400px;
+        max-width: 1280px;
+        width: 90%;
         margin: 0 auto;
     }}
     
@@ -387,7 +349,6 @@ def landing_page():
         padding: 6px 16px;
         border-radius: 100px;
         margin-bottom: 16px;
-        letter-spacing: 0.5px;
     }}
     
     .section-title {{
@@ -451,15 +412,59 @@ def landing_page():
         line-height: 1.6;
     }}
     
-    /* ========== HOW IT WORKS ========== */
-    .how-it-works {{
+    /* ========== APP SHOWCASE ========== */
+    .app-showcase {{
         padding: 100px 0;
         background: #fafafa;
     }}
     
+    .app-showcase-container {{
+        max-width: 1280px;
+        width: 90%;
+        margin: 0 auto;
+    }}
+    
+    .showcase-grid {{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+        margin-top: 64px;
+    }}
+    
+    .showcase-item {{
+        display: flex;
+        flex-direction: column;
+    }}
+    
+    .showcase-image {{
+        width: 100%;
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        margin-bottom: 24px;
+    }}
+    
+    .showcase-title {{
+        font-size: 20px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 8px;
+    }}
+    
+    .showcase-description {{
+        font-size: 14px;
+        color: #64748b;
+        line-height: 1.6;
+    }}
+    
+    /* ========== HOW IT WORKS ========== */
+    .how-it-works {{
+        padding: 100px 0;
+        background: white;
+    }}
+    
     .how-container {{
-        width: 85%;
-        max-width: 1400px;
+        max-width: 1280px;
+        width: 90%;
         margin: 0 auto;
     }}
     
@@ -518,12 +523,12 @@ def landing_page():
     /* ========== PRICING ========== */
     .pricing {{
         padding: 100px 0;
-        background: white;
+        background: #fafafa;
     }}
     
     .pricing-container {{
-        width: 85%;
-        max-width: 1400px;
+        max-width: 1280px;
+        width: 90%;
         margin: 0 auto;
     }}
     
@@ -531,14 +536,14 @@ def landing_page():
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 32px;
-        max-width: 1000px;
+        max-width: 900px;
         margin: 64px auto 0;
     }}
     
     .plan-card {{
         border: 2px solid #e2e8f0;
         border-radius: 20px;
-        padding: 48px 40px;
+        padding: 40px 32px;
         background: white;
         transition: all 0.3s;
         position: relative;
@@ -566,7 +571,6 @@ def landing_page():
         font-weight: 700;
         padding: 6px 24px;
         border-radius: 100px;
-        letter-spacing: 0.5px;
         white-space: nowrap;
     }}
     
@@ -626,9 +630,8 @@ def landing_page():
         cursor: pointer;
         transition: all 0.2s;
         border: none;
-        text-decoration: none;
-        display: block;
         text-align: center;
+        display: block;
     }}
     
     .plan-btn.primary {{
@@ -661,20 +664,9 @@ def landing_page():
         overflow: hidden;
     }}
     
-    .cta::before {{
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -20%;
-        width: 600px;
-        height: 600px;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
-        border-radius: 50%;
-    }}
-    
     .cta-container {{
-        width: 85%;
-        max-width: 1400px;
+        max-width: 1280px;
+        width: 90%;
         margin: 0 auto;
         text-align: center;
         position: relative;
@@ -711,9 +703,6 @@ def landing_page():
         font-family: inherit;
         transition: all 0.2s;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
     }}
     
     .cta-btn:hover {{
@@ -724,23 +713,25 @@ def landing_page():
     /* ========== FOOTER ========== */
     .footer {{
         background: #0f172a;
-        padding: 48px 0;
+        padding: 48px 0 32px;
         color: #94a3b8;
     }}
     
     .footer-container {{
-        width: 85%;
-        max-width: 1400px;
+        max-width: 1280px;
+        width: 90%;
         margin: 0 auto;
         display: grid;
-        grid-template-columns: 1.5fr 1fr 1fr 1fr;
-        gap: 40px;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 48px;
+        padding-bottom: 32px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }}
     
     .footer-brand img {{
-        height: 48px;
+        height: 56px;
         width: auto;
-        margin-bottom: 16px;
+        margin-bottom: 12px;
         display: block;
     }}
     
@@ -748,22 +739,22 @@ def landing_page():
         font-size: 13px;
         line-height: 1.7;
         color: #64748b;
-        max-width: 280px;
+        max-width: 260px;
     }}
     
     .footer-col h4 {{
         font-size: 13px;
         font-weight: 700;
         color: #e2e8f0;
-        margin-bottom: 20px;
-        letter-spacing: 0.5px;
+        margin-bottom: 16px;
+        letter-spacing: 0.3px;
     }}
     
     .footer-col a {{
         display: block;
         font-size: 13px;
         color: #64748b;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
         text-decoration: none;
         transition: color 0.2s;
         cursor: pointer;
@@ -774,11 +765,9 @@ def landing_page():
     }}
     
     .footer-bottom {{
-        width: 85%;
-        max-width: 1400px;
-        margin: 32px auto 0;
-        padding-top: 24px;
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        max-width: 1280px;
+        width: 90%;
+        margin: 24px auto 0;
         text-align: center;
     }}
     
@@ -802,6 +791,11 @@ def landing_page():
         
         .features-grid {{
             grid-template-columns: repeat(2, 1fr);
+        }}
+        
+        .showcase-grid {{
+            grid-template-columns: 1fr;
+            gap: 48px;
         }}
         
         .how-grid {{
@@ -836,28 +830,29 @@ def landing_page():
         .navbar-container,
         .hero-container,
         .features-container,
+        .app-showcase-container,
         .how-container,
         .pricing-container,
         .cta-container,
         .footer-container,
         .footer-bottom {{
-            width: 92%;
+            width: 94%;
         }}
         
         .hero {{
             padding: 100px 0 60px;
         }}
         
+        .hero-image {{
+            display: block !important;
+        }}
+        
         .hero-title {{
-            font-size: 36px;
+            font-size: 34px;
         }}
         
         .hero-description {{
             font-size: 16px;
-        }}
-        
-        .hero-float-card {{
-            display: none;
         }}
         
         .features {{
@@ -866,6 +861,10 @@ def landing_page():
         
         .features-grid {{
             grid-template-columns: 1fr;
+        }}
+        
+        .app-showcase {{
+            padding: 60px 0;
         }}
         
         .how-it-works {{
@@ -886,7 +885,7 @@ def landing_page():
         
         .footer-container {{
             grid-template-columns: 1fr;
-            gap: 32px;
+            gap: 28px;
         }}
     }}
     
@@ -897,6 +896,10 @@ def landing_page():
         
         .plan-card {{
             padding: 32px 24px;
+        }}
+        
+        .hero-title {{
+            font-size: 30px;
         }}
     }}
     </style>
@@ -912,25 +915,17 @@ def landing_page():
             }}
         }}
     }});
-    
-    function scrollToSection(id) {{
-        document.getElementById(id).scrollIntoView({{ behavior: 'smooth' }});
-    }}
-    
-    function navigateTo(url) {{
-        window.location.href = url;
-    }}
     </script>
     """)
     
     # ========== NAVBAR ==========
     with ui.element('nav').classes('navbar'):
         with ui.element('div').classes('navbar-container'):
-            with ui.element('div').classes('navbar-brand'):
-                ui.image(LOGO_FULL_COLOR).style('height: 38px !important; width: auto !important; display: block !important;')
+            ui.image(LOGO_FULL_COLOR).classes('navbar-logo')
             
             with ui.element('div').classes('navbar-links'):
                 ui.button('Funcionalidades', on_click=lambda: ui.run_javascript('document.getElementById("features-section").scrollIntoView({behavior:"smooth"})')).classes('nav-link')
+                ui.button('App', on_click=lambda: ui.run_javascript('document.getElementById("app-showcase").scrollIntoView({behavior:"smooth"})')).classes('nav-link')
                 ui.button('Como Funciona', on_click=lambda: ui.run_javascript('document.getElementById("how-section").scrollIntoView({behavior:"smooth"})')).classes('nav-link')
                 ui.button('Planos', on_click=lambda: ui.run_javascript('document.getElementById("pricing-section").scrollIntoView({behavior:"smooth"})')).classes('nav-link')
                 ui.button('Entrar', on_click=lambda: ui.navigate.to('/login')).classes('btn-secondary')
@@ -962,21 +957,11 @@ def landing_page():
                         ui.label('✓ 2 minutos para começar')
             
             with ui.element('div').classes('hero-image'):
-                ui.image(HERO_DASHBOARD).classes('hero-image-main')
-                
-                # Floating card 1
-                with ui.element('div').classes('hero-float-card card-1'):
-                    ui.label('💳').style('font-size: 24px;')
-                    with ui.element('div'):
-                        ui.label('Limite Disponível').style('font-size: 11px; color: #94a3b8; font-weight: 500;')
-                        ui.label('R$ 3.240,00').style('font-size: 18px; font-weight: 800; color: #0f172a;')
-                
-                # Floating card 2
-                with ui.element('div').classes('hero-float-card card-2'):
-                    ui.label('📊').style('font-size: 24px;')
-                    with ui.element('div'):
-                        ui.label('Economia este mês').style('font-size: 11px; color: #94a3b8; font-weight: 500;')
-                        ui.label('↓ 12% vs anterior').style('font-size: 16px; font-weight: 700; color: #10b981;')
+                ui.image(PRINT_DASHBOARD).classes('hero-image-main')
+    
+    # ========== LOGO SHOWCASE ==========
+    with ui.element('div').classes('logo-showcase'):
+        ui.image(LOGO_FULL_COLOR).style('height: 60px; width: auto; opacity: 0.3; margin: 0 auto; display: block;')
     
     # ========== FEATURES ==========
     with ui.element('section').classes('features').props('id=features-section'):
@@ -1001,6 +986,39 @@ def landing_page():
                         ui.label(icon).classes('feature-icon').style(f'background: {color}15;')
                         ui.label(title).classes('feature-title')
                         ui.label(description).classes('feature-description')
+    
+    # ========== APP SHOWCASE ==========
+    with ui.element('section').classes('app-showcase').props('id=app-showcase'):
+        with ui.element('div').classes('app-showcase-container'):
+            with ui.element('div').classes('section-header'):
+                ui.label('Conheça o App').classes('section-badge')
+                ui.label('Veja como funciona na prática').classes('section-title')
+                ui.label('Interface intuitiva e fácil de usar para você ter controle total.').classes('section-description')
+            
+            with ui.element('div').classes('showcase-grid'):
+                # Print 1
+                with ui.element('div').classes('showcase-item'):
+                    ui.image(PRINT_DASHBOARD).classes('showcase-image')
+                    ui.label('Dashboard Completo').classes('showcase-title')
+                    ui.label('Visão geral de todos os seus cartões e gastos em um único lugar. Acompanhe limites, gastos do mês e tendências.').classes('showcase-description')
+                
+                # Print 2
+                with ui.element('div').classes('showcase-item'):
+                    ui.image(PRINT_LANCAMENTOS).classes('showcase-image')
+                    ui.label('Lançamentos Simplificados').classes('showcase-title')
+                    ui.label('Registre cada compra em segundos. Categorize gastos e acompanhe em tempo real o impacto no seu limite.').classes('showcase-description')
+                
+                # Print 3
+                with ui.element('div').classes('showcase-item'):
+                    ui.image(PRINT_CARTOES).classes('showcase-image')
+                    ui.label('Gestão de Cartões').classes('showcase-title')
+                    ui.label('Cadastre múltiplos cartões, configure limites e ciclos de fatura. Visualize cada um individualmente ou de forma unificada.').classes('showcase-description')
+                
+                # Print 4
+                with ui.element('div').classes('showcase-item'):
+                    ui.image(PRINT_RELATORIOS).classes('showcase-image')
+                    ui.label('Relatórios e Insights').classes('showcase-title')
+                    ui.label('Receba análises inteligentes dos seus gastos. O consultor premium identifica padrões e sugere economias.').classes('showcase-description')
     
     # ========== HOW IT WORKS ==========
     with ui.element('section').classes('how-it-works').props('id=how-section'):
@@ -1027,7 +1045,7 @@ def landing_page():
                                 ui.label(description).style('font-size: 14px; color: #64748b; line-height: 1.6;')
                 
                 with ui.element('div').classes('how-image'):
-                    ui.image(FEATURE_IMAGE)
+                    ui.image(PRINT_DASHBOARD)
     
     # ========== PRICING ==========
     with ui.element('section').classes('pricing').props('id=pricing-section'):
@@ -1048,16 +1066,8 @@ def landing_page():
                     ui.element('div').classes('plan-divider')
                     
                     with ui.element('div').classes('plan-features'):
-                        features_free = [
-                            '✓ 20 lançamentos/mês',
-                            '✓ 1 cartão cadastrado',
-                            '✓ Modo Unificado',
-                            '✓ Consultor básico',
-                            '✓ Dashboard completo',
-                            '✓ Exportação de dados'
-                        ]
-                        for feature in features_free:
-                            ui.label(feature).classes('plan-feature')
+                        for feature in ['20 lançamentos/mês', '1 cartão', 'Modo Unificado', 'Consultor básico', 'Dashboard completo', 'Exportação de dados']:
+                            ui.label(f'✓ {feature}').classes('plan-feature')
                     
                     ui.button('Começar Grátis', on_click=lambda: ui.navigate.to('/criar-conta')).classes('plan-btn secondary')
                 
@@ -1073,16 +1083,8 @@ def landing_page():
                     ui.element('div').classes('plan-divider')
                     
                     with ui.element('div').classes('plan-features'):
-                        features_premium = [
-                            '✓ Lançamentos ilimitados',
-                            '✓ Múltiplos cartões',
-                            '✓ Modo Individual',
-                            '✓ Consultor Premium (30+)',
-                            '✓ Relatórios avançados',
-                            '✓ Suporte prioritário'
-                        ]
-                        for feature in features_premium:
-                            ui.label(feature).classes('plan-feature')
+                        for feature in ['Lançamentos ilimitados', 'Múltiplos cartões', 'Modo Individual', 'Consultor Premium (30+)', 'Relatórios avançados', 'Suporte prioritário']:
+                            ui.label(f'✓ {feature}').classes('plan-feature')
                     
                     ui.button('Assinar Premium', on_click=lambda: ui.navigate.to('/criar-conta')).classes('plan-btn primary')
     
@@ -1101,19 +1103,19 @@ def landing_page():
                 ui.label('Controle Inteligente do seu Crédito. Simples, rápido e eficiente.')
             
             with ui.element('div').classes('footer-col'):
-                ui.label('Produto').style('font-size: 14px; font-weight: 700; color: #e2e8f0; margin-bottom: 20px; letter-spacing: 0.3px;')
-                for link_text, section_id in [('Funcionalidades', 'features-section'), ('Como Funciona', 'how-section'), ('Planos', 'pricing-section')]:
-                    ui.label(link_text).style('font-size: 13px; color: #64748b; margin-bottom: 12px; cursor: pointer;').on('click', lambda sid=section_id: ui.run_javascript(f'document.getElementById("{sid}").scrollIntoView({{behavior:"smooth"}})'))
+                ui.label('Produto')
+                for link_text, section_id in [('Funcionalidades', 'features-section'), ('App', 'app-showcase'), ('Como Funciona', 'how-section'), ('Planos', 'pricing-section')]:
+                    ui.label(link_text).on('click', lambda sid=section_id: ui.run_javascript(f'document.getElementById("{sid}").scrollIntoView({{behavior:"smooth"}})'))
             
             with ui.element('div').classes('footer-col'):
-                ui.label('Suporte').style('font-size: 14px; font-weight: 700; color: #e2e8f0; margin-bottom: 20px; letter-spacing: 0.3px;')
+                ui.label('Suporte')
                 for link_text in ['Central de Ajuda', 'suporte@cartometro.app', 'FAQ']:
-                    ui.label(link_text).style('font-size: 13px; color: #64748b; margin-bottom: 12px; cursor: pointer;')
+                    ui.label(link_text)
             
             with ui.element('div').classes('footer-col'):
-                ui.label('Legal').style('font-size: 14px; font-weight: 700; color: #e2e8f0; margin-bottom: 20px; letter-spacing: 0.3px;')
+                ui.label('Legal')
                 for link_text in ['Termos de Uso', 'Privacidade']:
-                    ui.label(link_text).style('font-size: 13px; color: #64748b; margin-bottom: 12px; cursor: pointer;')
+                    ui.label(link_text)
         
         with ui.element('div').classes('footer-bottom'):
             ui.label('© 2025 Cartometro. Todos os direitos reservados.').classes('footer-copyright')
@@ -1170,46 +1172,43 @@ def login():
     .login-brand::before {{
         content: '';
         position: absolute;
-        width: 600px;
-        height: 600px;
+        width: 800px;
+        height: 800px;
         border-radius: 50%;
         border: 2px solid rgba(255, 255, 255, 0.05);
-        top: -200px;
-        right: -200px;
+        top: -250px;
+        right: -250px;
     }}
     
     .login-brand::after {{
         content: '';
         position: absolute;
-        width: 500px;
-        height: 500px;
+        width: 600px;
+        height: 600px;
         border-radius: 50%;
         background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
-        bottom: -150px;
-        left: -150px;
+        bottom: -200px;
+        left: -200px;
     }}
     
     .login-brand-content {{
         position: relative;
         z-index: 1;
-        max-width: 440px;
-        width: 100%;
-        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-width: 500px;
     }}
     
     .login-brand-logo {{
-        width: 200px;
+        width: 320px;
         height: auto;
-        margin-bottom: 40px;
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
+        margin-bottom: 48px;
     }}
     
     .login-brand-benefits {{
         text-align: left;
-        max-width: 380px;
-        margin: 0 auto;
+        width: 100%;
     }}
     
     .login-brand-title {{
@@ -1264,6 +1263,7 @@ def login():
         justify-content: center;
         background: white;
         padding: 48px;
+        position: relative;
     }}
     
     .login-form-container {{
@@ -1272,9 +1272,9 @@ def login():
     }}
     
     .login-logo-icon {{
-        width: 52px;
+        width: 100px;
         height: auto;
-        margin: 0 auto 20px;
+        margin: 0 auto 16px;
         display: block;
     }}
     
@@ -1299,6 +1299,28 @@ def login():
         color: #94a3b8;
         text-align: center;
         margin-bottom: 32px;
+    }}
+    
+    .back-button {{
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: white;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-size: 12px;
+        color: #64748b;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.2s;
+        font-family: inherit;
+        z-index: 10;
+    }}
+    
+    .back-button:hover {{
+        color: #0f172a;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
     }}
     
     .field-wrapper {{
@@ -1403,21 +1425,6 @@ def login():
         text-decoration: underline;
     }}
     
-    .back-link {{
-        text-align: center;
-        margin-bottom: 24px;
-    }}
-    
-    .back-link span {{
-        color: #64748b;
-        font-size: 13px;
-        cursor: pointer;
-    }}
-    
-    .back-link span:hover {{
-        color: #0f172a;
-    }}
-    
     /* Input styling */
     .q-field--outlined .q-field__control {{
         border-radius: 10px !important;
@@ -1439,15 +1446,57 @@ def login():
             width: 100%;
             padding: 32px 24px;
         }}
+        
+        /* Mobile: mostrar gradiente no topo */
+        .login-form-side::before {{
+            display: block;
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            background: linear-gradient(160deg, {cor_escura} 0%, {cor} 100%);
+            z-index: 0;
+        }}
+        
+        .login-form-container {{
+            position: relative;
+            z-index: 1;
+            margin-top: 40px;
+        }}
+        
+        .login-logo-icon {{
+            width: 80px;
+            filter: brightness(0) invert(1);
+        }}
+        
+        .back-button {{
+            top: 16px;
+            left: 16px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }}
+        
+        .back-button:hover {{
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }}
     }}
     
     @media (max-width: 480px) {{
         .login-form-side {{
-            padding: 24px 20px;
+            padding: 20px 16px;
         }}
         
         .login-title {{
             font-size: 24px;
+        }}
+        
+        .login-logo-icon {{
+            width: 70px;
         }}
     }}
     </style>
@@ -1500,11 +1549,10 @@ def login():
         
         # LADO DIREITO - Formulário
         with ui.element('div').classes('login-form-side'):
+            # Botão Voltar
+            ui.button('← Voltar', on_click=lambda: ui.navigate.to('/')).props('no-caps').classes('back-button')
+            
             with ui.element('div').classes('login-form-container'):
-                # Back link
-                with ui.element('div').classes('back-link'):
-                    ui.label('← Voltar para o site').on('click', lambda: ui.navigate.to('/'))
-                
                 # Logo icon
                 ui.image(LOGO).classes('login-logo-icon')
                 
