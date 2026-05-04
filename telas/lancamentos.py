@@ -295,6 +295,62 @@ def tela_lancamentos(container):
             else:
                 contador_label.style('background: rgba(255,255,255,0.2) !important;')
     
+    # ============================================================
+    # POPUP BOAS-VINDAS PARA DEMO
+    # ============================================================
+    if plano_atual == 'demo':
+        # Verificar se já mostrou o popup
+        if 'demo_popup_visto' not in app.storage.user:
+            app.storage.user['demo_popup_visto'] = False
+        
+        if not app.storage.user['demo_popup_visto']:
+            def mostrar_popup_demo():
+                with ui.dialog() as demo_dialog, ui.card().classes('p-6 rounded-2xl max-w-[450px] text-center'):
+                    ui.icon('👋').style('font-size:48px;margin-bottom:12px;')
+                    ui.label("Bem-vindo à Conta Demonstração!").style('font-size:20px;font-weight:700;color:#1e293b;margin-bottom:8px;')
+                    ui.label("Este é um ambiente para você conhecer o Cartometro.").style('font-size:13px;color:#64748b;margin-bottom:16px;')
+                    
+                    with ui.card().style('background:#fef3c7;border:1px solid #f59e0b;padding:12px;border-radius:8px;margin-bottom:16px;'):
+                        ui.label("⚠️ Limitações da conta demo:").style('font-size:12px;font-weight:600;color:#d97706;margin-bottom:8px;')
+                        ui.label("• Apenas 3 lançamentos de teste").style('font-size:11px;color:#92400e;')
+                        ui.label("• 1 cartão de crédito").style('font-size:11px;color:#92400e;')
+                        ui.label("• Consultor básico").style('font-size:11px;color:#92400e;')
+                        ui.label("• Dados NÃO são salvos permanentemente").style('font-size:11px;color:#92400e;')
+                    
+                    ui.label("Crie sua conta gratuita para começar a usar de verdade!").style('font-size:13px;color:#1e293b;margin-bottom:16px;')
+                    
+                    with ui.row().classes('gap-3 justify-center'):
+                        ui.button("Criar Conta Grátis", on_click=lambda: [demo_dialog.close(), ui.navigate.to('/criar-conta')]).style('background:#3b82f6;color:white;border-radius:8px;font-weight:600;')
+                        ui.button("Testar Agora", on_click=lambda: [demo_dialog.close(), marcar_popup_visto()]).style('background:#10b981;color:white;border-radius:8px;font-weight:600;')
+                
+                demo_dialog.open()
+            
+            def marcar_popup_visto():
+                app.storage.user['demo_popup_visto'] = True
+            
+            ui.timer(0.5, mostrar_popup_demo, once=True)
+    
+    # ============================================================
+    # VERIFICAR LIMITE DEMO E REDIRECIONAR
+    # ============================================================
+    if plano_atual == 'demo':
+        count = contar_lancamentos_mes()
+        if count >= max_lanc:
+            def mostrar_popup_limite():
+                with ui.dialog() as limite_dialog, ui.card().classes('p-6 rounded-2xl max-w-[450px] text-center'):
+                    ui.icon('🎉').style('font-size:48px;margin-bottom:12px;')
+                    ui.label("Você testou o Cartometro!").style('font-size:20px;font-weight:700;color:#1e293b;margin-bottom:8px;')
+                    ui.label(f"Você fez os {max_lanc} lançamentos disponíveis na conta demo.").style('font-size:13px;color:#64748b;margin-bottom:16px;')
+                    ui.label("Que tal criar sua conta gratuita agora?").style('font-size:14px;font-weight:600;color:#1e293b;margin-bottom:16px;')
+                    
+                    with ui.row().classes('gap-3 justify-center'):
+                        ui.button("Criar Conta Grátis", on_click=lambda: [limite_dialog.close(), ui.navigate.to('/criar-conta')]).style('background:#3b82f6;color:white;border-radius:8px;font-weight:600;padding:12px 24px;')
+                        ui.button("Fazer Login", on_click=lambda: [limite_dialog.close(), ui.navigate.to('/')]).props('outline').style('border-color:#3b82f6;color:#3b82f6;border-radius:8px;')
+                
+                limite_dialog.open()
+            
+            ui.timer(0.5, mostrar_popup_limite, once=True)
+
     # ==========================================
     # CONSULTOR FINANCEIRO
     # ==========================================
@@ -710,7 +766,16 @@ def tela_lancamentos(container):
                     ui.image(LOGO_COMPLETA).style('width: 100px; height: auto;')
                     with ui.column().classes('gap-0'):
                         inicio, fim = get_ciclo_atual()
-                        ui.label(f"Fecha dia {fim.day}").classes('header-subtitle-text text-white')
+                        
+                        # Badge do plano
+                        if plano_atual == 'demo':
+                            with ui.element('div').style('background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:10px;margin-bottom:2px;'):
+                                ui.label("👑 Demo • 3 testes").style('font-size:8px;color:white;')
+                        elif plano_atual == 'premium':
+                            with ui.element('div').style('background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:10px;margin-bottom:2px;'):
+                                ui.label("💎 Premium").style('font-size:8px;color:white;')
+                        else:
+                            ui.label(f"Fecha dia {fim.day}").classes('header-subtitle-text text-white')
                         
                         # Contador de lançamentos
                         count = contar_lancamentos_mes()
@@ -725,7 +790,6 @@ def tela_lancamentos(container):
                     notif_badge = ui.label('0').classes('notif-badge')
                     notif_badge.style('display: none')
                     
-                    # Ícone diferente para premium
                     icon_notif = 'notifications' if consultor_premium else 'notifications'
                     ui.button(icon=icon_notif, on_click=abrir_notificacoes).props('flat round size=sm').classes('header-icon-btn').style('color: white !important;')
                     
@@ -782,10 +846,64 @@ def tela_lancamentos(container):
             atualizar_badge()
             atualizar_contador()
     
+    # ============================================================
+    # POPUP BOAS-VINDAS PARA DEMO
+    # ============================================================
+    if plano_atual == 'demo':
+        if 'demo_popup_visto' not in app.storage.user:
+            app.storage.user['demo_popup_visto'] = False
+        
+        if not app.storage.user['demo_popup_visto']:
+            def mostrar_popup_demo():
+                with ui.dialog() as demo_dialog, ui.card().classes('p-6 rounded-2xl max-w-[450px] text-center'):
+                    ui.icon('👋').style('font-size:48px;margin-bottom:12px;')
+                    ui.label("Bem-vindo à Conta Demonstração!").style('font-size:20px;font-weight:700;color:#1e293b;margin-bottom:8px;')
+                    ui.label("Este é um ambiente para você conhecer o Cartometro.").style('font-size:13px;color:#64748b;margin-bottom:16px;')
+                    
+                    with ui.card().style('background:#fef3c7;border:1px solid #f59e0b;padding:12px;border-radius:8px;margin-bottom:16px;'):
+                        ui.label("⚠️ Limitações da conta demo:").style('font-size:12px;font-weight:600;color:#d97706;margin-bottom:8px;')
+                        ui.label("• Apenas 3 lançamentos de teste").style('font-size:11px;color:#92400e;')
+                        ui.label("• 1 cartão de crédito").style('font-size:11px;color:#92400e;')
+                        ui.label("• Consultor básico").style('font-size:11px;color:#92400e;')
+                        ui.label("• Dados NÃO são salvos permanentemente").style('font-size:11px;color:#92400e;')
+                    
+                    ui.label("Crie sua conta gratuita para começar a usar de verdade!").style('font-size:13px;color:#1e293b;margin-bottom:16px;')
+                    
+                    with ui.row().classes('gap-3 justify-center'):
+                        ui.button("Criar Conta Grátis", on_click=lambda: [demo_dialog.close(), ui.navigate.to('/criar-conta')]).style('background:#3b82f6;color:white;border-radius:8px;font-weight:600;padding:10px 20px;')
+                        ui.button("Testar Agora", on_click=lambda: [demo_dialog.close(), marcar_popup_visto()]).style('background:#10b981;color:white;border-radius:8px;font-weight:600;padding:10px 20px;')
+                
+                demo_dialog.open()
+            
+            def marcar_popup_visto():
+                app.storage.user['demo_popup_visto'] = True
+            
+            ui.timer(0.5, mostrar_popup_demo, once=True)
+    
+    # ============================================================
+    # VERIFICAR LIMITE DEMO E REDIRECIONAR
+    # ============================================================
+    if plano_atual == 'demo':
+        count = contar_lancamentos_mes()
+        if count >= max_lanc:
+            def mostrar_popup_limite():
+                with ui.dialog() as limite_dialog, ui.card().classes('p-6 rounded-2xl max-w-[450px] text-center'):
+                    ui.icon('🎉').style('font-size:48px;margin-bottom:12px;')
+                    ui.label("Você testou o Cartometro!").style('font-size:20px;font-weight:700;color:#1e293b;margin-bottom:8px;')
+                    ui.label(f"Você fez os {max_lanc} lançamentos disponíveis na conta demo.").style('font-size:13px;color:#64748b;margin-bottom:16px;')
+                    ui.label("Que tal criar sua conta gratuita agora?").style('font-size:14px;font-weight:600;color:#1e293b;margin-bottom:16px;')
+                    
+                    with ui.row().classes('gap-3 justify-center'):
+                        ui.button("Criar Conta Grátis", on_click=lambda: [limite_dialog.close(), ui.navigate.to('/criar-conta')]).style('background:#3b82f6;color:white;border-radius:8px;font-weight:600;padding:12px 24px;')
+                        ui.button("Fazer Login", on_click=lambda: [limite_dialog.close(), ui.navigate.to('/')]).props('outline').style('border-color:#3b82f6;color:#3b82f6;border-radius:8px;')
+                
+                limite_dialog.open()
+            
+            ui.timer(0.5, mostrar_popup_limite, once=True)
+    
     ui.timer(2.0, verificar_mudancas)
     atualizar_lista()
     atualizar_badge()
     atualizar_contador()
-
 
 __all__ = ['tela_lancamentos']

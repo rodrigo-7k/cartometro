@@ -571,7 +571,7 @@ def tela_configuracoes(container, dialog_pai=None):
                         recarregar_principal()
                     
                     ui.button("Adicionar", on_click=add_fixo, icon='add').classes('w-full').style(f'background: {cor_primaria} !important; color: white !important; border-radius: 8px; font-weight: 600;')
-    
+
     # =========================
     # RENDER: PERFIL
     # =========================
@@ -634,11 +634,8 @@ def tela_configuracoes(container, dialog_pai=None):
                             av_div.on('click', lambda a=av: selecionar_avatar(a))
                     
                     def selecionar_avatar(a):
-                        # Atualizar no banco
                         atualizar_perfil_usuario(email, avatar_emoji=a)
-                        # Atualizar display
                         avatar_label.set_text(a)
-                        # Fechar dialog
                         avatar_dialog.close()
                         ui.notify(f"✅ Avatar atualizado!", type="positive", position="top", timeout=1000)
                     
@@ -717,12 +714,13 @@ def tela_configuracoes(container, dialog_pai=None):
                     ("Modo Individual", "✅"),
                     ("Consultor Financeiro", "Premium (30+ alertas)"),
                 ]
-            else:
+            else:  # demo
                 limites = [
-                    ("Lançamentos por mês", "Ilimitado (Demo)"),
-                    ("Cartões", "Ilimitado (Demo)"),
-                    ("Modo Individual", "✅ (Demo)"),
-                    ("Consultor Financeiro", "Premium (Demo)"),
+                    ("Lançamentos por mês", "3 (apenas teste)"),
+                    ("Cartões", "1"),
+                    ("Modo Individual", "❌"),
+                    ("Consultor Financeiro", "Básico (6 alertas)"),
+                    ("Persistência de dados", "❌ (dados resetam)"),
                 ]
             
             for label, valor in limites:
@@ -737,16 +735,9 @@ def tela_configuracoes(container, dialog_pai=None):
             with ui.card().classes('config-card').style(
                 'background:linear-gradient(135deg,#8b5cf6,#6366f1);'
             ):
-                # Título
-                ui.label("💎 Quer mais recursos?").style(
-                    'font-size:18px;font-weight:700;color:#FFFFFF;margin-bottom:8px;'
-                )
-                # Subtítulo
-                ui.label("Premium por apenas R$ 4,99/mês").style(
-                    'font-size:14px;color:#E2E8F0;margin-bottom:16px;'
-                )
+                ui.label("💎 Quer mais recursos?").style('font-size:18px;font-weight:700;color:#FFFFFF;margin-bottom:8px;')
+                ui.label("Premium por apenas R$ 4,99/mês").style('font-size:14px;color:#E2E8F0;margin-bottom:16px;')
                 
-                # Benefícios
                 beneficios = [
                     "✅ Lançamentos ilimitados",
                     "✅ Múltiplos cartões",
@@ -756,19 +747,23 @@ def tela_configuracoes(container, dialog_pai=None):
                 for b in beneficios:
                     ui.label(b).style('font-size:13px;color:#F1F5F9;padding:2px 0;')
                 
-                # Botão
                 ui.button("💎 Fazer Upgrade", icon='star', on_click=lambda: ui.navigate.to('/upgrade')).classes('w-full mt-4').style(
                     'background:#FFFFFF;color:#6366F1;border-radius:8px;font-weight:600;font-size:14px;'
                 )
         
+        # ============================================================
+        # CONTA DEMO
+        # ============================================================
         elif plano == 'demo':
             with ui.card().classes('config-card').style('background:#eff6ff;border:1px solid #bfdbfe;'):
                 with ui.row().classes('items-start gap-3'):
                     ui.icon('info').classes('text-xl').style('color:#3b82f6;')
                     with ui.column().classes('gap-2'):
                         ui.label("👑 Conta Demonstração").style('font-size:16px;font-weight:700;color:#1E40AF;')
-                        ui.label("Esta é uma conta de demonstração com todos os recursos liberados.").style('font-size:13px;color:#475569;')
-                        ui.label("Crie sua conta gratuita para começar a usar!").style('font-size:13px;color:#475569;')
+                        ui.label("⚠️ Esta conta permite apenas 3 lançamentos para teste.").style('font-size:13px;color:#475569;')
+                        ui.label("Os dados NÃO são salvos permanentemente.").style('font-size:13px;color:#475569;')
+                        ui.label("Crie sua conta gratuita para usar sem limitações!").style('font-size:13px;color:#475569;')
+                        ui.button("Criar Conta Gratuita", on_click=lambda: ui.navigate.to('/criar-conta')).style('background:#3b82f6;color:white;border-radius:8px;margin-top:8px;')    
 
     # =========================
     # RENDER: SOBRE

@@ -33,7 +33,7 @@ CATEGORIAS_PADRAO = [
 ]
 
 PLANOS = {
-    "demo": {"nome": "Demonstração", "modo_individual": True, "max_lancamentos_mes": 999, "max_cartoes": 999, "consultor_premium": True, "duracao_dias": None},
+    "demo": {"nome": "Demonstração", "modo_individual": True, "max_lancamentos_mes": 3, "max_cartoes": 1, "consultor_premium": False, "duracao_dias": None},
     "gratuito": {"nome": "Gratuito", "modo_individual": False, "max_lancamentos_mes": 20, "max_cartoes": 1, "consultor_premium": False, "duracao_dias": None},
     "premium": {"nome": "Premium", "modo_individual": True, "max_lancamentos_mes": 9999, "max_cartoes": 9999, "consultor_premium": True, "duracao_dias": 365},
 }
