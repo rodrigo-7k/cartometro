@@ -12,6 +12,7 @@ from db import (
 )
 from config_service import config_service
 from auth_service import get_usuario_logado
+import admin  # Painel administrativo
 import os
 
 # ============================================================
@@ -322,10 +323,7 @@ def login():
         if usuario:
             global usuario_atual
             usuario_atual = usuario
-            
-            # Definir usuário logado no db
             set_usuario_logado(email)
-            
             ui.notify(f'✅ Bem-vindo, {usuario["nome"]}!', type='positive', position='top')
             ui.navigate.to('/app')
         else:
@@ -341,47 +339,36 @@ def login():
 
     with ui.element('div').classes('lp-root'):
 
-        # DESKTOP: Lado esquerdo - Logo no fundo colorido
         with ui.element('div').classes('lp-brand'):
             ui.image(LOGO_BRANCA).classes('lp-brand-logo')
 
-        # DESKTOP: Lado direito - Formulário
         with ui.element('div').classes('lp-form-side'):
             with ui.element('div').classes('lp-form-box'):
                 
-                # MOBILE: Header colorido
                 with ui.element('div').classes('lp-mobile-header'):
                     ui.image(LOGO).classes('lp-mobile-header-logo')
 
-                # Card do formulário
                 with ui.element('div').classes('lp-mobile-form-card'):
                     
-                    # Logo wordmark
                     with ui.element('div').classes('flex justify-center'):
                         ui.image(WORDMARK).classes('lp-form-logo')
 
-                    # Texto explicativo
                     ui.label('Acompanhe gastos do cartão, defina limites e organize suas finanças com simplicidade.').classes('lp-form-desc')
 
-                    # Título
                     ui.label('Entrar na conta').style(
                         'font-size:26px;font-weight:700;letter-spacing:-0.8px;'
                         'color:#0f0f0f;line-height:1.15;')
 
-                    # Campo Email
                     with ui.element('div').classes('lp-field-wrap'):
                         ui.label('E-mail').classes('lp-field-label')
                         email_input = ui.input(placeholder='admin').props('outlined dense').classes('w-full')
 
-                    # Campo Senha
                     with ui.element('div').classes('lp-field-wrap'):
                         ui.label('Senha').classes('lp-field-label')
                         senha_input = ui.input(placeholder='••••••••', password=True, password_toggle_button=True).props('outlined dense').classes('w-full')
 
-                    # Erro
                     error_label = ui.label('').classes('lp-error')
 
-                    # Botão Entrar
                     ui.button('Entrar', on_click=fazer_login).props('no-caps').style(
                         f'width: 100%; height: 48px; border-radius: 11px; '
                         f'background: {cor} !important; color: white !important; '
@@ -389,12 +376,10 @@ def login():
                         f'margin-top: 10px; letter-spacing: 0.01em; font-family: "DM Sans", sans-serif;'
                     )
 
-                    # Acesso rápido (demo)
                     with ui.element('div').classes('lp-hint'):
                         ui.label('Acesso rápido').classes('lp-hint-label')
                         ui.label('👑 admin / admin (Demo)').classes('lp-hint-item').on('click', preencher_admin)
 
-                    # Link criar conta
                     with ui.element('div').classes('lp-criar-conta'):
                         ui.label('Não tem conta?').classes('text-sm text-gray-400')
                         ui.label('Criar conta gratuita').classes('text-sm font-semibold cursor-pointer').style(f'color: {cor}').on('click', abrir_cadastro)
@@ -405,8 +390,7 @@ def login():
 # =========================
 @ui.page('/criar-conta')
 def criar_conta():
-    cor        = config_service.get_primary_color()
-    cor_escura = config_service.get_primary_dark()
+    cor = config_service.get_primary_color()
 
     ui.add_head_html(f"""
     <style>
@@ -524,15 +508,12 @@ def criar_conta():
     
     with ui.element('div').classes('cadastro-container'):
         with ui.element('div').classes('cadastro-card'):
-            # Logo
             ui.image(WORDMARK).classes('cadastro-logo')
             
             ui.label('Criar sua Conta').style('font-size:24px;font-weight:700;text-align:center;color:#1f2937;margin-bottom:4px;')
             ui.label('Comece gratuitamente e faça upgrade quando precisar').style('font-size:14px;color:#9ca3af;text-align:center;margin-bottom:24px;')
             
-            # Planos
             with ui.element('div').classes('planos-grid'):
-                # Gratuito
                 with ui.element('div').classes('plano-card selecionado').on('click', lambda: selecionar_plano('gratuito')):
                     ui.label('🆓 Gratuito').style('font-size:16px;font-weight:700;color:#1f2937;')
                     ui.label('R$ 0').classes('plano-preco')
@@ -541,9 +522,6 @@ def criar_conta():
                     ui.label('• Modo Unificado').style('font-size:11px;color:#6b7280;')
                     ui.label('• Alertas básicos').style('font-size:11px;color:#6b7280;')
                 
-                plano_gratuito_div = ui.element('div')  # Referência para depois
-                
-                # Premium
                 with ui.element('div').classes('plano-card').on('click', lambda: selecionar_plano('premium')):
                     ui.label('💎 Premium').style('font-size:16px;font-weight:700;color:#1f2937;')
                     ui.label('R$ 19,90/mês').classes('plano-preco')
@@ -551,10 +529,7 @@ def criar_conta():
                     ui.label('• Múltiplos cartões').style('font-size:11px;color:#6b7280;')
                     ui.label('• Modo Individual').style('font-size:11px;color:#6b7280;')
                     ui.label('• Consultor Premium').style('font-size:11px;color:#6b7280;')
-                
-                plano_premium_div = ui.element('div')
             
-            # Campos
             with ui.element('div').classes('campo'):
                 ui.label('Nome completo')
                 nome_input = ui.input(placeholder='Seu nome').props('outlined dense').classes('w-full')
@@ -619,7 +594,6 @@ def criar_conta():
 def app():
     global usuario_atual, container_principal
     
-    # Verificar autenticação
     if not usuario_atual:
         ui.navigate.to('/')
         return
@@ -633,7 +607,8 @@ def app():
 # INICIALIZAÇÃO
 # =========================
 inicializar()
-set_usuario_logado(None)  # Nenhum usuário logado inicialmente
+admin.inicializar_admin()  # Inicializa o painel admin
+set_usuario_logado(None)
 
 PORT = int(os.environ.get('PORT', 8080))
 

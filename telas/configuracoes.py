@@ -8,7 +8,7 @@ from db import (
     adicionar_cartao, remover_cartao, atualizar_cartao,
     buscar_usuario_por_email, salvar_usuarios, carregar_usuarios,
     pode_usar_modo_individual, verificar_limite_cartoes,
-    get_limites_usuario, PLANOS
+    get_plano_usuario, PLANOS  # ← CORRETO
 )
 from config_service import config_service
 from constantes import CATEGORIAS_PADRAO
