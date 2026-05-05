@@ -1,0 +1,64 @@
+{
+  "config": {
+    "limite_total": 3000,
+    "limite_parcelado": 1500,
+    "dia_fechamento": 10,
+    "modo_cartao": "Unificado",
+    "cor_primaria": "#3b82f6",
+    "cor_escura": "#1e40af"
+  },
+  "gastos": [],
+  "fixos": [],
+  "cartoes": [],
+  "categorias": [
+    {
+      "nome": "Alimentação",
+      "icone": "restaurant",
+      "cor": "#ef4444"
+    },
+    {
+      "nome": "Transporte",
+      "icone": "directions_car",
+      "cor": "#f97316"
+    },
+    {
+      "nome": "Moradia",
+      "icone": "home",
+      "cor": "#8b5cf6"
+    },
+    {
+      "nome": "Saúde",
+      "icone": "local_hospital",
+      "cor": "#10b981"
+    },
+    {
+      "nome": "Educação",
+      "icone": "school",
+      "cor": "#3b82f6"
+    },
+    {
+      "nome": "Lazer",
+      "icone": "sports_esports",
+      "cor": "#ec4899"
+    },
+    {
+      "nome": "Assinaturas",
+      "icone": "subscriptions",
+      "cor": "#6366f1"
+    },
+    {
+      "nome": "Compras",
+      "icone": "shopping_cart",
+      "cor": "#14b8a6"
+    },
+    {
+      "nome": "Outros",
+      "icone": "category",
+      "cor": "#6b7280"
+    }
+  ],
+  "perfil": {
+    "nome": "Admin",
+    "avatar_emoji": "👤"
+  }
+}
