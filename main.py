@@ -52,7 +52,6 @@ def landing_page():
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="{FAVICON}">
     <style>
-    /* RESET AGRESSIVO - Força página inteira */
     * {{ margin: 0; padding: 0; box-sizing: border-box; }}
     
     html, body, #app, .q-page-container, .q-page, .nicegui-content {{
@@ -68,17 +67,13 @@ def landing_page():
         background: #ffffff;
         color: #0f172a;
         -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
     }}
     
-    /* CONTAINER PRINCIPAL - ocupa 90% da tela em qualquer resolução */
     .container-lg {{
         width: 90% !important;
         max-width: 1600px !important;
         margin-left: auto !important;
         margin-right: auto !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
     }}
     
     @media (min-width: 1920px) {{
@@ -88,28 +83,17 @@ def landing_page():
         }}
     }}
     
-    /* Força todas as sections a ocupar 100% da largura */
-    section, .section-wrapper {{
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }}
-    
     /* ========== NAVBAR ========== */
     .navbar {{
         position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
+        top: 0; left: 0; right: 0;
         z-index: 1000;
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(20px);
         border-bottom: 1px solid rgba(0, 0, 0, 0.06);
     }}
     
-    .navbar.scrolled {{
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-    }}
+    .navbar.scrolled {{ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); }}
     
     .navbar-inner {{
         display: flex;
@@ -122,14 +106,11 @@ def landing_page():
     }}
     
     @media (min-width: 1920px) {{
-        .navbar-inner {{
-            width: 92%;
-            max-width: 1800px;
-        }}
+        .navbar-inner {{ width: 92%; max-width: 1800px; }}
     }}
     
     .navbar-logo-img {{
-        height: 70px;
+        height: 42px;
         width: auto;
         display: block;
     }}
@@ -153,10 +134,7 @@ def landing_page():
         font-family: inherit;
     }}
     
-    .nav-link:hover {{
-        color: #7c3aed;
-        background: #f5f3ff;
-    }}
+    .nav-link:hover {{ color: #7c3aed; background: #f5f3ff; }}
     
     .btn-primary {{
         background: #7c3aed;
@@ -191,10 +169,7 @@ def landing_page():
         transition: all 0.2s;
     }}
     
-    .btn-secondary:hover {{
-        background: #f5f3ff;
-        border-color: #7c3aed;
-    }}
+    .btn-secondary:hover {{ background: #f5f3ff; border-color: #7c3aed; }}
     
     .mobile-menu-btn {{
         display: none;
@@ -220,9 +195,7 @@ def landing_page():
         align-items: center;
     }}
     
-    .hero-content {{
-        max-width: 600px;
-    }}
+    .hero-content {{ max-width: 600px; }}
     
     .hero-badge {{
         display: inline-flex;
@@ -308,10 +281,7 @@ def landing_page():
         transition: all 0.2s;
     }}
     
-    .hero-demo:hover {{
-        border-color: #c4b5fd;
-        color: #7c3aed !important;
-    }}
+    .hero-demo:hover {{ border-color: #c4b5fd; color: #7c3aed !important; }}
     
     .hero-trust {{
         display: flex;
@@ -338,7 +308,7 @@ def landing_page():
     /* ========== LOGO SHOWCASE ========== */
     .logo-showcase {{
         width: 100%;
-        padding: 64px 0;
+        padding: 80px 0;
         background: #f8fafc;
         text-align: center;
         border-top: 1px solid #f1f5f9;
@@ -346,20 +316,20 @@ def landing_page():
     }}
     
     .logo-showcase-label {{
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 700;
         letter-spacing: 0.12em;
-        color: #cbd5e1;
+        color: #94a3b8;
         text-transform: uppercase;
-        margin-bottom: 28px;
+        margin-bottom: 32px;
     }}
     
     .logo-showcase-img {{
-        height: 60px;
-        width: auto;
+        width: 100%;
+        max-width: 600px;
+        height: auto;
         margin: 0 auto;
         display: block;
-        opacity: 0.5;
     }}
     
     /* ========== FEATURES ========== */
@@ -462,11 +432,6 @@ def landing_page():
         margin-top: 64px;
     }}
     
-    .showcase-item {{
-        display: flex;
-        flex-direction: column;
-    }}
-    
     .showcase-image {{
         width: 100%;
         height: 260px;
@@ -505,16 +470,9 @@ def landing_page():
         margin-top: 64px;
     }}
     
-    .how-steps {{
-        display: flex;
-        flex-direction: column;
-        gap: 32px;
-    }}
+    .how-steps {{ display: flex; flex-direction: column; gap: 32px; }}
     
-    .how-step {{
-        display: flex;
-        gap: 20px;
-    }}
+    .how-step {{ display: flex; gap: 20px; }}
     
     .step-number {{
         width: 48px;
@@ -599,30 +557,10 @@ def landing_page():
         white-space: nowrap;
     }}
     
-    .plan-header {{
-        text-align: center;
-        margin-bottom: 28px;
-    }}
-    
-    .plan-name {{
-        font-size: 22px;
-        font-weight: 800;
-        color: #0f172a;
-        margin-bottom: 8px;
-    }}
-    
-    .plan-price {{
-        font-size: 52px;
-        font-weight: 900;
-        color: #7c3aed;
-        line-height: 1;
-        margin-bottom: 4px;
-    }}
-    
-    .plan-period {{
-        font-size: 14px;
-        color: #94a3b8;
-    }}
+    .plan-header {{ text-align: center; margin-bottom: 28px; }}
+    .plan-name {{ font-size: 22px; font-weight: 800; color: #0f172a; margin-bottom: 8px; }}
+    .plan-price {{ font-size: 52px; font-weight: 900; color: #7c3aed; line-height: 1; margin-bottom: 4px; }}
+    .plan-period {{ font-size: 14px; color: #94a3b8; }}
     
     .plan-divider {{
         height: 1px;
@@ -676,10 +614,7 @@ def landing_page():
         border: 2px solid #e9d5ff;
     }}
     
-    .plan-btn.secondary:hover {{
-        background: #f5f3ff;
-        border-color: #7c3aed;
-    }}
+    .plan-btn.secondary:hover {{ background: #f5f3ff; border-color: #7c3aed; }}
     
     /* ========== CTA ========== */
     .cta {{
@@ -688,9 +623,7 @@ def landing_page():
         background: linear-gradient(135deg, #6d28d9, #4f46e5);
     }}
     
-    .cta-content {{
-        text-align: center;
-    }}
+    .cta-content {{ text-align: center; }}
     
     .cta-title {{
         font-size: clamp(32px, 4vw, 48px);
@@ -764,7 +697,6 @@ def landing_page():
         font-weight: 700;
         color: #e2e8f0;
         margin-bottom: 16px;
-        letter-spacing: 0.3px;
     }}
     
     .footer-col a {{
@@ -777,64 +709,28 @@ def landing_page():
         cursor: pointer;
     }}
     
-    .footer-col a:hover {{
-        color: #e2e8f0;
-    }}
+    .footer-col a:hover {{ color: #e2e8f0; }}
     
-    .footer-bottom {{
-        text-align: center;
-        margin-top: 24px;
-    }}
+    .footer-bottom {{ text-align: center; margin-top: 24px; }}
     
-    .footer-copyright {{
-        font-size: 13px;
-        color: #475569;
-    }}
+    .footer-copyright {{ font-size: 13px; color: #475569; }}
     
     /* ========== RESPONSIVO ========== */
     @media (max-width: 1024px) {{
-        .hero-grid {{
-            grid-template-columns: 1fr;
-            gap: 48px;
-        }}
-        
-        .features-grid {{
-            grid-template-columns: repeat(2, 1fr);
-        }}
-        
-        .showcase-grid {{
-            grid-template-columns: 1fr 1fr;
-        }}
-        
-        .how-grid {{
-            grid-template-columns: 1fr;
-            gap: 48px;
-        }}
-        
-        .footer-grid {{
-            grid-template-columns: 1fr 1fr;
-            gap: 32px;
-        }}
+        .hero-grid {{ grid-template-columns: 1fr; gap: 48px; }}
+        .features-grid {{ grid-template-columns: repeat(2, 1fr); }}
+        .showcase-grid {{ grid-template-columns: 1fr 1fr; }}
+        .how-grid {{ grid-template-columns: 1fr; gap: 48px; }}
+        .footer-grid {{ grid-template-columns: 1fr 1fr; gap: 32px; }}
     }}
     
     @media (max-width: 768px) {{
         .navbar-links {{ display: none; }}
         .mobile-menu-btn {{ display: block; }}
-        
         .hero {{ padding: 110px 0 60px; }}
-        
-        .hero-grid {{
-            grid-template-columns: 1fr;
-            gap: 32px;
-        }}
-        
-        .features-grid {{
-            grid-template-columns: 1fr;
-        }}
-        
-        .showcase-grid {{
-            grid-template-columns: 1fr;
-        }}
+        .hero-grid {{ grid-template-columns: 1fr; gap: 32px; }}
+        .features-grid {{ grid-template-columns: 1fr; }}
+        .showcase-grid {{ grid-template-columns: 1fr; }}
         
         .pricing-grid {{
             display: flex;
@@ -854,14 +750,9 @@ def landing_page():
             scroll-snap-align: start;
         }}
         
-        .footer-grid {{
-            grid-template-columns: 1fr;
-            gap: 28px;
-        }}
-        
-        .container-lg {{
-            width: 94% !important;
-        }}
+        .footer-grid {{ grid-template-columns: 1fr; gap: 28px; }}
+        .container-lg {{ width: 94% !important; }}
+        .logo-showcase-img {{ max-width: 400px; }}
     }}
     </style>
     
@@ -921,7 +812,7 @@ def landing_page():
     # ========== LOGO SHOWCASE ==========
     with ui.element('div').classes('logo-showcase'):
         ui.label('Conheça o Cartometro').classes('logo-showcase-label')
-        ui.html(f'<img src="{LOGO_COMPLETA}" alt="Cartometro" class="logo-showcase-img">')
+        ui.html(f'<img src="{LOGO_FULL_COLOR}" alt="Cartometro" class="logo-showcase-img">')
     
     # ========== FEATURES ==========
     with ui.element('div').classes('features').props('id=features-section'):
@@ -1005,7 +896,6 @@ def landing_page():
                 ui.label('Sem taxas escondidas. Faça upgrade ou downgrade quando quiser.').classes('section-description')
             
             with ui.element('div').classes('pricing-grid'):
-                # Free Plan
                 with ui.element('div').classes('plan-card'):
                     with ui.element('div').classes('plan-header'):
                         ui.label('🆓 Gratuito').classes('plan-name')
@@ -1020,7 +910,6 @@ def landing_page():
                     
                     ui.button('Começar Grátis', on_click=lambda: ui.navigate.to('/criar-conta')).classes('plan-btn secondary')
                 
-                # Premium Plan
                 with ui.element('div').classes('plan-card featured'):
                     ui.label('MAIS POPULAR').classes('plan-badge')
                     
@@ -1097,17 +986,11 @@ def login():
     
     html, body {{ height: 100%; width: 100%; overflow: hidden; }}
     
-    body {{
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    }}
+    body {{ font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }}
     
-    .login-page {{
-        display: flex;
-        height: 100vh;
-        width: 100vw;
-    }}
+    .login-page {{ display: flex; height: 100vh; width: 100vw; }}
     
-    /* LADO ESQUERDO */
+    /* LADO ESQUERDO - DESKTOP */
     .login-brand {{
         flex: 1;
         background: linear-gradient(160deg, {cor_escura} 0%, {cor} 60%, {cor}cc 100%);
@@ -1140,8 +1023,9 @@ def login():
         max-width: 500px;
     }}
     
+    /* LOGO FULL BRANCA - DOBRO DO TAMANHO */
     .login-brand-logo {{
-        width: 320px;
+        width: 640px;
         height: auto;
         margin-bottom: 48px;
     }}
@@ -1209,10 +1093,11 @@ def login():
         max-width: 380px;
     }}
     
+    /* LOGO ICONE MAIOR - 5x MAIOR */
     .login-logo-icon {{
-        width: 100px;
+        width: 180px;
         height: auto;
-        margin: 0 auto 16px;
+        margin: 0 auto 20px;
         display: block;
     }}
     
@@ -1260,9 +1145,7 @@ def login():
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
     }}
     
-    .field-wrapper {{
-        margin-bottom: 16px;
-    }}
+    .field-wrapper {{ margin-bottom: 16px; }}
     
     .field-label {{
         font-size: 13px;
@@ -1283,9 +1166,7 @@ def login():
         margin-bottom: 16px;
     }}
     
-    .error-message.show {{
-        display: block;
-    }}
+    .error-message.show {{ display: block; }}
     
     .login-btn {{
         width: 100%;
@@ -1340,10 +1221,7 @@ def login():
         text-align: center;
     }}
     
-    .demo-btn:hover {{
-        background: #ede9fe;
-        border-color: #c4b5fd;
-    }}
+    .demo-btn:hover {{ background: #ede9fe; border-color: #c4b5fd; }}
     
     .register-link {{
         text-align: center;
@@ -1358,9 +1236,7 @@ def login():
         cursor: pointer;
     }}
     
-    .register-link span:hover {{
-        text-decoration: underline;
-    }}
+    .register-link span:hover {{ text-decoration: underline; }}
     
     .q-field--outlined .q-field__control {{
         border-radius: 10px !important;
@@ -1378,13 +1254,78 @@ def login():
         
         .login-form-side {{
             width: 100%;
-            padding: 32px 24px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            overflow-y: auto;
         }}
         
-        .back-button {{
-            top: 16px;
-            left: 16px;
+        /* Header gradiente no mobile */
+        .login-mobile-header {{
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(160deg, {cor_escura} 0%, {cor} 100%);
+            padding: 48px 24px 56px;
+            position: relative;
         }}
+        
+        .login-mobile-header::after {{
+            content: '';
+            position: absolute;
+            bottom: -24px;
+            left: 0;
+            right: 0;
+            height: 48px;
+            background: white;
+            border-radius: 28px 28px 0 0;
+        }}
+        
+        .login-mobile-logo {{
+            width: 120px;
+            height: auto;
+            margin-bottom: 8px;
+        }}
+        
+        .login-form-container {{
+            position: relative;
+            z-index: 1;
+            padding: 20px 24px 40px;
+            width: 100%;
+            max-width: 420px;
+            margin: 0 auto;
+        }}
+        
+        .login-logo-icon {{ display: none !important; }}
+        
+        .back-button {{
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            left: auto;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 10;
+        }}
+        
+        .back-button:hover {{
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }}
+    }}
+    
+    @media (max-width: 480px) {{
+        .login-form-container {{ padding: 16px 20px 32px; }}
+        .login-mobile-logo {{ width: 100px; }}
     }}
     </style>
     """)
@@ -1419,6 +1360,7 @@ def login():
         senha_input.value = 'admin'
     
     with ui.element('div').classes('login-page'):
+        # LADO ESQUERDO - DESKTOP
         with ui.element('div').classes('login-brand'):
             with ui.element('div').classes('login-brand-content'):
                 ui.html(f'<img src="{LOGO_FULL_BRANCA}" alt="Cartometro" class="login-brand-logo">')
@@ -1432,7 +1374,15 @@ def login():
                             ui.label(icon).classes('benefit-icon')
                             ui.label(text).classes('benefit-text')
         
+        # LADO DIREITO
         with ui.element('div').classes('login-form-side'):
+            # Header gradiente para mobile
+            ui.html(f'''
+                <div class="login-mobile-header" style="display:none;">
+                    <img src="{LOGO}" alt="Cartometro" class="login-mobile-logo">
+                </div>
+            ''')
+            
             ui.button('← Voltar', on_click=lambda: ui.navigate.to('/')).props('no-caps').classes('back-button')
             
             with ui.element('div').classes('login-form-container'):
@@ -1491,31 +1441,10 @@ def criar_conta():
             max-width: 460px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }}
-        .register-logo {{
-            width: 140px;
-            height: auto;
-            margin: 0 auto 24px;
-            display: block;
-        }}
-        .register-title {{
-            font-size: 24px;
-            font-weight: 800;
-            color: #0f172a;
-            text-align: center;
-            margin-bottom: 4px;
-        }}
-        .register-subtitle {{
-            font-size: 14px;
-            color: #94a3b8;
-            text-align: center;
-            margin-bottom: 32px;
-        }}
-        .plan-selector {{
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 24px;
-        }}
+        .register-logo {{ width: 140px; height: auto; margin: 0 auto 24px; display: block; }}
+        .register-title {{ font-size: 24px; font-weight: 800; color: #0f172a; text-align: center; margin-bottom: 4px; }}
+        .register-subtitle {{ font-size: 14px; color: #94a3b8; text-align: center; margin-bottom: 32px; }}
+        .plan-selector {{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }}
         .plan-option {{
             border: 2px solid #e2e8f0;
             border-radius: 12px;
@@ -1525,11 +1454,7 @@ def criar_conta():
             transition: all 0.2s;
             background: white;
         }}
-        .plan-option.selected {{
-            border-color: #7c3aed;
-            background: #faf5ff;
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
-        }}
+        .plan-option.selected {{ border-color: #7c3aed; background: #faf5ff; box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1); }}
         .plan-option-icon {{ font-size: 28px; margin-bottom: 8px; }}
         .plan-option-name {{ font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }}
         .plan-option-price {{ font-size: 20px; font-weight: 800; color: #7c3aed; }}
@@ -1538,32 +1463,18 @@ def criar_conta():
         .form-label {{ font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px; display: block; }}
         .q-field--outlined .q-field__control {{ border-radius: 10px !important; height: 48px !important; background: #fafafa !important; }}
         .register-btn {{
-            width: 100%;
-            height: 48px;
-            background: #7c3aed;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: inherit;
-            transition: all 0.2s;
-            margin-top: 8px;
+            width: 100%; height: 48px; background: #7c3aed; color: white;
+            border: none; border-radius: 12px; font-size: 16px; font-weight: 600;
+            cursor: pointer; font-family: inherit; transition: all 0.2s; margin-top: 8px;
         }}
         .register-btn:hover {{ background: #6d28d9; }}
         .login-link {{ text-align: center; margin-top: 20px; font-size: 13px; color: #94a3b8; }}
         .login-link span {{ color: #7c3aed; font-weight: 600; cursor: pointer; }}
         .login-link span:hover {{ text-decoration: underline; }}
         .error-msg {{
-            background: #fef2f2;
-            border-left: 3px solid #ef4444;
-            color: #ef4444;
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            margin-bottom: 16px;
-            display: none;
+            background: #fef2f2; border-left: 3px solid #ef4444; color: #ef4444;
+            padding: 12px 16px; border-radius: 8px; font-size: 13px;
+            margin-bottom: 16px; display: none;
         }}
         .error-msg.show {{ display: block; }}
     </style>
