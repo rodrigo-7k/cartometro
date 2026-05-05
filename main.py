@@ -64,19 +64,22 @@ def landing_page():
     }}
     
     /* ========== LAYOUT CENTRALIZADO ========== */
-    .container {{
-        max-width: 1280px;
-        width: 100%;
-        margin-left: auto;
-        margin-right: auto;
-        padding-left: 24px;
-        padding-right: 24px;
+    html, body {{ width: 100% !important; overflow-x: hidden; }}
+    
+    /* NiceGUI inner wrappers — garante que nao haja restricao interna */
+    .nicegui-content, .q-page, .q-page-container {{ 
+        max-width: 100% !important; 
+        width: 100% !important;
+        padding: 0 !important;
     }}
     
-    @media (min-width: 1400px) {{
-        .container {{
-            max-width: 1320px;
-        }}
+    .container {{
+        width: 95%;
+        max-width: 1400px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 0;
+        padding-right: 0;
     }}
     
     /* ========== NAVBAR ========== */
@@ -100,14 +103,14 @@ def landing_page():
         align-items: center;
         justify-content: space-between;
         height: 72px;
-        max-width: 1280px;
-        width: 100%;
+        width: 95%;
+        max-width: 1400px;
         margin: 0 auto;
-        padding: 0 24px;
+        padding: 0;
     }}
     
     .navbar-logo-img {{
-        height: 40px;
+        height: 52px;
         width: auto;
         display: block;
     }}
@@ -195,10 +198,11 @@ def landing_page():
         grid-template-columns: 1fr 1fr;
         gap: 64px;
         align-items: center;
+        width: 100%;
     }}
     
     .hero-content {{
-        max-width: 540px;
+        width: 100%;
     }}
     
     .hero-badge {{
@@ -303,26 +307,41 @@ def landing_page():
         display: flex;
         justify-content: center;
         align-items: center;
+        width: 100%;
     }}
     
     .hero-image {{
         width: 100%;
-        max-width: 500px;
+        max-width: 100%;
         border-radius: 16px;
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        display: block;
+        object-fit: cover;
     }}
     
     /* ========== LOGO SHOWCASE ========== */
     .logo-showcase {{
-        padding: 60px 0;
-        background: white;
+        padding: 64px 0;
+        background: #f8fafc;
         text-align: center;
+        border-top: 1px solid #f1f5f9;
+        border-bottom: 1px solid #f1f5f9;
+    }}
+    
+    .logo-showcase-label {{
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        color: #cbd5e1;
+        text-transform: uppercase;
+        margin-bottom: 28px;
     }}
     
     .logo-showcase-img {{
-        height: 60px;
+        height: 160px;
         width: auto;
-        opacity: 0.25;
+        margin: 0 auto;
+        display: block;
     }}
     
     /* ========== FEATURES ========== */
@@ -430,9 +449,12 @@ def landing_page():
     
     .showcase-image {{
         width: 100%;
+        height: 240px;
+        object-fit: cover;
         border-radius: 16px;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         margin-bottom: 24px;
+        display: block;
     }}
     
     .showcase-title {{
@@ -502,8 +524,11 @@ def landing_page():
     
     .how-image {{
         width: 100%;
+        height: auto;
         border-radius: 16px;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        display: block;
+        object-fit: cover;
     }}
     
     /* ========== PRICING ========== */
@@ -516,7 +541,7 @@ def landing_page():
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 32px;
-        max-width: 900px;
+        max-width: 880px;
         margin: 64px auto 0;
     }}
     
@@ -556,18 +581,18 @@ def landing_page():
     
     .plan-header {{
         text-align: center;
-        margin-bottom: 32px;
+        margin-bottom: 28px;
     }}
     
     .plan-name {{
-        font-size: 24px;
+        font-size: 22px;
         font-weight: 800;
         color: #0f172a;
         margin-bottom: 8px;
     }}
     
     .plan-price {{
-        font-size: 56px;
+        font-size: 52px;
         font-weight: 900;
         color: #7c3aed;
         line-height: 1;
@@ -760,7 +785,7 @@ def landing_page():
         }}
         
         .showcase-grid {{
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr 1fr;
         }}
         
         .how-grid {{
@@ -770,11 +795,6 @@ def landing_page():
         
         .how-image-wrapper {{
             order: -1;
-        }}
-        
-        .pricing-grid {{
-            grid-template-columns: 1fr;
-            max-width: 500px;
         }}
         
         .footer-grid {{
@@ -796,8 +816,27 @@ def landing_page():
             padding: 100px 0 60px;
         }}
         
+        .hero-grid {{
+            grid-template-columns: 1fr;
+            gap: 32px;
+        }}
+        
+        .hero-content {{
+            text-align: center;
+            max-width: 100%;
+        }}
+        
+        .hero-actions {{
+            justify-content: center;
+        }}
+        
+        .hero-trust {{
+            justify-content: center;
+        }}
+        
         .hero-image-wrapper {{
             display: block !important;
+            order: -1;
         }}
         
         .hero-title {{
@@ -820,12 +859,49 @@ def landing_page():
             padding: 60px 0;
         }}
         
+        .showcase-grid {{
+            grid-template-columns: 1fr;
+        }}
+        
         .how-it-works {{
             padding: 60px 0;
         }}
         
         .pricing {{
             padding: 60px 0;
+        }}
+        
+        /* ---- Pricing mobile: lado a lado com scroll suave ---- */
+        .pricing-grid {{
+            display: flex;
+            flex-direction: row;
+            gap: 16px;
+            max-width: 100%;
+            margin: 40px 0 0;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            padding: 20px 5% 24px;
+            scrollbar-width: none;
+        }}
+        .pricing-grid::-webkit-scrollbar {{ display: none; }}
+        
+        .plan-card {{
+            min-width: 270px;
+            flex-shrink: 0;
+            scroll-snap-align: start;
+            padding: 32px 24px;
+        }}
+        
+        .plan-price {{ font-size: 42px; }}
+        
+        .plan-features {{
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }}
+        
+        .pricing-scroll-hint {{
+            display: block !important;
         }}
         
         .cta {{
@@ -851,13 +927,12 @@ def landing_page():
             font-size: 30px;
         }}
         
-        .plan-card {{
-            padding: 32px 24px;
+        .container {{
+            width: 92%;
         }}
         
-        .container {{
-            padding-left: 16px;
-            padding-right: 16px;
+        .logo-showcase-img {{
+            height: 100px;
         }}
     }}
     </style>
@@ -921,7 +996,8 @@ def landing_page():
     
     # ========== LOGO SHOWCASE ==========
     with ui.element('div').classes('logo-showcase'):
-        ui.html(f'<img src="{LOGO_FULL_COLOR}" alt="Cartometro" class="logo-showcase-img">')
+        ui.label('Conheça o Cartometro').classes('logo-showcase-label')
+        ui.html(f'<img src="{LOGO_COMPLETA}" alt="Cartometro" class="logo-showcase-img">')
     
     # ========== FEATURES ==========
     with ui.element('section').classes('features').props('id=features-section'):
@@ -1002,7 +1078,9 @@ def landing_page():
             with ui.element('div').classes('section-header'):
                 ui.label('Planos').classes('section-badge')
                 ui.label('Simples e transparente').classes('section-title')
-                ui.label('Sem taxas escondidas. Faça upgrade ou downgrade quando quiser.').classes('section-description')
+                ui.label('Sem taxas escondidas. Faca upgrade ou downgrade quando quiser.').classes('section-description')
+            
+            ui.html('<p class="pricing-scroll-hint" style="display:none;text-align:center;font-size:13px;color:#94a3b8;margin-top:16px;">← Deslize para ver os planos →</p>')
             
             with ui.element('div').classes('pricing-grid'):
                 # Free Plan
@@ -1383,39 +1461,62 @@ def login():
         
         .login-form-side {{
             width: 100%;
-            padding: 32px 24px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            overflow-y: auto;
         }}
         
-        .login-form-side::before {{
-            display: block;
+        /* Header gradiente no mobile */
+        .login-mobile-header {{
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(160deg, {cor_escura} 0%, {cor} 100%);
+            padding: 40px 24px 48px;
+            position: relative;
+        }}
+        
+        .login-mobile-header::after {{
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 200px;
-            background: linear-gradient(160deg, {cor_escura} 0%, {cor} 100%);
-            z-index: 0;
+            bottom: -24px;
+            left: 0; right: 0;
+            height: 48px;
+            background: white;
+            border-radius: 28px 28px 0 0;
         }}
         
         .login-form-container {{
             position: relative;
             z-index: 1;
-            margin-top: 40px;
+            padding: 20px 24px 40px;
+            width: 100%;
+            max-width: 420px;
+            margin: 0 auto;
         }}
         
-        .login-logo-icon {{
-            width: 80px;
-            filter: brightness(0) invert(1);
-        }}
+        /* No mobile, ocultar icone e wordmark do form (ficam no header) */
+        .login-logo-icon {{ display: none !important; }}
+        .login-wordmark {{ display: block !important; }}
         
         .back-button {{
+            position: absolute;
             top: 16px;
-            left: 16px;
+            right: 16px;
+            left: auto;
             background: rgba(255, 255, 255, 0.2);
             color: white;
             backdrop-filter: blur(10px);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 10;
         }}
         
         .back-button:hover {{
@@ -1425,12 +1526,8 @@ def login():
     }}
     
     @media (max-width: 480px) {{
-        .login-form-side {{
-            padding: 20px 16px;
-        }}
-        
-        .login-logo-icon {{
-            width: 70px;
+        .login-form-container {{
+            padding: 16px 20px 32px;
         }}
     }}
     </style>
@@ -1471,8 +1568,8 @@ def login():
                 ui.html(f'<img src="{LOGO_FULL_BRANCA}" alt="Cartometro" class="login-brand-logo">')
                 
                 with ui.element('div').classes('login-brand-benefits'):
-                    ui.label('Controle inteligente do seu crédito').classes('login-brand-title')
-                    ui.label('Tudo que você precisa para dominar suas finanças em um só lugar.').classes('login-brand-subtitle')
+                    ui.label('Controle inteligente do seu credito').classes('login-brand-title')
+                    ui.label('Tudo que voce precisa para dominar suas financas em um so lugar.').classes('login-brand-subtitle')
                     
                     for icon, text in beneficios:
                         with ui.element('div').classes('benefit-item'):
@@ -1480,6 +1577,13 @@ def login():
                             ui.label(text).classes('benefit-text')
         
         with ui.element('div').classes('login-form-side'):
+            # Header do mobile: fundo gradiente + icone colorido
+            ui.html(f'''
+                <div class="login-mobile-header" style="display:none;">
+                    <img src="{LOGO}" alt="Cartometro" style="width:72px;height:auto;margin-bottom:0;">
+                </div>
+            ''')
+            
             ui.button('← Voltar', on_click=lambda: ui.navigate.to('/')).props('no-caps').classes('back-button')
             
             with ui.element('div').classes('login-form-container'):
