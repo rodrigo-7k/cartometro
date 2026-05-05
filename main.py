@@ -27,7 +27,7 @@ LOGO_FULL_COLOR  = "https://res.cloudinary.com/dxgyzvs8p/image/upload/v177784564
 LOGO_COMPLETA    = "https://res.cloudinary.com/dxgyzvs8p/image/upload/v1777845648/logo_completa_nbtgcz.png"
 FAVICON          = "https://res.cloudinary.com/dxgyzvs8p/image/upload/v1777845656/favicon_crsq9e.ico"
 
-# Imagens placeholder para prints do app
+# Imagens placeholder
 PRINT_DASHBOARD   = "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80"
 PRINT_CARTOES     = "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&q=80"
 PRINT_LANCAMENTOS = "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=80"
@@ -47,13 +47,21 @@ container_principal = None
 def landing_page():
     """Landing Page Profissional do Cartometro"""
     
-    # CSS Global
     ui.add_head_html(f"""
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="{FAVICON}">
     <style>
+    /* RESET AGRESSIVO - Força página inteira */
     * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+    
+    html, body, #app, .q-page-container, .q-page, .nicegui-content {{
+        margin: 0 !important;
+        padding: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        overflow-x: hidden;
+    }}
     
     body {{
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -63,23 +71,28 @@ def landing_page():
         -moz-osx-font-smoothing: grayscale;
     }}
     
-    /* ========== LAYOUT CENTRALIZADO ========== */
-    html, body {{ width: 100% !important; overflow-x: hidden; }}
-    
-    /* NiceGUI inner wrappers — garante que nao haja restricao interna */
-    .nicegui-content, .q-page, .q-page-container {{ 
-        max-width: 100% !important; 
-        width: 100% !important;
-        padding: 0 !important;
+    /* CONTAINER PRINCIPAL - ocupa 90% da tela em qualquer resolução */
+    .container-lg {{
+        width: 90% !important;
+        max-width: 1600px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
     }}
     
-    .container {{
-        width: 95%;
-        max-width: 1400px;
-        margin-left: auto;
-        margin-right: auto;
-        padding-left: 0;
-        padding-right: 0;
+    @media (min-width: 1920px) {{
+        .container-lg {{
+            width: 92% !important;
+            max-width: 1800px !important;
+        }}
+    }}
+    
+    /* Força todas as sections a ocupar 100% da largura */
+    section, .section-wrapper {{
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }}
     
     /* ========== NAVBAR ========== */
@@ -103,14 +116,20 @@ def landing_page():
         align-items: center;
         justify-content: space-between;
         height: 72px;
-        width: 95%;
-        max-width: 1400px;
+        width: 90%;
+        max-width: 1600px;
         margin: 0 auto;
-        padding: 0;
+    }}
+    
+    @media (min-width: 1920px) {{
+        .navbar-inner {{
+            width: 92%;
+            max-width: 1800px;
+        }}
     }}
     
     .navbar-logo-img {{
-        height: 52px;
+        height: 70px;
         width: auto;
         display: block;
     }}
@@ -189,20 +208,20 @@ def landing_page():
     
     /* ========== HERO ========== */
     .hero {{
-        padding: 120px 0 80px;
+        width: 100%;
+        padding: 140px 0 100px;
         background: linear-gradient(135deg, #faf5ff 0%, #f0f4ff 50%, #ffffff 100%);
     }}
     
     .hero-grid {{
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 64px;
+        gap: 80px;
         align-items: center;
-        width: 100%;
     }}
     
     .hero-content {{
-        width: 100%;
+        max-width: 600px;
     }}
     
     .hero-badge {{
@@ -227,9 +246,9 @@ def landing_page():
     }}
     
     .hero-title {{
-        font-size: clamp(36px, 4.5vw, 60px);
+        font-size: clamp(36px, 5vw, 64px);
         font-weight: 900;
-        line-height: 1.1;
+        line-height: 1.08;
         letter-spacing: -1.5px;
         color: #0f172a;
         margin-bottom: 20px;
@@ -307,20 +326,18 @@ def landing_page():
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 100%;
     }}
     
     .hero-image {{
         width: 100%;
-        max-width: 100%;
-        border-radius: 16px;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        border-radius: 20px;
+        box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.25);
         display: block;
-        object-fit: cover;
     }}
     
     /* ========== LOGO SHOWCASE ========== */
     .logo-showcase {{
+        width: 100%;
         padding: 64px 0;
         background: #f8fafc;
         text-align: center;
@@ -338,14 +355,16 @@ def landing_page():
     }}
     
     .logo-showcase-img {{
-        height: 160px;
+        height: 60px;
         width: auto;
         margin: 0 auto;
         display: block;
+        opacity: 0.5;
     }}
     
     /* ========== FEATURES ========== */
     .features {{
+        width: 100%;
         padding: 100px 0;
         background: white;
     }}
@@ -431,6 +450,7 @@ def landing_page():
     
     /* ========== APP SHOWCASE ========== */
     .app-showcase {{
+        width: 100%;
         padding: 100px 0;
         background: #fafafa;
     }}
@@ -449,7 +469,7 @@ def landing_page():
     
     .showcase-image {{
         width: 100%;
-        height: 240px;
+        height: 260px;
         object-fit: cover;
         border-radius: 16px;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
@@ -472,6 +492,7 @@ def landing_page():
     
     /* ========== HOW IT WORKS ========== */
     .how-it-works {{
+        width: 100%;
         padding: 100px 0;
         background: white;
     }}
@@ -524,15 +545,14 @@ def landing_page():
     
     .how-image {{
         width: 100%;
-        height: auto;
         border-radius: 16px;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         display: block;
-        object-fit: cover;
     }}
     
     /* ========== PRICING ========== */
     .pricing {{
+        width: 100%;
         padding: 100px 0;
         background: #fafafa;
     }}
@@ -541,7 +561,7 @@ def landing_page():
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 32px;
-        max-width: 880px;
+        max-width: 900px;
         margin: 64px auto 0;
     }}
     
@@ -663,6 +683,7 @@ def landing_page():
     
     /* ========== CTA ========== */
     .cta {{
+        width: 100%;
         padding: 100px 0;
         background: linear-gradient(135deg, #6d28d9, #4f46e5);
     }}
@@ -710,6 +731,7 @@ def landing_page():
     
     /* ========== FOOTER ========== */
     .footer {{
+        width: 100%;
         background: #0f172a;
         padding: 48px 0 32px;
         color: #94a3b8;
@@ -724,7 +746,7 @@ def landing_page():
     }}
     
     .footer-brand-img {{
-        height: 56px;
+        height: 48px;
         width: auto;
         margin-bottom: 12px;
         display: block;
@@ -776,10 +798,6 @@ def landing_page():
             gap: 48px;
         }}
         
-        .hero-image-wrapper {{
-            order: -1;
-        }}
-        
         .features-grid {{
             grid-template-columns: repeat(2, 1fr);
         }}
@@ -793,10 +811,6 @@ def landing_page():
             gap: 48px;
         }}
         
-        .how-image-wrapper {{
-            order: -1;
-        }}
-        
         .footer-grid {{
             grid-template-columns: 1fr 1fr;
             gap: 32px;
@@ -804,135 +818,49 @@ def landing_page():
     }}
     
     @media (max-width: 768px) {{
-        .navbar-links {{
-            display: none;
-        }}
+        .navbar-links {{ display: none; }}
+        .mobile-menu-btn {{ display: block; }}
         
-        .mobile-menu-btn {{
-            display: block;
-        }}
-        
-        .hero {{
-            padding: 100px 0 60px;
-        }}
+        .hero {{ padding: 110px 0 60px; }}
         
         .hero-grid {{
             grid-template-columns: 1fr;
             gap: 32px;
         }}
         
-        .hero-content {{
-            text-align: center;
-            max-width: 100%;
-        }}
-        
-        .hero-actions {{
-            justify-content: center;
-        }}
-        
-        .hero-trust {{
-            justify-content: center;
-        }}
-        
-        .hero-image-wrapper {{
-            display: block !important;
-            order: -1;
-        }}
-        
-        .hero-title {{
-            font-size: 34px;
-        }}
-        
-        .hero-description {{
-            font-size: 16px;
-        }}
-        
-        .features {{
-            padding: 60px 0;
-        }}
-        
         .features-grid {{
             grid-template-columns: 1fr;
-        }}
-        
-        .app-showcase {{
-            padding: 60px 0;
         }}
         
         .showcase-grid {{
             grid-template-columns: 1fr;
         }}
         
-        .how-it-works {{
-            padding: 60px 0;
-        }}
-        
-        .pricing {{
-            padding: 60px 0;
-        }}
-        
-        /* ---- Pricing mobile: lado a lado com scroll suave ---- */
         .pricing-grid {{
             display: flex;
             flex-direction: row;
             gap: 16px;
-            max-width: 100%;
-            margin: 40px 0 0;
             overflow-x: auto;
             scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
-            padding: 20px 5% 24px;
+            padding: 20px 0 24px;
             scrollbar-width: none;
         }}
+        
         .pricing-grid::-webkit-scrollbar {{ display: none; }}
         
         .plan-card {{
-            min-width: 270px;
+            min-width: 280px;
             flex-shrink: 0;
             scroll-snap-align: start;
-            padding: 32px 24px;
-        }}
-        
-        .plan-price {{ font-size: 42px; }}
-        
-        .plan-features {{
-            grid-template-columns: 1fr;
-            gap: 8px;
-        }}
-        
-        .pricing-scroll-hint {{
-            display: block !important;
-        }}
-        
-        .cta {{
-            padding: 60px 0;
-        }}
-        
-        .plan-features {{
-            grid-template-columns: 1fr;
         }}
         
         .footer-grid {{
             grid-template-columns: 1fr;
             gap: 28px;
         }}
-    }}
-    
-    @media (max-width: 480px) {{
-        .hero-actions {{
-            flex-direction: column;
-        }}
         
-        .hero-title {{
-            font-size: 30px;
-        }}
-        
-        .container {{
-            width: 92%;
-        }}
-        
-        .logo-showcase-img {{
-            height: 100px;
+        .container-lg {{
+            width: 94% !important;
         }}
     }}
     </style>
@@ -954,7 +882,6 @@ def landing_page():
     # ========== NAVBAR ==========
     with ui.element('nav').classes('navbar'):
         with ui.element('div').classes('navbar-inner'):
-            # Logo como HTML img puro
             ui.html(f'<a href="/"><img src="{LOGO_FULL_COLOR}" alt="Cartometro" class="navbar-logo-img"></a>')
             
             with ui.element('div').classes('navbar-links'):
@@ -968,8 +895,8 @@ def landing_page():
             ui.button('☰').classes('mobile-menu-btn')
     
     # ========== HERO ==========
-    with ui.element('section').classes('hero'):
-        with ui.element('div').classes('container'):
+    with ui.element('div').classes('hero'):
+        with ui.element('div').classes('container-lg'):
             with ui.element('div').classes('hero-grid'):
                 with ui.element('div').classes('hero-content'):
                     with ui.element('div').classes('hero-badge'):
@@ -984,12 +911,9 @@ def landing_page():
                         ui.button('Ver Demonstração →', on_click=lambda: ui.navigate.to('/login')).classes('hero-demo')
                     
                     with ui.element('div').classes('hero-trust'):
-                        with ui.element('div').classes('hero-trust-item'):
-                            ui.label('✓ Grátis para sempre')
-                        with ui.element('div').classes('hero-trust-item'):
-                            ui.label('✓ Sem cartão de crédito')
-                        with ui.element('div').classes('hero-trust-item'):
-                            ui.label('✓ 2 minutos para começar')
+                        ui.label('✓ Grátis para sempre')
+                        ui.label('✓ Sem cartão de crédito')
+                        ui.label('✓ 2 minutos para começar')
                 
                 with ui.element('div').classes('hero-image-wrapper'):
                     ui.html(f'<img src="{PRINT_DASHBOARD}" alt="Dashboard Cartometro" class="hero-image">')
@@ -1000,8 +924,8 @@ def landing_page():
         ui.html(f'<img src="{LOGO_COMPLETA}" alt="Cartometro" class="logo-showcase-img">')
     
     # ========== FEATURES ==========
-    with ui.element('section').classes('features').props('id=features-section'):
-        with ui.element('div').classes('container'):
+    with ui.element('div').classes('features').props('id=features-section'):
+        with ui.element('div').classes('container-lg'):
             with ui.element('div').classes('section-header'):
                 ui.label('Funcionalidades').classes('section-badge')
                 ui.label('Tudo que você precisa em um só lugar').classes('section-title')
@@ -1024,8 +948,8 @@ def landing_page():
                         ui.label(description).classes('feature-description')
     
     # ========== APP SHOWCASE ==========
-    with ui.element('section').classes('app-showcase').props('id=app-showcase'):
-        with ui.element('div').classes('container'):
+    with ui.element('div').classes('app-showcase').props('id=app-showcase'):
+        with ui.element('div').classes('container-lg'):
             with ui.element('div').classes('section-header'):
                 ui.label('Conheça o App').classes('section-badge')
                 ui.label('Veja como funciona na prática').classes('section-title')
@@ -1033,10 +957,10 @@ def landing_page():
             
             with ui.element('div').classes('showcase-grid'):
                 prints = [
-                    (PRINT_DASHBOARD, 'Dashboard Completo', 'Visão geral de todos os seus cartões e gastos em um único lugar. Acompanhe limites, gastos do mês e tendências.'),
-                    (PRINT_LANCAMENTOS, 'Lançamentos Simplificados', 'Registre cada compra em segundos. Categorize gastos e acompanhe em tempo real o impacto no seu limite.'),
-                    (PRINT_CARTOES, 'Gestão de Cartões', 'Cadastre múltiplos cartões, configure limites e ciclos de fatura. Visualize cada um individualmente ou de forma unificada.'),
-                    (PRINT_RELATORIOS, 'Relatórios e Insights', 'Receba análises inteligentes dos seus gastos. O consultor premium identifica padrões e sugere economias.'),
+                    (PRINT_DASHBOARD, 'Dashboard Completo', 'Visão geral de todos os seus cartões e gastos em um único lugar.'),
+                    (PRINT_LANCAMENTOS, 'Lançamentos Simplificados', 'Registre cada compra em segundos. Categorize e acompanhe em tempo real.'),
+                    (PRINT_CARTOES, 'Gestão de Cartões', 'Cadastre múltiplos cartões com limites e ciclos de fatura personalizados.'),
+                    (PRINT_RELATORIOS, 'Relatórios e Insights', 'Receba análises inteligentes dos seus gastos com sugestões de economia.'),
                 ]
                 
                 for img_url, title, description in prints:
@@ -1046,8 +970,8 @@ def landing_page():
                         ui.label(description).classes('showcase-description')
     
     # ========== HOW IT WORKS ==========
-    with ui.element('section').classes('how-it-works').props('id=how-section'):
-        with ui.element('div').classes('container'):
+    with ui.element('div').classes('how-it-works').props('id=how-section'):
+        with ui.element('div').classes('container-lg'):
             with ui.element('div').classes('section-header'):
                 ui.label('Como Funciona').classes('section-badge')
                 ui.label('Comece em minutos, sem complicação').classes('section-title')
@@ -1069,18 +993,16 @@ def landing_page():
                                 ui.label(title).style('font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 4px;')
                                 ui.label(description).style('font-size: 14px; color: #64748b; line-height: 1.6;')
                 
-                with ui.element('div').classes('how-image-wrapper'):
+                with ui.element('div'):
                     ui.html(f'<img src="{PRINT_DASHBOARD}" alt="Como funciona" class="how-image">')
     
     # ========== PRICING ==========
-    with ui.element('section').classes('pricing').props('id=pricing-section'):
-        with ui.element('div').classes('container'):
+    with ui.element('div').classes('pricing').props('id=pricing-section'):
+        with ui.element('div').classes('container-lg'):
             with ui.element('div').classes('section-header'):
                 ui.label('Planos').classes('section-badge')
                 ui.label('Simples e transparente').classes('section-title')
-                ui.label('Sem taxas escondidas. Faca upgrade ou downgrade quando quiser.').classes('section-description')
-            
-            ui.html('<p class="pricing-scroll-hint" style="display:none;text-align:center;font-size:13px;color:#94a3b8;margin-top:16px;">← Deslize para ver os planos →</p>')
+                ui.label('Sem taxas escondidas. Faça upgrade ou downgrade quando quiser.').classes('section-description')
             
             with ui.element('div').classes('pricing-grid'):
                 # Free Plan
@@ -1116,20 +1038,20 @@ def landing_page():
                     ui.button('Assinar Premium', on_click=lambda: ui.navigate.to('/criar-conta')).classes('plan-btn primary')
     
     # ========== CTA ==========
-    with ui.element('section').classes('cta'):
-        with ui.element('div').classes('container'):
+    with ui.element('div').classes('cta'):
+        with ui.element('div').classes('container-lg'):
             with ui.element('div').classes('cta-content'):
                 ui.label('Pronto para controlar suas finanças?').classes('cta-title')
                 ui.label('Junte-se a milhares de pessoas que já transformaram sua relação com o dinheiro usando o Cartometro.').classes('cta-description')
                 ui.button('🚀 Criar Conta Gratuita', on_click=lambda: ui.navigate.to('/criar-conta')).classes('cta-btn')
     
     # ========== FOOTER ==========
-    with ui.element('footer').classes('footer'):
-        with ui.element('div').classes('container'):
+    with ui.element('div').classes('footer'):
+        with ui.element('div').classes('container-lg'):
             with ui.element('div').classes('footer-grid'):
                 with ui.element('div').classes('footer-brand'):
                     ui.html(f'<img src="{LOGO_BRANCA}" alt="Cartometro" class="footer-brand-img">')
-                    ui.label('Controle Inteligente do seu Crédito. Simples, rápido e eficiente.')
+                    ui.label('Controle Inteligente do seu Crédito.')
                 
                 with ui.element('div').classes('footer-col'):
                     ui.label('Produto')
@@ -1173,19 +1095,19 @@ def login():
     <style>
     * {{ margin: 0; padding: 0; box-sizing: border-box; }}
     
+    html, body {{ height: 100%; width: 100%; overflow: hidden; }}
+    
     body {{
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        height: 100vh;
-        overflow: hidden;
     }}
     
     .login-page {{
         display: flex;
         height: 100vh;
-        width: 100%;
+        width: 100vw;
     }}
     
-    /* LADO ESQUERDO - BRAND COM LOGO FULL BRANCA */
+    /* LADO ESQUERDO */
     .login-brand {{
         flex: 1;
         background: linear-gradient(160deg, {cor_escura} 0%, {cor} 60%, {cor}cc 100%);
@@ -1234,7 +1156,6 @@ def login():
         font-weight: 800;
         color: white;
         margin-bottom: 10px;
-        letter-spacing: -0.5px;
         text-align: center;
     }}
     
@@ -1251,7 +1172,6 @@ def login():
         align-items: center;
         gap: 12px;
         margin-bottom: 16px;
-        color: white;
     }}
     
     .benefit-icon {{
@@ -1269,10 +1189,10 @@ def login():
     .benefit-text {{
         font-size: 13px;
         font-weight: 500;
-        line-height: 1.4;
+        color: white;
     }}
     
-    /* LADO DIREITO - LOGIN FORM */
+    /* LADO DIREITO */
     .login-form-side {{
         width: 520px;
         flex-shrink: 0;
@@ -1309,7 +1229,6 @@ def login():
         color: #0f172a;
         margin-bottom: 4px;
         text-align: center;
-        letter-spacing: -0.5px;
     }}
     
     .login-subtitle {{
@@ -1455,79 +1374,16 @@ def login():
     }}
     
     @media (max-width: 1024px) {{
-        .login-brand {{
-            display: none;
-        }}
+        .login-brand {{ display: none; }}
         
         .login-form-side {{
             width: 100%;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-            justify-content: flex-start;
-            overflow-y: auto;
+            padding: 32px 24px;
         }}
-        
-        /* Header gradiente no mobile */
-        .login-mobile-header {{
-            display: flex !important;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(160deg, {cor_escura} 0%, {cor} 100%);
-            padding: 40px 24px 48px;
-            position: relative;
-        }}
-        
-        .login-mobile-header::after {{
-            content: '';
-            position: absolute;
-            bottom: -24px;
-            left: 0; right: 0;
-            height: 48px;
-            background: white;
-            border-radius: 28px 28px 0 0;
-        }}
-        
-        .login-form-container {{
-            position: relative;
-            z-index: 1;
-            padding: 20px 24px 40px;
-            width: 100%;
-            max-width: 420px;
-            margin: 0 auto;
-        }}
-        
-        /* No mobile, ocultar icone e wordmark do form (ficam no header) */
-        .login-logo-icon {{ display: none !important; }}
-        .login-wordmark {{ display: block !important; }}
         
         .back-button {{
-            position: absolute;
             top: 16px;
-            right: 16px;
-            left: auto;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            padding: 8px 14px;
-            font-size: 12px;
-            font-weight: 600;
-            z-index: 10;
-        }}
-        
-        .back-button:hover {{
-            background: rgba(255, 255, 255, 0.3);
-            color: white;
-        }}
-    }}
-    
-    @media (max-width: 480px) {{
-        .login-form-container {{
-            padding: 16px 20px 32px;
+            left: 16px;
         }}
     }}
     </style>
@@ -1568,8 +1424,8 @@ def login():
                 ui.html(f'<img src="{LOGO_FULL_BRANCA}" alt="Cartometro" class="login-brand-logo">')
                 
                 with ui.element('div').classes('login-brand-benefits'):
-                    ui.label('Controle inteligente do seu credito').classes('login-brand-title')
-                    ui.label('Tudo que voce precisa para dominar suas financas em um so lugar.').classes('login-brand-subtitle')
+                    ui.label('Controle inteligente do seu crédito').classes('login-brand-title')
+                    ui.label('Tudo que você precisa para dominar suas finanças em um só lugar.').classes('login-brand-subtitle')
                     
                     for icon, text in beneficios:
                         with ui.element('div').classes('benefit-item'):
@@ -1577,13 +1433,6 @@ def login():
                             ui.label(text).classes('benefit-text')
         
         with ui.element('div').classes('login-form-side'):
-            # Header do mobile: fundo gradiente + icone colorido
-            ui.html(f'''
-                <div class="login-mobile-header" style="display:none;">
-                    <img src="{LOGO}" alt="Cartometro" style="width:72px;height:auto;margin-bottom:0;">
-                </div>
-            ''')
-            
             ui.button('← Voltar', on_click=lambda: ui.navigate.to('/')).props('no-caps').classes('back-button')
             
             with ui.element('div').classes('login-form-container'):
@@ -1681,40 +1530,13 @@ def criar_conta():
             background: #faf5ff;
             box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
         }}
-        .plan-option-icon {{
-            font-size: 28px;
-            margin-bottom: 8px;
-        }}
-        .plan-option-name {{
-            font-size: 14px;
-            font-weight: 700;
-            color: #0f172a;
-            margin-bottom: 4px;
-        }}
-        .plan-option-price {{
-            font-size: 20px;
-            font-weight: 800;
-            color: #7c3aed;
-        }}
-        .plan-option-period {{
-            font-size: 11px;
-            color: #94a3b8;
-        }}
-        .form-group {{
-            margin-bottom: 16px;
-        }}
-        .form-label {{
-            font-size: 13px;
-            font-weight: 600;
-            color: #475569;
-            margin-bottom: 6px;
-            display: block;
-        }}
-        .q-field--outlined .q-field__control {{
-            border-radius: 10px !important;
-            height: 48px !important;
-            background: #fafafa !important;
-        }}
+        .plan-option-icon {{ font-size: 28px; margin-bottom: 8px; }}
+        .plan-option-name {{ font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }}
+        .plan-option-price {{ font-size: 20px; font-weight: 800; color: #7c3aed; }}
+        .plan-option-period {{ font-size: 11px; color: #94a3b8; }}
+        .form-group {{ margin-bottom: 16px; }}
+        .form-label {{ font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px; display: block; }}
+        .q-field--outlined .q-field__control {{ border-radius: 10px !important; height: 48px !important; background: #fafafa !important; }}
         .register-btn {{
             width: 100%;
             height: 48px;
@@ -1729,23 +1551,10 @@ def criar_conta():
             transition: all 0.2s;
             margin-top: 8px;
         }}
-        .register-btn:hover {{
-            background: #6d28d9;
-        }}
-        .login-link {{
-            text-align: center;
-            margin-top: 20px;
-            font-size: 13px;
-            color: #94a3b8;
-        }}
-        .login-link span {{
-            color: #7c3aed;
-            font-weight: 600;
-            cursor: pointer;
-        }}
-        .login-link span:hover {{
-            text-decoration: underline;
-        }}
+        .register-btn:hover {{ background: #6d28d9; }}
+        .login-link {{ text-align: center; margin-top: 20px; font-size: 13px; color: #94a3b8; }}
+        .login-link span {{ color: #7c3aed; font-weight: 600; cursor: pointer; }}
+        .login-link span:hover {{ text-decoration: underline; }}
         .error-msg {{
             background: #fef2f2;
             border-left: 3px solid #ef4444;
@@ -1756,9 +1565,7 @@ def criar_conta():
             margin-bottom: 16px;
             display: none;
         }}
-        .error-msg.show {{
-            display: block;
-        }}
+        .error-msg.show {{ display: block; }}
     </style>
     """)
     
