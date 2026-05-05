@@ -7,7 +7,7 @@ from nicegui import ui
 from db import (
     carregar_usuarios, salvar_usuarios, buscar_usuario_por_email,
     atualizar_plano_usuario, PLANOS, carregar_json, salvar_json,
-    hash_senha, get_plano_usuario
+    hash_senha, get_plano_usuario, inicializar
 )
 from datetime import datetime, timedelta
 import os
@@ -28,8 +28,13 @@ ADMIN_NOME = "Administrador"
 # INICIALIZAÇÃO
 # ============================================================
 def inicializar_admin():
+    """Inicializa arquivos do admin se não existirem"""
+    # Garantir que o banco de dados principal está inicializado
+    inicializar()
+    
     if not os.path.exists(PAGAMENTOS_FILE):
         salvar_json(PAGAMENTOS_FILE, [])
+        print("✅ Arquivo de pagamentos criado")
     
     if not os.path.exists(ADMIN_FILE):
         config = {
@@ -41,64 +46,96 @@ def inicializar_admin():
             }
         }
         salvar_json(ADMIN_FILE, config)
+        print("✅ Arquivo de configuração admin criado")
     
-    print(f"✅ Admin: {ADMIN_EMAIL}")
+    print(f"✅ Admin pronto: {ADMIN_EMAIL}")
 
 
 def carregar_config_admin():
+    """Carrega configuração do admin"""
     config = carregar_json(ADMIN_FILE)
     if config is None:
-        config = {"admin": {"email": ADMIN_EMAIL, "senha": ADMIN_SENHA_HASH, "nome": ADMIN_NOME, "ultimo_acesso": None}}
+        config = {
+            "admin": {
+                "email": ADMIN_EMAIL, 
+                "senha": ADMIN_SENHA_HASH, 
+                "nome": ADMIN_NOME, 
+                "ultimo_acesso": None
+            }
+        }
         salvar_json(ADMIN_FILE, config)
     return config
 
 
 def autenticar_admin(email, senha):
-    if email.strip().lower() != ADMIN_EMAIL:
+    """Autentica o administrador"""
+    if email.strip().lower() != ADMIN_EMAIL.lower():
         return False
-    if hash_senha(senha) != ADMIN_SENHA_HASH:
+    
+    senha_hash = hash_senha(senha)
+    if senha_hash != ADMIN_SENHA_HASH:
         return False
+    
     try:
         config = carregar_config_admin()
         if config and "admin" in config:
             config["admin"]["ultimo_acesso"] = datetime.now().isoformat()
             salvar_json(ADMIN_FILE, config)
-    except:
-        pass
+    except Exception as e:
+        print(f"⚠️ Erro ao atualizar último acesso: {e}")
+    
     return True
 
 
 def alterar_senha_admin(nova_senha):
+    """Altera a senha do administrador"""
     global ADMIN_SENHA_HASH
-    ADMIN_SENHA_HASH = hash_senha(nova_senha)
-    config = carregar_config_admin()
-    if config and "admin" in config:
-        config["admin"]["senha"] = ADMIN_SENHA_HASH
-        salvar_json(ADMIN_FILE, config)
-    return True
+    try:
+        ADMIN_SENHA_HASH = hash_senha(nova_senha)
+        config = carregar_config_admin()
+        if config and "admin" in config:
+            config["admin"]["senha"] = ADMIN_SENHA_HASH
+            salvar_json(ADMIN_FILE, config)
+        return True
+    except Exception as e:
+        print(f"❌ Erro ao alterar senha: {e}")
+        return False
 
 
 def carregar_pagamentos():
+    """Carrega lista de pagamentos"""
     pagamentos = carregar_json(PAGAMENTOS_FILE)
     return pagamentos if pagamentos is not None else []
 
 
 def salvar_pagamentos(pagamentos):
-    salvar_json(PAGAMENTOS_FILE, pagamentos)
+    """Salva lista de pagamentos"""
+    try:
+        salvar_json(PAGAMENTOS_FILE, pagamentos)
+        return True
+    except Exception as e:
+        print(f"❌ Erro ao salvar pagamentos: {e}")
+        return False
 
 
 def registrar_pagamento(email, metodo, valor, status="confirmado", admin_responsavel=""):
-    pagamentos = carregar_pagamentos()
-    pagamentos.append({
-        "id": len(pagamentos) + 1,
-        "email": email,
-        "metodo": metodo,
-        "valor": valor,
-        "status": status,
-        "admin": admin_responsavel,
-        "data": datetime.now().isoformat()
-    })
-    salvar_pagamentos(pagamentos)
+    """Registra um novo pagamento"""
+    try:
+        pagamentos = carregar_pagamentos()
+        pagamentos.append({
+            "id": len(pagamentos) + 1,
+            "email": email,
+            "metodo": metodo,
+            "valor": valor,
+            "status": status,
+            "admin": admin_responsavel,
+            "data": datetime.now().isoformat()
+        })
+        salvar_pagamentos(pagamentos)
+        return True
+    except Exception as e:
+        print(f"❌ Erro ao registrar pagamento: {e}")
+        return False
 
 
 # ============================================================
@@ -108,10 +145,10 @@ def registrar_pagamento(email, metodo, valor, status="confirmado", admin_respons
 def admin_login():
     ui.add_head_html("""
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'DM Sans', sans-serif;
+            font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #1e293b, #0f172a);
             height: 100vh; display: flex; align-items: center; justify-content: center;
         }
@@ -137,13 +174,18 @@ def admin_login():
         def fazer_login():
             email = email_input.value.strip().lower() if email_input.value else ''
             senha = senha_input.value or ''
+            
             if not email or not senha:
-                erro_label.style('display:block'); erro_label.set_text('⚠️ Preencha todos os campos'); return
+                erro_label.style('display:block')
+                erro_label.set_text('⚠️ Preencha todos os campos')
+                return
+            
             if autenticar_admin(email, senha):
                 ui.notify("✅ Acesso autorizado!", type="positive", position="top")
-                ui.navigate.to('/admin/painel')
+                ui.timer(0.5, lambda: ui.navigate.to('/admin/painel'), once=True)
             else:
-                erro_label.style('display:block'); erro_label.set_text('❌ Acesso negado')
+                erro_label.style('display:block')
+                erro_label.set_text('❌ Acesso negado')
         
         ui.button("Acessar Painel", on_click=fazer_login).props('no-caps').style(
             'width:100%;height:48px;border-radius:10px;background:#8b5cf6;color:white;border:none;font-size:15px;font-weight:600;cursor:pointer;'
@@ -173,29 +215,40 @@ def admin_painel():
     receita_total = sum(p.get('valor', 0) for p in pagamentos if p.get('status') == 'confirmado')
     
     # ============================================================
-    # FUNÇÕES PRIMEIRO (ANTES DOS BOTÕES)
+    # FUNÇÕES AUXILIARES
     # ============================================================
+    
+    def recarregar_pagina():
+        """Recarrega a página do painel"""
+        ui.timer(0.3, lambda: ui.navigate.to('/admin/painel'), once=True)
+    
     def ativar_premium(usuario):
+        """Ativa plano premium para um usuário"""
         try:
+            # Atualiza o plano no banco de dados
             atualizar_plano_usuario(usuario['email'], 'premium')
+            # Registra o pagamento
             registrar_pagamento(usuario['email'], 'admin', 0, 'confirmado', 'admin')
             ui.notify(f"✅ Premium ativado para {usuario['nome']}!", type="positive")
         except Exception as e:
-            ui.notify(f"❌ Erro: {str(e)}", type="negative")
-        ui.timer(0.3, lambda: ui.navigate.to('/admin/painel'), once=True)
+            ui.notify(f"❌ Erro ao ativar premium: {str(e)}", type="negative")
+        recarregar_pagina()
     
     def remover_premium(usuario):
+        """Remove plano premium de um usuário"""
         try:
             atualizar_plano_usuario(usuario['email'], 'gratuito')
             ui.notify(f"⬇ Premium removido de {usuario['nome']}", type="warning")
         except Exception as e:
-            ui.notify(f"❌ Erro: {str(e)}", type="negative")
-        ui.timer(0.3, lambda: ui.navigate.to('/admin/painel'), once=True)
+            ui.notify(f"❌ Erro ao remover premium: {str(e)}", type="negative")
+        recarregar_pagina()
     
     def dar_cortesia(usuario, dias):
+        """Concede dias de premium gratuitos"""
         try:
             usuarios_lista = carregar_usuarios()
             encontrado = False
+            
             for u in usuarios_lista:
                 if u.get('email', '').lower() == usuario.get('email', '').lower():
                     u['plano'] = 'premium'
@@ -203,6 +256,7 @@ def admin_painel():
                     u['ativo'] = True
                     encontrado = True
                     break
+            
             if encontrado:
                 salvar_usuarios(usuarios_lista)
                 registrar_pagamento(usuario['email'], 'cortesia', 0, 'cortesia', 'admin')
@@ -211,9 +265,10 @@ def admin_painel():
                 ui.notify(f"❌ Usuário não encontrado", type="negative")
         except Exception as e:
             ui.notify(f"❌ Erro ao dar cortesia: {str(e)}", type="negative")
-        ui.timer(0.3, lambda: ui.navigate.to('/admin/painel'), once=True)
+        recarregar_pagina()
     
     def toggle_ativo(usuario, ativo):
+        """Ativa ou desativa um usuário"""
         try:
             usuarios_lista = carregar_usuarios()
             for u in usuarios_lista:
@@ -224,23 +279,28 @@ def admin_painel():
             status = "ativado" if ativo else "desativado"
             ui.notify(f"🔒 Usuário {status}!", type="info")
         except Exception as e:
-            ui.notify(f"❌ Erro: {str(e)}", type="negative")
-        ui.timer(0.3, lambda: ui.navigate.to('/admin/painel'), once=True)
+            ui.notify(f"❌ Erro ao alterar status: {str(e)}", type="negative")
+        recarregar_pagina()
     
     def excluir_usuario(usuario):
+        """Exclui um usuário do sistema"""
         try:
             usuarios_lista = carregar_usuarios()
             usuarios_lista = [u for u in usuarios_lista if u.get('email', '').lower() != usuario.get('email', '').lower()]
             salvar_usuarios(usuarios_lista)
+            
+            # Tenta excluir arquivo de dados do usuário
             arquivo = f"data/{usuario['email'].replace('@','_').replace('.','_').lower()}.json"
             if os.path.exists(arquivo):
                 os.remove(arquivo)
+            
             ui.notify(f"🗑️ Usuário {usuario['nome']} excluído!", type="warning")
         except Exception as e:
-            ui.notify(f"❌ Erro: {str(e)}", type="negative")
-        ui.timer(0.3, lambda: ui.navigate.to('/admin/painel'), once=True)
+            ui.notify(f"❌ Erro ao excluir: {str(e)}", type="negative")
+        recarregar_pagina()
     
     def confirmar_excluir_usuario(usuario):
+        """Diálogo de confirmação para excluir usuário"""
         with ui.dialog() as dialog, ui.card().classes('p-6 rounded-2xl max-w-[400px]'):
             ui.label("🗑️ Excluir Usuário?").style('font-size:18px;font-weight:700;color:#ef4444;margin-bottom:8px;')
             ui.label(f"Nome: {usuario.get('nome', '-')}").style('font-size:14px;')
@@ -252,6 +312,7 @@ def admin_painel():
         dialog.open()
     
     def gerar_relatorio():
+        """Gera relatório completo do sistema"""
         texto = f"RELATÓRIO CARTÓMETRO - {datetime.now().strftime('%d/%m/%Y %H:%M')}\n"
         texto += f"{'='*50}\n"
         texto += f"Total Usuários: {total_usuarios}\n"
@@ -272,6 +333,7 @@ def admin_painel():
         dialog.open()
     
     def exportar_csv():
+        """Exporta usuários em formato CSV"""
         csv = "Nome,Email,Plano,Ativo,Data Cadastro,Expiração\n"
         for u in usuarios:
             csv += f'"{u.get("nome","")}","{u.get("email","")}","{u.get("plano","")}","{u.get("ativo",True)}","{u.get("data_criacao","")}","{u.get("data_expiracao","")}"\n'
@@ -283,7 +345,60 @@ def admin_painel():
             ui.button("Fechar", on_click=dialog.close).props('outline').classes('mt-3')
         dialog.open()
     
+    def criar_usuario_admin(nome, email, senha, plano):
+        """Cria usuário diretamente como admin"""
+        try:
+            # Verificar se email já existe
+            usuarios_lista = carregar_usuarios()
+            
+            # Normalizar email
+            email = email.strip().lower()
+            
+            # Verificar duplicata
+            for u in usuarios_lista:
+                if u.get('email', '').lower() == email:
+                    return False, "Email já cadastrado"
+            
+            # Criar novo usuário
+            novo_usuario = {
+                "nome": nome.strip(),
+                "email": email,
+                "senha": hash_senha(senha),
+                "plano": plano,
+                "ativo": True,
+                "data_criacao": datetime.now().isoformat(),
+                "data_expiracao": None,
+                "avatar_emoji": "👤",
+                "config": {
+                    "cor_primaria": "#8b5cf6",
+                    "cor_escura": "#6d28d9",
+                    "tema": "light",
+                    "modo_unificado": True
+                }
+            }
+            
+            # Se for premium, definir expiração
+            if plano == 'premium':
+                novo_usuario['data_expiracao'] = (datetime.now() + timedelta(days=30)).isoformat()
+            
+            # Adicionar à lista
+            usuarios_lista.append(novo_usuario)
+            
+            # Salvar
+            salvar_usuarios(usuarios_lista)
+            
+            # Registrar pagamento se premium
+            if plano == 'premium':
+                registrar_pagamento(email, 'admin', 0, 'confirmado', 'admin')
+            
+            return True, "Usuário criado com sucesso"
+            
+        except Exception as e:
+            print(f"❌ Erro ao criar usuário: {e}")
+            return False, f"Erro ao salvar: {str(e)}"
+    
     def abrir_form_novo_usuario():
+        """Abre formulário para criar novo usuário"""
         with ui.dialog() as dialog, ui.card().classes('p-6 rounded-2xl max-w-[450px]'):
             ui.label("➕ Novo Usuário").style('font-size:18px;font-weight:700;margin-bottom:16px;')
             
@@ -292,27 +407,77 @@ def admin_painel():
             senha_inp = ui.input("Senha", password=True, password_toggle_button=True).props('outlined').classes('w-full mb-3')
             plano_inp = ui.select(["gratuito", "premium"], value="gratuito", label="Plano").props('outlined').classes('w-full mb-4')
             
-            erro = ui.label('').style('color:#ef4444;font-size:12px;display:none;')
+            erro_label = ui.label('').style('color:#ef4444;font-size:12px;display:none;')
             
             def criar():
                 nome = nome_inp.value.strip() if nome_inp.value else ''
                 email = email_inp.value.strip() if email_inp.value else ''
                 senha = senha_inp.value or ''
-                if not nome or not email or not senha:
-                    erro.style('display:block'); erro.set_text('Preencha todos os campos'); return
+                plano = plano_inp.value
                 
-                from db import criar_usuario
-                sucesso, msg, _ = criar_usuario(nome, email, senha, plano_inp.value)
+                # Validações
+                if not nome or not email or not senha:
+                    erro_label.style('display:block')
+                    erro_label.set_text('⚠️ Preencha todos os campos')
+                    return
+                
+                if len(senha) < 4:
+                    erro_label.style('display:block')
+                    erro_label.set_text('⚠️ Senha deve ter pelo menos 4 caracteres')
+                    return
+                
+                # Criar usuário
+                sucesso, msg = criar_usuario_admin(nome, email, senha, plano)
+                
                 if sucesso:
-                    ui.notify(f"✅ Usuário criado!", type="positive")
+                    ui.notify(f"✅ Usuário criado com sucesso!", type="positive")
                     dialog.close()
-                    ui.timer(0.3, lambda: ui.navigate.to('/admin/painel'), once=True)
+                    recarregar_pagina()
                 else:
-                    erro.style('display:block'); erro.set_text(msg)
+                    erro_label.style('display:block')
+                    erro_label.set_text(f'❌ {msg}')
+            
+            with ui.row().classes('justify-end gap-2 mt-4'):
+                ui.button("Cancelar", on_click=dialog.close).props('outline')
+                ui.button("Criar Usuário", on_click=criar).style('background:#10b981;color:white;')
+        
+        dialog.open()
+    
+    def abrir_form_trocar_senha():
+        """Abre formulário para trocar senha do admin"""
+        with ui.dialog() as dialog, ui.card().classes('p-6 rounded-2xl max-w-[450px]'):
+            ui.label("🔒 Alterar Senha do Admin").style('font-size:18px;font-weight:700;margin-bottom:16px;')
+            
+            nova_senha_inp = ui.input("Nova Senha", password=True, password_toggle_button=True).props('outlined').classes('w-full mb-3')
+            confirmar_senha_inp = ui.input("Confirmar Senha", password=True, password_toggle_button=True).props('outlined').classes('w-full mb-4')
+            
+            erro_label = ui.label('').style('color:#ef4444;font-size:12px;display:none;')
+            
+            def salvar():
+                nova = nova_senha_inp.value or ''
+                confirmar = confirmar_senha_inp.value or ''
+                
+                if not nova or len(nova) < 6:
+                    erro_label.style('display:block')
+                    erro_label.set_text('⚠️ Mínimo 6 caracteres')
+                    return
+                
+                if nova != confirmar:
+                    erro_label.style('display:block')
+                    erro_label.set_text('⚠️ Senhas não conferem')
+                    return
+                
+                if alterar_senha_admin(nova):
+                    ui.notify("✅ Senha alterada com sucesso!", type="positive")
+                    dialog.close()
+                else:
+                    erro_label.style('display:block')
+                    erro_label.set_text('❌ Erro ao alterar senha')
             
             with ui.row().classes('justify-end gap-2'):
                 ui.button("Cancelar", on_click=dialog.close).props('outline')
-                ui.button("Criar", on_click=criar).style('background:#10b981;color:white;')
+                ui.button("Salvar", on_click=salvar).style('background:#8b5cf6;color:white;')
+        
         dialog.open()
     
     # ============================================================
@@ -450,21 +615,8 @@ def admin_painel():
                 ui.label("⚙️ Configurações").style('font-size:16px;font-weight:700;')
             
             with ui.element('div').style('padding:20px;'):
-                ui.label("🔒 Alterar Senha do Painel").style('font-size:14px;font-weight:600;margin-bottom:12px;')
-                with ui.row().classes('gap-3 items-end').style('flex-wrap:wrap;'):
-                    nova_senha_input = ui.input("Nova Senha", password=True, password_toggle_button=True).props('outlined').style('flex:1;min-width:180px;')
-                    confirmar_senha_input = ui.input("Confirmar Senha", password=True, password_toggle_button=True).props('outlined').style('flex:1;min-width:180px;')
-                    
-                    def salvar_senha():
-                        if not nova_senha_input.value or len(nova_senha_input.value) < 6:
-                            ui.notify("⚠️ Mínimo 6 caracteres", type="warning"); return
-                        if nova_senha_input.value != confirmar_senha_input.value:
-                            ui.notify("⚠️ Senhas não conferem", type="warning"); return
-                        alterar_senha_admin(nova_senha_input.value)
-                        ui.notify("✅ Senha alterada!", type="positive")
-                        nova_senha_input.value = ''; confirmar_senha_input.value = ''
-                    
-                    ui.button("Salvar Senha", on_click=salvar_senha).style('background:#8b5cf6;color:white;border-radius:8px;padding:12px 20px;font-weight:600;')
+                ui.label("🔒 Segurança").style('font-size:14px;font-weight:600;margin-bottom:12px;')
+                ui.button("Alterar Senha do Admin", on_click=abrir_form_trocar_senha).style('background:#8b5cf6;color:white;border-radius:8px;padding:12px 20px;font-weight:600;')
                 
                 ui.separator().style('margin:20px 0;')
                 

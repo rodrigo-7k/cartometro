@@ -99,7 +99,7 @@ def landing_page():
         display: flex;
         align-items: center;
         justify-content: space-between;
-        height: 72px;
+        height: 102px;
         width: 90%;
         max-width: 1600px;
         margin: 0 auto;
@@ -110,7 +110,7 @@ def landing_page():
     }}
     
     .navbar-logo-img {{
-        height: 42px;
+        height: 100px;
         width: auto;
         display: block;
     }}
