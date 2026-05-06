@@ -32,6 +32,10 @@ def inicializar_admin():
     # Garantir que o banco de dados principal está inicializado
     inicializar()
     
+    # Criar diretório data se não existir
+    if not os.path.exists('data'):
+        os.makedirs('data')
+    
     if not os.path.exists(PAGAMENTOS_FILE):
         salvar_json(PAGAMENTOS_FILE, [])
         print("✅ Arquivo de pagamentos criado")
@@ -49,6 +53,8 @@ def inicializar_admin():
         print("✅ Arquivo de configuração admin criado")
     
     print(f"✅ Admin pronto: {ADMIN_EMAIL}")
+    print(f"📁 Diretório atual: {os.getcwd()}")
+    print(f"📁 Arquivos data: {os.listdir('data') if os.path.exists('data') else 'data/ não existe'}")
 
 
 def carregar_config_admin():
@@ -206,6 +212,10 @@ def admin_painel():
     usuarios = carregar_usuarios()
     pagamentos = carregar_pagamentos()
     
+    # Debug
+    print(f"📊 Admin: {len(usuarios)} usuários carregados")
+    print(f"📊 Admin: {len(pagamentos)} pagamentos carregados")
+    
     total_usuarios = len(usuarios)
     total_premium = len([u for u in usuarios if u.get('plano') == 'premium'])
     total_gratuito = len([u for u in usuarios if u.get('plano') == 'gratuito'])
@@ -220,32 +230,35 @@ def admin_painel():
     
     def recarregar_pagina():
         """Recarrega a página do painel"""
-        ui.timer(0.3, lambda: ui.navigate.to('/admin/painel'), once=True)
+        ui.timer(0.5, lambda: ui.navigate.to('/admin/painel'), once=True)
     
     def ativar_premium(usuario):
         """Ativa plano premium para um usuário"""
         try:
-            # Atualiza o plano no banco de dados
+            print(f"🔄 Ativando premium para: {usuario['email']}")
             atualizar_plano_usuario(usuario['email'], 'premium')
-            # Registra o pagamento
             registrar_pagamento(usuario['email'], 'admin', 0, 'confirmado', 'admin')
             ui.notify(f"✅ Premium ativado para {usuario['nome']}!", type="positive")
         except Exception as e:
+            print(f"❌ Erro ao ativar premium: {e}")
             ui.notify(f"❌ Erro ao ativar premium: {str(e)}", type="negative")
         recarregar_pagina()
     
     def remover_premium(usuario):
         """Remove plano premium de um usuário"""
         try:
+            print(f"🔄 Removendo premium de: {usuario['email']}")
             atualizar_plano_usuario(usuario['email'], 'gratuito')
             ui.notify(f"⬇ Premium removido de {usuario['nome']}", type="warning")
         except Exception as e:
+            print(f"❌ Erro ao remover premium: {e}")
             ui.notify(f"❌ Erro ao remover premium: {str(e)}", type="negative")
         recarregar_pagina()
     
     def dar_cortesia(usuario, dias):
         """Concede dias de premium gratuitos"""
         try:
+            print(f"🔄 Dando cortesia de {dias}d para: {usuario['email']}")
             usuarios_lista = carregar_usuarios()
             encontrado = False
             
@@ -258,44 +271,53 @@ def admin_painel():
                     break
             
             if encontrado:
-                salvar_usuarios(usuarios_lista)
+                resultado = salvar_usuarios(usuarios_lista)
+                print(f"💾 Salvou usuários: {resultado}")
                 registrar_pagamento(usuario['email'], 'cortesia', 0, 'cortesia', 'admin')
                 ui.notify(f"🎁 {dias} dias de Premium para {usuario['nome']}!", type="positive")
             else:
                 ui.notify(f"❌ Usuário não encontrado", type="negative")
         except Exception as e:
+            print(f"❌ Erro ao dar cortesia: {e}")
             ui.notify(f"❌ Erro ao dar cortesia: {str(e)}", type="negative")
         recarregar_pagina()
     
     def toggle_ativo(usuario, ativo):
         """Ativa ou desativa um usuário"""
         try:
+            print(f"🔄 Alterando status de {usuario['email']} para ativo={ativo}")
             usuarios_lista = carregar_usuarios()
             for u in usuarios_lista:
                 if u.get('email', '').lower() == usuario.get('email', '').lower():
                     u['ativo'] = ativo
                     break
-            salvar_usuarios(usuarios_lista)
+            resultado = salvar_usuarios(usuarios_lista)
+            print(f"💾 Salvou usuários: {resultado}")
             status = "ativado" if ativo else "desativado"
             ui.notify(f"🔒 Usuário {status}!", type="info")
         except Exception as e:
+            print(f"❌ Erro ao alterar status: {e}")
             ui.notify(f"❌ Erro ao alterar status: {str(e)}", type="negative")
         recarregar_pagina()
     
     def excluir_usuario(usuario):
         """Exclui um usuário do sistema"""
         try:
+            print(f"🔄 Excluindo usuário: {usuario['email']}")
             usuarios_lista = carregar_usuarios()
             usuarios_lista = [u for u in usuarios_lista if u.get('email', '').lower() != usuario.get('email', '').lower()]
-            salvar_usuarios(usuarios_lista)
+            resultado = salvar_usuarios(usuarios_lista)
+            print(f"💾 Salvou usuários: {resultado}")
             
             # Tenta excluir arquivo de dados do usuário
             arquivo = f"data/{usuario['email'].replace('@','_').replace('.','_').lower()}.json"
             if os.path.exists(arquivo):
                 os.remove(arquivo)
+                print(f"🗑️ Arquivo removido: {arquivo}")
             
             ui.notify(f"🗑️ Usuário {usuario['nome']} excluído!", type="warning")
         except Exception as e:
+            print(f"❌ Erro ao excluir: {e}")
             ui.notify(f"❌ Erro ao excluir: {str(e)}", type="negative")
         recarregar_pagina()
     
@@ -348,8 +370,11 @@ def admin_painel():
     def criar_usuario_admin(nome, email, senha, plano):
         """Cria usuário diretamente como admin"""
         try:
-            # Verificar se email já existe
+            print(f"🔄 Criando usuário: {email} - {plano}")
+            
+            # Carrega a lista ATUAL (importante: recarregar do disco)
             usuarios_lista = carregar_usuarios()
+            print(f"📊 Usuários antes: {len(usuarios_lista)}")
             
             # Normalizar email
             email = email.strip().lower()
@@ -357,6 +382,7 @@ def admin_painel():
             # Verificar duplicata
             for u in usuarios_lista:
                 if u.get('email', '').lower() == email:
+                    print(f"❌ Email duplicado: {email}")
                     return False, "Email já cadastrado"
             
             # Criar novo usuário
@@ -384,8 +410,14 @@ def admin_painel():
             # Adicionar à lista
             usuarios_lista.append(novo_usuario)
             
-            # Salvar
-            salvar_usuarios(usuarios_lista)
+            # Salvar usando a função do db.py
+            resultado = salvar_usuarios(usuarios_lista)
+            print(f"💾 Salvou usuários: {resultado}")
+            print(f"📊 Usuários depois: {len(usuarios_lista)}")
+            
+            # Verificar se salvou mesmo
+            verificacao = carregar_usuarios()
+            print(f"✅ Verificação: {len(verificacao)} usuários no disco")
             
             # Registrar pagamento se premium
             if plano == 'premium':
@@ -395,6 +427,8 @@ def admin_painel():
             
         except Exception as e:
             print(f"❌ Erro ao criar usuário: {e}")
+            import traceback
+            traceback.print_exc()
             return False, f"Erro ao salvar: {str(e)}"
     
     def abrir_form_novo_usuario():
@@ -440,43 +474,6 @@ def admin_painel():
             with ui.row().classes('justify-end gap-2 mt-4'):
                 ui.button("Cancelar", on_click=dialog.close).props('outline')
                 ui.button("Criar Usuário", on_click=criar).style('background:#10b981;color:white;')
-        
-        dialog.open()
-    
-    def abrir_form_trocar_senha():
-        """Abre formulário para trocar senha do admin"""
-        with ui.dialog() as dialog, ui.card().classes('p-6 rounded-2xl max-w-[450px]'):
-            ui.label("🔒 Alterar Senha do Admin").style('font-size:18px;font-weight:700;margin-bottom:16px;')
-            
-            nova_senha_inp = ui.input("Nova Senha", password=True, password_toggle_button=True).props('outlined').classes('w-full mb-3')
-            confirmar_senha_inp = ui.input("Confirmar Senha", password=True, password_toggle_button=True).props('outlined').classes('w-full mb-4')
-            
-            erro_label = ui.label('').style('color:#ef4444;font-size:12px;display:none;')
-            
-            def salvar():
-                nova = nova_senha_inp.value or ''
-                confirmar = confirmar_senha_inp.value or ''
-                
-                if not nova or len(nova) < 6:
-                    erro_label.style('display:block')
-                    erro_label.set_text('⚠️ Mínimo 6 caracteres')
-                    return
-                
-                if nova != confirmar:
-                    erro_label.style('display:block')
-                    erro_label.set_text('⚠️ Senhas não conferem')
-                    return
-                
-                if alterar_senha_admin(nova):
-                    ui.notify("✅ Senha alterada com sucesso!", type="positive")
-                    dialog.close()
-                else:
-                    erro_label.style('display:block')
-                    erro_label.set_text('❌ Erro ao alterar senha')
-            
-            with ui.row().classes('justify-end gap-2'):
-                ui.button("Cancelar", on_click=dialog.close).props('outline')
-                ui.button("Salvar", on_click=salvar).style('background:#8b5cf6;color:white;')
         
         dialog.open()
     
@@ -615,11 +612,6 @@ def admin_painel():
                 ui.label("⚙️ Configurações").style('font-size:16px;font-weight:700;')
             
             with ui.element('div').style('padding:20px;'):
-                ui.label("🔒 Segurança").style('font-size:14px;font-weight:600;margin-bottom:12px;')
-                ui.button("Alterar Senha do Admin", on_click=abrir_form_trocar_senha).style('background:#8b5cf6;color:white;border-radius:8px;padding:12px 20px;font-weight:600;')
-                
-                ui.separator().style('margin:20px 0;')
-                
                 ui.label("📊 Informações do Sistema").style('font-size:14px;font-weight:600;margin-bottom:12px;')
                 with ui.column().classes('gap-1'):
                     ui.label(f"• Total de usuários: {total_usuarios}").style('font-size:13px;color:#475569;')
