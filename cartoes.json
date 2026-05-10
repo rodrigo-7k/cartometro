@@ -1,0 +1,14 @@
+[
+  {
+    "nome": "Itaú Mastercard",
+    "limite_vista": 1500.0,
+    "limite_parcelado": 0.0,
+    "fecha_dia": 4
+  },
+  {
+    "nome": "Nubank Visa",
+    "limite_vista": 1100.0,
+    "limite_parcelado": 0.0,
+    "fecha_dia": 5
+  }
+]

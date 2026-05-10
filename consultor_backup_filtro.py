@@ -86,7 +86,7 @@ def obter_periodo_ciclo(dia_fechamento):
 # ============================================================
 # BUILDER DO CONTEXTO
 # ============================================================
-def build_context(dados, gastos, fixos, cartoes=None, gastos_mes_passado=None, tipo_filtro="ciclo", filtro_mes=None, filtro_ano=None):
+def build_context(dados, gastos, fixos, cartoes=None, gastos_mes_passado=None):
     ctx = Context()
     hoje = datetime.now()
     config = dados.get("config", {})
@@ -111,15 +111,6 @@ def build_context(dados, gastos, fixos, cartoes=None, gastos_mes_passado=None, t
         dia_fech = config.get("dia_fechamento", 10)
     
     inicio, fim = obter_periodo_ciclo(dia_fech)
-    
-    # Se filtro for Mês, usar período mensal
-    if tipo_filtro == "mes" and filtro_mes and filtro_ano:
-        inicio = datetime(filtro_ano, filtro_mes, 1)
-        if filtro_mes == 12:
-            fim = datetime(filtro_ano + 1, 1, 1) - timedelta(days=1)
-        else:
-            fim = datetime(filtro_ano, filtro_mes + 1, 1) - timedelta(days=1)
-    
     ctx.dias_para_fechamento = max((fim - hoje).days, 0)
     ctx.dia_fechamento = dia_fech
     
@@ -545,8 +536,8 @@ MAPA_REGRAS = {
 # ============================================================
 # MOTOR PRINCIPAL
 # ============================================================
-def gerar_notificacoes(dados, gastos, fixos, cartoes=None, gastos_mes_passado=None, plano="gratuito", tipo_filtro="ciclo", filtro_mes=None, filtro_ano=None):
-    ctx = build_context(dados, gastos, fixos, cartoes, gastos_mes_passado, tipo_filtro, filtro_mes, filtro_ano)
+def gerar_notificacoes(dados, gastos, fixos, cartoes=None, gastos_mes_passado=None, plano="gratuito"):
+    ctx = build_context(dados, gastos, fixos, cartoes, gastos_mes_passado)
     
     if plano in ["premium", "demo"]:
         regras_ativas = REGRAS_PREMIUM

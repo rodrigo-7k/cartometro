@@ -338,67 +338,6 @@ def resetar_dados_demo(email):
 # INICIALIZAÇÃO
 # ============================================================
 
-def pode_usar_modo_individual(email):
-    """Verifica se o usuário pode usar modo individual (premium ou admin)"""
-    plano = get_plano_usuario(email) if email else 'gratuito'
-    return plano in ('premium', 'admin')
-
-
-def adicionar_gasto(dados, gasto):
-    """Adiciona um gasto aos dados do usuário"""
-    if 'gastos' not in dados:
-        dados['gastos'] = []
-    dados['gastos'].append(gasto)
-    return dados
-
-
-def remover_gasto(dados, gasto_id):
-    """Remove um gasto pelo ID"""
-    if 'gastos' in dados:
-        dados['gastos'] = [g for g in dados['gastos'] if g.get('id') != gasto_id]
-    return dados
-
-
-def adicionar_cartao(dados, cartao):
-    """Adiciona um cartão aos dados do usuário"""
-    if 'cartoes' not in dados:
-        dados['cartoes'] = []
-    dados['cartoes'].append(cartao)
-    return dados
-
-
-def remover_cartao(dados, cartao_id):
-    """Remove um cartão pelo ID"""
-    if 'cartoes' in dados:
-        dados['cartoes'] = [c for c in dados['cartoes'] if c.get('id') != cartao_id]
-    return dados
-
-
-
-def verificar_limite_cartoes(email):
-    """Verifica se o usuário pode adicionar mais cartões"""
-    plano = get_plano_usuario(email) if email else 'gratuito'
-    dados = carregar(email) if email else {}
-    cartoes = dados.get("cartoes", [])
-    
-    if plano in ('premium', 'admin'):
-        return True, "Ilimitado"
-    elif len(cartoes) < 1:
-        return True, f"{len(cartoes)}/1 cartão"
-    else:
-        return False, "Limite de 1 cartão atingido. Faça upgrade para Premium!"
-
-
-def atualizar_perfil_usuario(email, **kwargs):
-    """Atualiza dados do perfil do usuário"""
-    usuarios = carregar_usuarios()
-    for u in usuarios:
-        if u.get('email', '').lower() == email.lower():
-            u.update(kwargs)
-            salvar_usuarios(usuarios)
-            return True
-    return False
-
 def inicializar():
     """Inicializa o banco de dados"""
     # Garantir que a pasta data existe

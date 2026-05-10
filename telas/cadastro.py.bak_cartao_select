@@ -159,68 +159,25 @@ def tela_cadastro(callback=None):
             return {"valor": None}
         
         with ui.column().classes('w-full gap-1 campo-mobile'):
-            ui.label("💳 Cartão (obrigatório)").classes('campo-label')
-            
-            # Preview da imagem do cartão
-            cartao_preview = ui.element('div').style('display:none;align-items:center;gap:8px;padding:8px;background:#f9fafb;border-radius:8px;margin-bottom:4px;')
-            with cartao_preview:
-                cartao_img = ui.image().style('width:48px;height:30px;object-fit:contain;border-radius:4px;flex-shrink:0;')
-                cartao_nome_label = ui.label("").classes('text-sm font-semibold text-gray-800')
-            
-            cartao_display = ui.input(label="Selecione o cartão", value="").props('outlined dense readonly').classes('w-full')
-            cartao_value = {"valor": None}
+            ui.label("💳 Cartão").classes('campo-label')
+            cartao_display = ui.input(label="Cartão", value=nomes_cartoes[0]).props('outlined dense readonly').classes('w-full')
+            cartao_value = {"valor": nomes_cartoes[0]}
             
             def abrir_selector_cartao():
-                with ui.dialog() as sel_dialog, ui.card().classes('p-4 rounded-xl max-w-[400px]'):
-                    ui.label("💳 Selecione o cartão").classes('text-sm font-bold mb-3').style(f'color: {cor_primaria} !important;')
+                with ui.dialog() as sel_dialog, ui.card().classes('p-4 rounded-xl max-w-[350px]'):
+                    ui.label("Selecione o cartão").classes('text-sm font-bold mb-3').style(f'color: {cor_primaria} !important;')
                     
                     for nome in nomes_cartoes:
                         is_sel = nome == cartao_value["valor"]
-                        # Buscar imagem do cartão nos dados do usuário
-                        img_cartao = None
-                        for c in cartoes:
-                            if c["nome"] == nome:
-                                img_cartao = c.get("img")
-                                break
-                        # Se não achou, tentar CARTOES_POPULARES
-                        if not img_cartao:
-                            try:
-                                from config import get_img_cartao
-                                img_cartao = get_img_cartao(nome)
-                            except:
-                                pass
-                        
-                        with ui.row().classes('items-center gap-3 p-2 rounded-lg cursor-pointer w-full').style(
+                        with ui.row().classes('items-center gap-2 p-2 rounded-lg cursor-pointer w-full').style(
                             f'background: {cor_primaria}15 !important;' if is_sel else 'background: transparent;'
                         ).on('click', lambda n=nome: selecionar(n)):
-                            if img_cartao:
-                                ui.image(img_cartao).style('width:44px;height:28px;object-fit:contain;border-radius:4px;flex-shrink:0;')
-                            else:
-                                ui.icon('credit_card').classes('text-lg').style(f'color: {cor_primaria} !important;')
+                            ui.icon('credit_card').classes('text-lg').style(f'color: {cor_primaria} !important;')
                             ui.label(nome).classes('text-sm font-medium')
                     
                     def selecionar(nome):
                         cartao_value["valor"] = nome
                         cartao_display.value = nome
-                        # Mostrar preview
-                        img_preview = None
-                        for c in cartoes:
-                            if c["nome"] == nome:
-                                img_preview = c.get("img")
-                                break
-                        if not img_preview:
-                            try:
-                                from config import get_img_cartao
-                                for c in CARTOES_POPULARES:
-                                    if c["nome"] == nome:
-                                        img_preview = c["img"]
-                                        break
-                            except:
-                                pass
-                        if img_preview:
-                            cartao_img.source = img_preview
-                        cartao_nome_label.set_text(nome)
-                        cartao_preview.style('display:flex')
                         sel_dialog.close()
                     
                     with ui.row().classes('justify-end w-full mt-3'):
@@ -230,6 +187,7 @@ def tela_cadastro(callback=None):
             cartao_display.on('click', abrir_selector_cartao)
         
         return cartao_value
+    
     # =========================
     # CAMPO DATA (DIALOG CENTRALIZADO)
     # =========================
@@ -462,19 +420,13 @@ def tela_cadastro(callback=None):
             
             # Se for parcelado, criar um lançamento por parcela
             if tipo == GASTO_PARCELADO and parcelas > 1:
-                valor_parcela = round(float(valor.value) / parcelas, 2)
-                soma_parcelas = valor_parcela * (parcelas - 1)
-                ultima_parcela = round(float(valor.value) - soma_parcelas, 2)
-                
+                valor_parcela = float(valor.value) / parcelas
                 for p in range(parcelas):
                     data_parcela = data_obj + timedelta(days=30 * p) if data_obj else None
-                    valor_desta_parcela = ultima_parcela if p == parcelas - 1 else valor_parcela
-                    
                     dados["gastos"].append({
-                        "id": len(dados.get("gastos", [])) + len(dados.get("fixos", [])) + 1,
+                        "id": len(dados["gastos"]) + 1,
                         "descricao": f"{descricao.value.strip()} ({p+1}/{parcelas})",
-                        "valor": valor_desta_parcela,
-                        "valor_total": float(valor.value),
+                        "valor": float(valor.value),
                         "tipo": tipo,
                         "parcelas": parcelas,
                         "parcela_atual": p + 1,
@@ -482,17 +434,6 @@ def tela_cadastro(callback=None):
                         "categoria": categoria_valor,
                         "cartao": cartao_valor
                     })
-            elif tipo == GASTO_FIXO:
-                # Salvar no array "fixos" (não em "gastos")
-                if "fixos" not in dados:
-                    dados["fixos"] = []
-                dados["fixos"].append({
-                    "id": len(dados.get("gastos", [])) + len(dados.get("fixos", [])) + 1,
-                    "descricao": descricao.value.strip(),
-                    "valor": float(valor.value),
-                    "categoria": categoria_valor,
-                    "cartao": cartao_valor
-                })
             else:
                 dados["gastos"].append(novo_gasto)
             
@@ -503,8 +444,6 @@ def tela_cadastro(callback=None):
             
             if tipo == GASTO_PARCELADO and parcelas > 1:
                 ui.notify(f"✅ {parcelas}x de {config_service.formatar_valor(float(valor.value)/parcelas)}", type="positive", position="top")
-            elif tipo == GASTO_FIXO:
-                ui.notify(f"✅ Fixo mensal de {config_service.formatar_valor(float(valor.value))} salvo!", type="positive", position="top")
             else:
                 ui.notify(f"✅ Gasto de {config_service.formatar_valor(float(valor.value))} salvo!", type="positive", position="top")
             

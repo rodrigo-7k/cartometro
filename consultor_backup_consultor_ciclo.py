@@ -86,7 +86,7 @@ def obter_periodo_ciclo(dia_fechamento):
 # ============================================================
 # BUILDER DO CONTEXTO
 # ============================================================
-def build_context(dados, gastos, fixos, cartoes=None, gastos_mes_passado=None, tipo_filtro="ciclo", filtro_mes=None, filtro_ano=None):
+def build_context(dados, gastos, fixos, cartoes=None, gastos_mes_passado=None):
     ctx = Context()
     hoje = datetime.now()
     config = dados.get("config", {})
@@ -94,75 +94,33 @@ def build_context(dados, gastos, fixos, cartoes=None, gastos_mes_passado=None, t
     ctx.gastos = gastos
     ctx.fixos = fixos
     ctx.total_fixos = sum(f.get("valor", 0) for f in fixos)
+    ctx.qtd_gastos = len(gastos)
     ctx.dia_atual = hoje.day
     ctx.dia_fechamento = config.get("dia_fechamento", 10)
+    ctx.dias_para_fechamento = max(ctx.dia_fechamento - hoje.day, 0)
     ctx.modo_cartao = config.get("modo_cartao", "Unificado")
     
-    # ══════════════════════════════════════════════
-    # MESMA LÓGICA DO LANCAMENTOS.PY
-    # Determinar período (ciclo ou mês)
-    # ══════════════════════════════════════════════
-    modo = config.get("modo_cartao", "Unificado")
-    
-    if modo == "Individual" and cartoes:
-        # Usar o primeiro cartão como referência para o ciclo
-        dia_fech = cartoes[0].get("dia_fechamento", config.get("dia_fechamento", 10)) if cartoes else 10
-    else:
-        dia_fech = config.get("dia_fechamento", 10)
-    
-    inicio, fim = obter_periodo_ciclo(dia_fech)
-    
-    # Se filtro for Mês, usar período mensal
-    if tipo_filtro == "mes" and filtro_mes and filtro_ano:
-        inicio = datetime(filtro_ano, filtro_mes, 1)
-        if filtro_mes == 12:
-            fim = datetime(filtro_ano + 1, 1, 1) - timedelta(days=1)
-        else:
-            fim = datetime(filtro_ano, filtro_mes + 1, 1) - timedelta(days=1)
-    
-    ctx.dias_para_fechamento = max((fim - hoje).days, 0)
-    ctx.dia_fechamento = dia_fech
-    
-    # ══════════════════════════════════════════════
-    # Filtrar gastos por período E até hoje (igual lancamentos.py)
-    # ══════════════════════════════════════════════
-    gastos_filtrados = []
-    for g in gastos:
-        if not g.get("data"):
-            continue
-        try:
-            dt = datetime.strptime(g["data"], "%Y-%m-%d")
-        except:
-            continue
-        if not (inicio <= dt <= fim):
-            continue
-        if dt > hoje:
-            continue
-        gastos_filtrados.append(g)
-    
-    ctx.qtd_gastos = len(gastos_filtrados)
-    
-    # ══════════════════════════════════════════════
-    # Processar cartões individuais (se modo Individual)
-    # ══════════════════════════════════════════════
+    # Processar cartões individuais
     ctx.cartoes_detalhe = {}
     if cartoes and ctx.modo_cartao == "Individual":
         for cartao in cartoes:
             nome = cartao.get("nome", "")
-            dia_fech_cartao = cartao.get("dia_fechamento", 10)
-            inicio_c, fim_c = obter_periodo_ciclo(dia_fech_cartao)
+            dia_fech = cartao.get("dia_fechamento", 10)
+            inicio, fim = obter_periodo_ciclo(dia_fech)
             
             vista = 0; parcelado = 0
-            for g in gastos_filtrados:
-                if g.get("cartao") != nome:
-                    continue
+            for g in gastos:
+                if g.get("cartao") != nome: continue
+                if not g.get("data"): continue
+                try: data = datetime.strptime(g["data"], "%Y-%m-%d")
+                except: continue
+                if not (inicio <= data <= fim): continue
+                if data > hoje: continue
                 
                 valor = g.get("valor", 0)
                 is_parcelado = (g.get("tipo") == "Parcelado" or g.get("parcelas", 1) > 1)
-                if is_parcelado:
-                    parcelado += valor
-                else:
-                    vista += valor
+                if is_parcelado: parcelado += valor
+                else: vista += valor
             
             limite_v = cartao.get("limite_vista", 0) or 0
             limite_p = cartao.get("limite_parcelado", 0) or 0
@@ -183,21 +141,15 @@ def build_context(dados, gastos, fixos, cartoes=None, gastos_mes_passado=None, t
         ctx.cartoes_uso = {nome: c["total"] for nome, c in ctx.cartoes_detalhe.items()}
         ctx.cartoes_sem_uso = [nome for nome, c in ctx.cartoes_detalhe.items() if c["total"] == 0]
     else:
-        # Modo Unificado
         ctx.limite_vista = config.get("limite_vista", config.get("limite_total", 3000))
         ctx.limite_parcelado = config.get("limite_parcelado", 1500)
         ctx.limite_total = ctx.limite_vista + ctx.limite_parcelado
-        
-        ctx.total_gasto_vista = 0
-        ctx.total_gasto_parcelado = 0
-        for g in gastos_filtrados:
+        ctx.total_gasto_vista = 0; ctx.total_gasto_parcelado = 0
+        for g in gastos:
             valor = g.get("valor", 0)
             is_parcelado = (g.get("tipo") == "Parcelado" or g.get("parcelas", 1) > 1)
-            if is_parcelado:
-                ctx.total_gasto_parcelado += valor
-            else:
-                ctx.total_gasto_vista += valor
-        
+            if is_parcelado: ctx.total_gasto_parcelado += valor
+            else: ctx.total_gasto_vista += valor
         ctx.total_gasto_vista += ctx.total_fixos
         ctx.total_gasto = ctx.total_gasto_vista + ctx.total_gasto_parcelado
     
@@ -206,31 +158,32 @@ def build_context(dados, gastos, fixos, cartoes=None, gastos_mes_passado=None, t
     ctx.gasto_diario = ctx.total_gasto / max(ctx.dia_atual, 1)
     ctx.projecao = ctx.total_gasto + (ctx.gasto_diario * ctx.dias_para_fechamento)
     
-    # Categorias (apenas gastos filtrados)
+    # Categorias
     categorias = defaultdict(float)
-    for g in gastos_filtrados:
+    for g in gastos:
         categorias[g.get("categoria", "Outros")] += g.get("valor", 0)
     ctx.gastos_por_categoria = dict(categorias)
     
     if gastos_mes_passado:
         cat_passado = defaultdict(float)
+        total_fixos_passado = 0
         for g in gastos_mes_passado:
             cat_passado[g.get("categoria", "Outros")] += g.get("valor", 0)
         ctx.categoria_mes_passado = dict(cat_passado)
         ctx.total_mes_passado = sum(g.get("valor", 0) for g in gastos_mes_passado)
-    else:
-        ctx.total_mes_passado = 0
+        ctx.total_fixos_passado = total_fixos_passado
     
-    # Últimos dias (apenas gastos filtrados)
-    ctx.gastos_ultimos_3_dias = sum(g.get("valor", 0) for g in gastos_filtrados if (hoje - datetime.strptime(g["data"], "%Y-%m-%d")).days <= 3)
-    ctx.gastos_ultimos_7_dias = sum(g.get("valor", 0) for g in gastos_filtrados if (hoje - datetime.strptime(g["data"], "%Y-%m-%d")).days <= 7)
+    # Últimos dias
+    ctx.gastos_ultimos_3_dias = sum(g.get("valor", 0) for g in gastos if g.get("data") and (hoje - datetime.strptime(g["data"], "%Y-%m-%d")).days <= 3)
+    ctx.gastos_ultimos_7_dias = sum(g.get("valor", 0) for g in gastos if g.get("data") and (hoje - datetime.strptime(g["data"], "%Y-%m-%d")).days <= 7)
     
     # FDS, início/fim mês
-    ctx.gastos_fim_semana = sum(g.get("valor", 0) for g in gastos_filtrados if datetime.strptime(g["data"], "%Y-%m-%d").weekday() >= 5)
-    ctx.gastos_inicio_mes = sum(g.get("valor", 0) for g in gastos_filtrados if datetime.strptime(g["data"], "%Y-%m-%d").day <= 3)
-    ctx.gastos_fim_mes = sum(g.get("valor", 0) for g in gastos_filtrados if datetime.strptime(g["data"], "%Y-%m-%d").day >= 25)
+    ctx.gastos_fim_semana = sum(g.get("valor", 0) for g in gastos if g.get("data") and datetime.strptime(g["data"], "%Y-%m-%d").weekday() >= 5)
+    ctx.gastos_inicio_mes = sum(g.get("valor", 0) for g in gastos if g.get("data") and datetime.strptime(g["data"], "%Y-%m-%d").day <= 3)
+    ctx.gastos_fim_mes = sum(g.get("valor", 0) for g in gastos if g.get("data") and datetime.strptime(g["data"], "%Y-%m-%d").day >= 25)
     
     return ctx
+
 
 # ============================================================
 # 🚨 BLOCO 1 — CRÍTICO (10 regras)
@@ -545,8 +498,8 @@ MAPA_REGRAS = {
 # ============================================================
 # MOTOR PRINCIPAL
 # ============================================================
-def gerar_notificacoes(dados, gastos, fixos, cartoes=None, gastos_mes_passado=None, plano="gratuito", tipo_filtro="ciclo", filtro_mes=None, filtro_ano=None):
-    ctx = build_context(dados, gastos, fixos, cartoes, gastos_mes_passado, tipo_filtro, filtro_mes, filtro_ano)
+def gerar_notificacoes(dados, gastos, fixos, cartoes=None, gastos_mes_passado=None, plano="gratuito"):
+    ctx = build_context(dados, gastos, fixos, cartoes, gastos_mes_passado)
     
     if plano in ["premium", "demo"]:
         regras_ativas = REGRAS_PREMIUM

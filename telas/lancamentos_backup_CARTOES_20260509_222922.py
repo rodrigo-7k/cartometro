@@ -147,14 +147,6 @@ CUSTOM_CSS = """
 .cartao-percentual { font-size: 10px !important; font-weight: 600; }
 @media (max-width: 768px) { .cartoes-grid { flex-wrap: wrap !important; } .cartao-card-kpi { min-width: 45% !important; flex: 1 1 45% !important; } }
 
-/* Cada versão aparece apenas no breakpoint correto */
-.cartao-card-desktop { display: flex !important; }
-.cartao-card-mobile  { display: none !important; }
-@media (max-width: 768px) {
-    .cartao-card-desktop { display: none !important; }
-    .cartao-card-mobile  { display: block !important; }
-}
-
 @media (min-width: 769px) { .fab-button { display: none !important; } }
 .fab-button { position: fixed !important; bottom: 72px; right: 16px; z-index: 999; width: 50px; height: 50px; border-radius: 25px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; }
 
@@ -864,56 +856,28 @@ def tela_lancamentos(container):
                 cor_barra = "#10b981" if percentual < 50 else "#f59e0b" if percentual < 80 else "#ef4444"
                 img_url = get_img_cartao(nome)
                 
-                # Card com layout responsivo
-                limite_vista_cartao = cartao.get("limite_vista", 0) or 0
-                limite_parcelado_cartao = cartao.get("limite_parcelado", 0) or 0
-                limite_total_exib = limite_vista_cartao + limite_parcelado_cartao
-                
-                # DESKTOP: igual tela de configurações
-                with ui.element('div').classes('cartao-card-desktop').style(
-                    f'flex:1!important;min-width:0!important;padding:14px 16px!important;'
-                    f'background:white!important;border-radius:12px!important;'
-                    f'border-left:4px solid {cor_cartao}!important;'
-                    f'box-shadow:0 1px 4px rgba(0,0,0,0.07)!important;'
-                    f'flex-direction:column!important;gap:10px!important;'
-                ):
-                    # Topo: imagem grande | bloco direito
-                    with ui.row().classes('w-full no-wrap').style('gap:14px;align-items:flex-start;'):
-                        # Imagem do cartão
-                        if img_url:
-                            ui.image(img_url).style('width:90px;height:56px;object-fit:contain;border-radius:8px;border:1px solid #e5e7eb;padding:3px;flex-shrink:0;')
-                        # Bloco direito: nome+valor no topo, detalhes abaixo
-                        with ui.column().style('flex:1;min-width:0;gap:4px;'):
-                            # Linha 1: nome + bandeira | valor
-                            with ui.row().classes('w-full no-wrap').style('align-items:center;justify-content:space-between;'):
-                                with ui.row().classes('no-wrap').style('align-items:center;gap:6px;'):
-                                    ui.label(nome).style('font-size:14px!important;font-weight:700!important;color:#111827!important;')
-                                    bandeira = next((c.get("bandeira","") for c in CARTOES_POPULARES if c["nome"]==nome), "")
-                                    if bandeira:
-                                        ui.label(bandeira).style('font-size:10px!important;color:#9ca3af!important;font-weight:400!important;')
-                                ui.label(formatar_moeda_br(gasto_cartao)).style(f'font-size:16px!important;font-weight:700!important;color:{cor_barra}!important;white-space:nowrap;flex-shrink:0;')
-                            # Linha 2: Limite Total
-                            ui.label(f"Limite Total: {formatar_moeda_br(limite_total_exib)}").style(f'font-size:12px!important;font-weight:600!important;color:{cor_cartao}!important;')
-                            # Linha 3: À Vista | Parcelado
-                            ui.label(f"À Vista: {formatar_moeda_br(limite_vista_cartao).replace(',00','')} | Parcelado: {formatar_moeda_br(limite_parcelado_cartao).replace(',00','')}").style('font-size:10px!important;color:#6b7280!important;')
-                    # Barra de progresso no fundo (largura total do card)
-                    with ui.row().classes('w-full no-wrap').style('align-items:center;gap:8px;'):
-                        with ui.element('div').style('flex:1;height:6px;border-radius:3px;background:#e5e7eb;overflow:hidden;'):
-                            ui.element('div').style(f'height:100%;border-radius:3px;width:{min(percentual,100):.0f}%;background:{cor_cartao};transition:width 0.3s;')
-                        ui.label(f"{percentual:.0f}%").style(f'font-size:11px!important;font-weight:700!important;color:{cor_barra}!important;flex-shrink:0;')
-                
-                # MOBILE: layout anterior compacto (imagem 20% maior: 48x30)
-                with ui.card().classes('cartao-card-mobile').style(f'flex:1!important;min-width:0!important;padding:10px 8px!important;background:white!important;border-radius:10px!important;border-left:4px solid {cor_cartao}!important;box-shadow:0 1px 3px rgba(0,0,0,0.06)!important'):
+                # Card com borda colorida e flex:1
+                with ui.card().style(f'flex:1!important;min-width:0!important;padding:10px 8px!important;background:white!important;border-radius:10px!important;border-left:4px solid {cor_cartao}!important;box-shadow:0 1px 3px rgba(0,0,0,0.06)!important'):
+                    # Linha 1: Logo + Nome | Valor
+                    # Linha 1: Logo + Nome | Valor (mesma linha)
                     with ui.row().style('align-items:center!important;justify-content:space-between!important;width:100%!important;margin-bottom:2px!important'):
                         with ui.row().style('align-items:center!important;gap:6px!important;flex:1!important;min-width:0!important'):
                             if img_url:
-                                ui.image(img_url).style('width:48px!important;height:30px!important;object-fit:contain!important;flex-shrink:0!important;border-radius:4px!important')
+                                ui.image(img_url).style('width:40px!important;height:25px!important;object-fit:contain!important;flex-shrink:0!important;border-radius:4px!important')
                             ui.label(nome).style('font-size:12px!important;font-weight:600!important;color:#374151!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important')
                         ui.label(formatar_moeda_br(gasto_cartao)).style(f'font-size:16px!important;font-weight:700!important;color:{cor_barra}!important;flex-shrink:0!important;margin-left:8px!important')
+                    
+                    # Linha 2: Limite
                     with ui.column().style('gap:0!important;margin-bottom:4px!important'):
-                        ui.label(f"Limite Total: " + formatar_moeda_br(limite_total_exib)).style('font-size:10px!important;color:#6b7280!important;')
-                        ui.label("A Vista " + formatar_moeda_br(limite_vista_cartao).replace(",00","") + " | Parcelado " + formatar_moeda_br(limite_parcelado_cartao).replace(",00","")).style('font-size:8px!important;color:#9ca3af!important;')
+                        ui.label(f"Limite Total: " + formatar_moeda_br(limite_total).replace(",00","")).style('font-size:10px!important;color:#6b7280!important')
+                        # Exibir À Vista e Parcelado (nomes padronizados)
+                        limite_vista_cartao = cartao.get("limite_vista", 0) or 0
+                        limite_parcelado_cartao = cartao.get("limite_parcelado", 0) or 0
+                        ui.label("À Vista " + formatar_moeda_br(limite_vista_cartao).replace(",00","") + " | Parcelado " + formatar_moeda_br(limite_parcelado_cartao).replace(",00","")).style('font-size:8px!important;color:#9ca3af!important')
+                    
+                    # Linha 3: Barra de progresso + % (usando ui.linear_progress)
                     with ui.row().style('align-items:center!important;gap:4px!important;width:100%!important'):
+                        
                         with ui.element('div').style('flex:1;height:6px;border-radius:3px;background:#e5e7eb;overflow:hidden;'):
                             ui.element('div').style(f'height:100%;border-radius:3px;width:{min(percentual,100):.0f}%;background:{cor_cartao};transition:width 0.3s;')
                         ui.label(f"{percentual:.0f}%").style(f'font-size:12px!important;font-weight:700!important;color:{cor_barra}!important;flex-shrink:0!important')

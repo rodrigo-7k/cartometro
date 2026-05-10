@@ -99,7 +99,7 @@ CUSTOM_CSS = """
 .cor-circle { width: 48px !important; height: 48px !important; border-radius: 50% !important; transition: all 0.2s ease !important; border: 3px solid transparent !important; cursor: pointer !important; }
 .cor-circle:hover { transform: scale(1.12) !important; }
 .fixo-card { width: 100% !important; padding: 12px !important; background: #faf5ff !important; border-radius: 8px !important; margin-bottom: 8px !important; border: 1px solid #e9d5ff !important; }
-.cartao-card { background: #f9fafb !important; border-radius: 10px !important; padding: 12px !important; margin-bottom: 8px !important; border: 1px solid #f3f4f6 !important; width: 100% !important; }
+.cartao-card { background: #f9fafb !important; border-radius: 10px !important; padding: 12px !important; margin-bottom: 8px !important; border: 1px solid #f3f4f6 !important; }
 .sobre-logo-container { display: flex !important; justify-content: center !important; align-items: center !important; padding: 32px 20px !important; background: linear-gradient(135deg, #f8fafc, #f0f5ff) !important; border-radius: 16px !important; margin-bottom: 16px !important; }
 .sobre-logo { width: 200px !important; height: auto !important; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1)) !important; }
 .sobre-info-item { background: white !important; border-radius: 10px !important; padding: 14px 16px !important; margin-bottom: 10px !important; border-left: 3px solid var(--cor-primaria) !important; }
@@ -222,7 +222,7 @@ def tela_configuracoes(container, dialog_pai=None):
                 if modo_cartao.value == "Unificado":
                     with container_limites:
                         with ui.column().classes('w-full gap-1 mb-3 mt-3'):
-                            ui.label("💵 Limite À Vista (R$)").classes('campo-label')
+                            ui.label("💰 Limite Total (R$)").classes('campo-label')
                             lt = ui.number(value=config.get("limite_total", 3000), format="%.2f").props('outlined dense').classes('w-full')
                             campos_limites['limite_total'] = lt
                         with ui.column().classes('w-full gap-1 mb-3'):
@@ -259,7 +259,7 @@ def tela_configuracoes(container, dialog_pai=None):
                                 with ui.card().classes('dica-card mt-2').style('background: #f9fafb;'):
                                     with ui.row().classes('items-center justify-between'):
                                         ui.label(f"💳 {c.get('nome', '')}").classes('text-sm font-semibold')
-                                        ui.label(f"Limite Total: R$ {c.get('limite_total', 0):.2f}").classes('text-xs text-gray-600')
+                                        ui.label(f"Limite: R$ {c.get('limite_total', 0):.2f}").classes('text-xs text-gray-600')
                         def salvar_individual():
                             atualizar_config_local(modo_cartao="Individual")
                             ui.notify("✅ Modo Individual ativado!", type="positive", position="top", timeout=1000)
@@ -339,15 +339,15 @@ def tela_configuracoes(container, dialog_pai=None):
                     
                     bandeira_select.on('update:model-value', lambda: atualizar_bandeira())
                     
-                    ui.label("💵 Limite À Vista (R$)").classes('campo-label')
-                    limite_inp = ui.number(value=cartao.get("limite_vista", 0) if is_edicao else 0, format="%.2f").props('outlined dense prefix=R$').classes('w-full mb-1')
+                    ui.label("💰 Limite Total (R$)").classes('campo-label')
+                    limite_inp = ui.number(value=cartao.get("limite_total", 0) if is_edicao else 0, format="%.2f").props('outlined dense prefix=R$').classes('w-full mb-1')
                     with ui.card().classes('dica-card mb-3').style('background: #f0fdf4; border-left: 3px solid #10b981;'):
-                        ui.label("💡 Disponível para compras à vista.").classes('text-[10px] text-gray-600')
+                        ui.label("💡 Limite total disponível no seu cartão.").classes('text-[10px] text-gray-600')
                     
-                    ui.label("📦 Limite Parcelado (R$)").classes('campo-label')
+                    ui.label("📦 Limite para Parcelas (R$)").classes('campo-label')
                     parc_inp = ui.number(value=cartao.get("limite_parcelado", 0) if is_edicao else 0, format="%.2f").props('outlined dense prefix=R$').classes('w-full mb-1')
                     with ui.card().classes('dica-card mb-3').style('background: #eff6ff; border-left: 3px solid #3b82f6;'):
-                        ui.label("💡 Disponível para compras parceladas.").classes('text-[10px] text-gray-600')
+                        ui.label("💡 Valor máximo para compras parceladas.").classes('text-[10px] text-gray-600')
                     
                     ui.label("📅 Dia de Fechamento").classes('campo-label')
                     dia_inp = ui.select(options=list(range(1, 32)), value=cartao.get("dia_fechamento", 10) if is_edicao else 10).props('outlined dense').classes('w-full mb-1')
@@ -369,9 +369,8 @@ def tela_configuracoes(container, dialog_pai=None):
                             "id": len(dados.get("cartoes", [])) + 1 if not is_edicao else cartao["id"],
                             "nome": nome_final,
                             "bandeira": bandeira_value.get("valor", "Mastercard"),
-                            "limite_vista": float(limite_inp.value or 0),
+                            "limite_total": float(limite_inp.value or 0),
                             "limite_parcelado": float(parc_inp.value or 0),
-                            "limite_total": float(limite_inp.value or 0) + float(parc_inp.value or 0),
                             "dia_fechamento": int(dia_inp.value or 10),
                         }
                         if "cartoes" not in dados:
@@ -419,7 +418,7 @@ def tela_configuracoes(container, dialog_pai=None):
                     ui.icon('info').classes('text-sm mt-0.5').style(f'color: {cor_primaria} !important;')
                     with ui.column().classes('gap-1'):
                         ui.label("💳 Seus Cartões").classes('text-xs font-semibold').style(f'color: {cor_primaria} !important;')
-                        ui.label("Limite Total = Limite À Vista + Limite Parcelado").classes('text-[11px] text-gray-600')
+                        ui.label("Cadastre seus cartões de crédito com limites individuais para controle detalhado.").classes('text-[11px] text-gray-600')
             
             with ui.row().classes('items-center justify-between mb-3'):
                 with ui.row().classes('items-center gap-2'):
@@ -432,42 +431,23 @@ def tela_configuracoes(container, dialog_pai=None):
                 return
             
             for c in cartoes:
-                # Calcular valores (SEMPRE recalcula o Total)
-                limite_vista_val = c.get("limite_vista", 0) or 0
-                limite_parcelado_val = c.get("limite_parcelado", 0) or 0
-                limite_total_val = limite_vista_val + limite_parcelado_val
-                
                 with ui.card().classes('cartao-card'):
-                    with ui.row().classes('w-full items-center no-wrap').style('gap: 12px;'):
-                        # ESQUERDA (30%) - IMAGEM
-                        with ui.element('div').style('flex: 0 0 30%; display: flex; justify-content: center;'):
-                            img_cartao = None
-                            for card in CARTOES_POPULARES:
-                                if card["nome"] == c.get("nome", ""):
-                                    img_cartao = card["img"]
-                                    break
-                            if img_cartao:
-                                ui.image(img_cartao).style('width: 100%; max-width: 100px; height: 60px; object-fit: contain;')
-                        
-                        # DIREITA (70%) - DADOS
-                        with ui.element('div').style('flex: 1; display: flex; flex-direction: column; gap: 2px;'):
+                    with ui.row().classes('items-center justify-between w-full'):
+                        with ui.column().classes('gap-0 flex-1'):
                             with ui.row().classes('items-center gap-2'):
+                                img_cartao = None
+                                for card in CARTOES_POPULARES:
+                                    if card["nome"] == c.get("nome", ""):
+                                        img_cartao = card["img"]
+                                        break
+                                if img_cartao:
+                                    ui.image(img_cartao).style('width: 32px; height: 20px; object-fit: contain; flex-shrink: 0;')
                                 ui.label(c.get("nome", "")).classes('text-sm font-semibold text-gray-800')
                                 if c.get("bandeira"):
                                     ui.label(c.get("bandeira", "")).classes('text-[9px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded')
-                            
-                            ui.label(
-                                f"Limite Total: R$ {limite_total_val:,.2f}".replace(',', '_').replace('.', ',').replace('_', '.')
-                            ).classes('text-[12px] font-bold').style(f'color: {cor_primaria} !important;')
-                            
-                            ui.label(
-                                f"À Vista: R$ {limite_vista_val:,.2f} | Parcelado: R$ {limite_parcelado_val:,.2f}".replace(',', '_').replace('.', ',').replace('_', '.')
-                            ).classes('text-[9px] text-gray-500')
-                            
+                            ui.label(f"Limite: R$ {c.get('limite_total', 0):.2f}").classes('text-[11px] text-gray-500')
                             ui.label(f"Fecha dia {c.get('dia_fechamento', 10)}").classes('text-[10px] text-gray-400')
-                        
-                        # BOTÕES
-                        with ui.element('div').style('display: flex; flex-direction: column; gap: 4px;'):
+                        with ui.row().classes('gap-1'):
                             ui.button(icon='edit', on_click=lambda c=c: abrir_form_cartao(c)).props('flat round size=sm').style(f'color: {cor_primaria} !important;')
                             ui.button(icon='delete', on_click=lambda c=c: remover_cartao_conf(c)).props('flat round size=sm').style(f'color: {cor_primaria} !important;')
     
@@ -545,10 +525,7 @@ def tela_configuracoes(container, dialog_pai=None):
                         with ui.row().classes('justify-between items-center w-full'):
                             with ui.column().classes('gap-0 flex-1'):
                                 ui.label(g.get("descricao", "")).classes('text-sm font-semibold text-gray-800')
-                                detalhes_fixo = []
-                                if g.get("categoria"): detalhes_fixo.append(g.get("categoria"))
-                                if g.get("cartao"): detalhes_fixo.append(f"Cartao: {g.get('cartao')}")
-                                if detalhes_fixo: ui.label(" • ".join(detalhes_fixo)).classes('text-[10px] text-purple-500')
+                                if g.get("categoria"): ui.label(g.get("categoria")).classes('text-[10px] text-purple-500')
                             with ui.row().classes('items-center gap-3'):
                                 ui.label(f"R$ {g.get('valor', 0):.2f}").classes('text-sm font-bold').style(f'color: {cor_primaria} !important;')
                                 ui.button(icon='delete', on_click=lambda gid=g["id"]: remover_fixo(gid)).props('flat round size=sm').style(f'color: {cor_primaria} !important;')
@@ -561,35 +538,16 @@ def tela_configuracoes(container, dialog_pai=None):
                     vi = ui.number(label="Valor R$", format="%.2f", value=0).props('outlined dense prefix=R$').classes('w-full')
                     ci = ui.select(options=categorias_nomes, label="Categoria", value="Assinaturas" if "Assinaturas" in categorias_nomes else categorias_nomes[-1]).props('outlined dense').classes('w-full')
                     
-                    # Campo cartao (se houver cartoes cadastrados)
-                    cartoes_disp = dados.get("cartoes", [])
-                    cartao_select = None
-                    if cartoes_disp:
-                        nomes_cartoes_fixo = [c["nome"] for c in cartoes_disp]
-                        cartao_select = ui.select(
-                            options=nomes_cartoes_fixo,
-                            label="Cartao (opcional)",
-                            value=nomes_cartoes_fixo[0] if nomes_cartoes_fixo else None
-                        ).props('outlined dense').classes('w-full')
-                    
                     def add_fixo():
                         if not di.value or not vi.value or vi.value <= 0:
-                            ui.notify("Preencha todos os campos", type="warning", position="top")
+                            ui.notify("⚠️ Preencha todos os campos", type="warning", position="top")
                             return
                         if 'fixos' not in dados:
                             dados['fixos'] = []
-                        novo_fixo = {
-                            'id': len(dados['fixos']) + 1,
-                            'descricao': di.value.strip(),
-                            'valor': float(vi.value),
-                            'categoria': ci.value
-                        }
-                        if cartao_select and cartao_select.value:
-                            novo_fixo['cartao'] = cartao_select.value
-                        dados['fixos'].append(novo_fixo)
+                        dados['fixos'].append({'id': len(dados['fixos']) + 1, 'descricao': di.value.strip(), 'valor': float(vi.value), 'categoria': ci.value})
                         arquivo = os.path.join('data', f"{email.replace('@','_').replace('.','_').lower()}.json")
                         salvar_json(arquivo, dados)
-                        ui.notify("Adicionado!", type="positive", position="top", timeout=1000)
+                        ui.notify("✅ Adicionado!", type="positive", position="top", timeout=1000)
                         recarregar_principal()
                     
                     ui.button("Adicionar", on_click=add_fixo, icon='add').classes('w-full').style(f'background: {cor_primaria} !important; color: white !important; border-radius: 8px; font-weight: 600;')

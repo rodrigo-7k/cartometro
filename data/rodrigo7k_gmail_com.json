@@ -1,0 +1,11 @@
+{
+  "cartoes": [],
+  "lancamentos": [],
+  "metas": [],
+  "config": {
+    "cor_primaria": "#2563eb",
+    "cor_escura": "#1d4ed8",
+    "tema": "light",
+    "modo_unificado": true
+  }
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "email": "rodrigo7k@gmail.com",
+    "metodo": "admin",
+    "valor": 0,
+    "status": "confirmado",
+    "admin": "admin",
+    "data": "2026-05-07T23:45:57.094062"
+  },
+  {
+    "id": 2,
+    "email": "rodrigo7k@gmail.com",
+    "metodo": "cortesia",
+    "valor": 0,
+    "status": "cortesia",
+    "admin": "admin",
+    "data": "2026-05-07T23:46:41.373905"
+  }
+]

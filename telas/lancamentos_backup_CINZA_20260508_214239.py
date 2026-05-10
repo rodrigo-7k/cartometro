@@ -81,8 +81,8 @@ CUSTOM_CSS = """
 .botoes-fixos { flex-shrink: 0 !important; background: white !important; border-top: 1px solid #e5e7eb !important; z-index: 10 !important; }
 
 .lancamentos-tela { width: 100% !important; max-width: 100% !important; height: 100% !important; display: flex !important; flex-direction: column !important; background: #f3f4f6 !important; overflow: hidden !important; }
-.lancamentos-header-fixo { flex-shrink: 0 !important; width: 100% !important; max-width: 100% !important; z-index: 10 !important; }
-.header-bar { padding: 8px var(--page-padding) !important; box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important; width: 100% !important; }
+.lancamentos-header-fixo { flex-shrink: 0 !important; width: 100vw !important; max-width: 100vw !important; z-index: 10 !important; }
+.header-bar { padding: 8px 14px !important; box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important; width: 100% !important; }
 .header-subtitle-text { font-size: 9px !important; opacity: 0.7 !important; line-height: 1 !important; }
 .header-icon-btn { width: 28px; height: 28px; min-width: 28px; padding: 0 !important; border-radius: 50% !important; }
 
@@ -98,68 +98,56 @@ CUSTOM_CSS = """
     color: white !important;
 }
 
-.busca-row { padding: 4px var(--page-padding) !important; background: white !important; display: flex; align-items: center; gap: 4px; width: 100% !important; }
+.busca-row { padding: 4px 8px !important; background: white !important; display: flex; align-items: center; gap: 4px; width: 100% !important; }
 .busca-row .q-field__native, .busca-row .q-field__control { min-height: 32px !important; font-size: 13px !important; }
 
-.filtros-compactos { padding: 6px var(--page-padding) !important; background: white !important; border-top: 1px solid #f3f4f6; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; width: 100% !important; }
+.filtros-compactos { padding: 6px 8px !important; background: white !important; border-top: 1px solid #f3f4f6; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; width: 100% !important; }
 .filtros-compactos .q-field { margin: 0 !important; padding: 0 !important; }
 .filtros-compactos .q-field__native, .filtros-compactos .q-field__control { min-height: 30px !important; font-size: 12px !important; }
 
-.lancamentos-rolagem { flex: 1 !important; overflow-y: auto; overflow-x: hidden; width: 100% !important; max-width: 100% !important; scrollbar-width: none !important; }
-.lancamentos-rolagem::-webkit-scrollbar { display: none !important; }
+.lancamentos-rolagem { flex: 1 !important; overflow-y: auto; overflow-x: hidden; padding-bottom: 80px !important; padding-right: 6px !important; width: 100% !important; max-width: 100% !important; }
+.lancamentos-rolagem::-webkit-scrollbar { width: 4px; }
+.lancamentos-rolagem::-webkit-scrollbar-track { background: #e5e7eb; }
+.lancamentos-rolagem::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 4px; }
 
-/* Wrapper único — 3% de cada lado em todos os elementos */
-.content-wrapper { width: 100% !important; box-sizing: border-box !important; padding: 8px 1.5% 60px 1.5% !important; }
-
-.kpi-grid { display: grid !important; grid-template-columns: repeat(3, 1fr); gap: 6px; width: 100% !important; box-sizing: border-box !important; }
+.kpi-grid { display: grid !important; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 8px; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; }
 .kpi-card { padding: 8px 6px !important; background: white !important; border-radius: 10px !important; border-left: 3px solid #ccc !important; box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important; }
 .kpi-icon { font-size: 16px !important; margin-bottom: 1px !important; }
 .kpi-label { font-size: 7px !important; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px; font-weight: 600; margin-bottom: 0px; }
 .kpi-valor { font-size: 12px !important; font-weight: 700; color: #1f2937; line-height: 1.1; }
 
-.progresso-container { padding: 0 0 6px 0 !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; }
+.progresso-container { padding: 2px 8px 6px 8px; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; }
 .progresso-card { width: 100% !important; padding: 10px 12px !important; border-radius: 10px; background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
 .progresso-label { font-size: 11px !important; color: #6b7280; font-weight: 500; }
 .progresso-percentual { font-size: 14px !important; font-weight: 700; }
 .barra-container { width: 100%; height: 6px; border-radius: 3px; background: #e5e7eb; overflow: hidden; }
 .barra-preenchimento { height: 100%; border-radius: 3px; transition: width 0.3s ease; }
 
-.lancamento-card { padding: 12px 14px !important; background: white; cursor: pointer; border-radius: 12px !important; transition: all 0.15s; margin: 0 0 6px 0 !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; box-shadow: 0 1px 2px rgba(0,0,0,0.04); border-left: 4px solid #ccc; }
+.lancamento-card { padding: 12px 14px !important; background: white; cursor: pointer; margin-left: 10px !important; margin-right: 10px !important; border-radius: 12px !important; transition: all 0.15s; border-radius: 12px; margin: 0 10px 6px 10px; width: calc(100% - 20px) !important; max-width: calc(100% - 20px) !important; box-sizing: border-box !important; box-shadow: 0 1px 2px rgba(0,0,0,0.04); border-left: 4px solid #ccc; }
 .lancamento-card:active { background: #f9fafb; transform: scale(0.99); }
-.lancamento-card-fixo { padding: 12px 14px !important; background: #faf5ff; cursor: pointer; border-radius: 12px !important; margin: 0 0 6px 0 !important; width: 100% !important; box-sizing: border-box !important; box-shadow: 0 1px 2px rgba(0,0,0,0.04); border-left: 4px solid #a855f7; }
-.lancamento-card-fixo-inativo { padding: 12px 14px !important; background: #f9fafb; cursor: pointer; border-radius: 12px; margin: 0 0 6px 0 !important; width: 100% !important; box-sizing: border-box !important; box-shadow: 0 1px 2px rgba(0,0,0,0.04); border-left: 4px solid #d1d5db; opacity: 0.75; }
+.lancamento-card-fixo { padding: 12px 14px !important; background: #faf5ff; cursor: default; margin-left: 10px !important; margin-right: 10px !important; border-radius: 12px !important; border-radius: 12px; margin: 0 10px 6px 10px; width: calc(100% - 20px) !important; box-sizing: border-box !important; box-shadow: 0 1px 2px rgba(0,0,0,0.04); border-left: 4px solid #a855f7; }
 
-.dia-header { padding: 8px 0 2px 0 !important; width: 100%; }
+.dia-header { padding: 8px 12px 2px 12px; width: 100%; }
 .dia-titulo { font-size: 10px !important; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px; }
 .dia-total { font-size: 10px !important; font-weight: 700; }
 .lancamento-desc { font-size: 14px !important; font-weight: 500; color: #1f2937; line-height: 1.3; }
 .lancamento-detalhe { font-size: 11px !important; color: #9ca3af; }
 .lancamento-valor { font-size: 14px !important; font-weight: 600; }
 .chevron-icon { font-size: 14px !important; color: #d1d5db; }
-.estado-vazio { padding: 40px 0; text-align: center; }
+.estado-vazio { padding: 40px 20px; text-align: center; }
 
-.cartoes-grid { display: flex !important; gap: 6px !important; padding: 4px 0 2px 0 !important; width: 100% !important; box-sizing: border-box !important; }
-.cartao-card-kpi { flex: 1 !important; min-width: 0 !important; padding: 10px 8px !important; background: white !important; border-radius: 10px !important; border-left: 4px solid #ccc !important; box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important; }
-.cartao-nome { font-size: 13px !important; font-weight: 600; color: #1f2937; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cartao-limite-label { font-size: 8px !important; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px; }
-.cartao-limite-detalhe { font-size: 8px !important; color: #9ca3af; }
-.cartao-gasto-valor { font-size: 15px !important; font-weight: 700; }
-.cartao-percentual { font-size: 10px !important; font-weight: 600; }
-@media (max-width: 768px) { .cartoes-grid { flex-wrap: wrap !important; } .cartao-card-kpi { min-width: 45% !important; flex: 1 1 45% !important; } }
-
-/* Cada versão aparece apenas no breakpoint correto */
-.cartao-card-desktop { display: flex !important; }
-.cartao-card-mobile  { display: none !important; }
-@media (max-width: 768px) {
-    .cartao-card-desktop { display: none !important; }
-    .cartao-card-mobile  { display: block !important; }
-}
-
+@media (min-width: 769px) { .fab-button { display: none !important; } }
 @media (min-width: 769px) { .fab-button { display: none !important; } }
 .fab-button { position: fixed !important; bottom: 72px; right: 16px; z-index: 999; width: 50px; height: 50px; border-radius: 25px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; }
 
 @media (min-width: 769px) { .bottom-nav-bar { display: none !important; } }
+@media (min-width: 769px) { .bottom-nav-bar { display: none !important; } }
 .bottom-nav-bar { position: fixed !important; bottom: 0; left: 0; right: 0; height: 56px; background: white; border-top: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: space-around; z-index: 100; padding: 0 4px; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+.bottom-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 4px 10px; cursor: pointer; transition: all 0.15s; border-radius: 8px; min-width: 48px; border: none; background: transparent; }
+.bottom-nav-item:hover { background: #f3f4f6; }
+.bottom-nav-icon { font-size: 20px !important; }
+.bottom-nav-label { font-size: 9px !important; font-weight: 500; color: #6b7280; }
+.bottom-nav-item.active .bottom-nav-label { color: var(--cor-primaria, #3b82f6) !important; font-weight: 600; }
 
 .toggle-container { display: flex; border-radius: 8px; overflow: hidden; border: 1.5px solid #e5e7eb; height: 32px; }
 .toggle-btn { padding: 0 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 11px; font-weight: 600; transition: all 0.15s; white-space: nowrap; }
@@ -167,7 +155,6 @@ CUSTOM_CSS = """
 .notificacoes-container { position: relative; }
 .notif-badge { position: absolute; top: -2px; right: -2px; width: 16px; height: 16px; border-radius: 50%; background: #ef4444; color: white; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
 .notif-popup { width: 400px; max-width: 92vw; max-height: 75vh; overflow-y: auto; border-radius: 16px; }
-@media (min-width: 769px) { .desktop-hidden { display: none !important; } }
 .notif-item { padding: 12px 14px; border-bottom: 1px solid #f3f4f6; cursor: pointer; transition: background 0.15s; }
 .notif-item:hover { background: #f9fafb; }
 .notif-item-lida { opacity: 0.5; }
@@ -186,7 +173,7 @@ CUSTOM_CSS = """
 .q-date__today { color: var(--cor-primaria) !important; font-weight: bold !important; }
 .q-date__day--selected { background: var(--cor-primaria) !important; color: white !important; }
 
-@media (max-width: 768px) { .mobile-dialog { width: 100% !important; max-width: 100% !important; border-radius: 0 !important; } }
+@media (max-width: 768px) { .mobile-dialog { width: 100vw !important; max-width: 100vw !important; border-radius: 0 !important; } }
 
 @media (max-width: 768px) {
     .cartao-card-kpi .cartao-topo { flex-direction: column !important; align-items: center !important; text-align: center !important; }
@@ -237,7 +224,7 @@ CUSTOM_CSS = """
     display: flex !important;
     flex-direction: column !important;
     align-items: flex-start !important;
-    padding: 20px 12px 24px 12px !important;
+    padding: 20px 12px 16px 12px !important;
     gap: 4px !important;
     z-index: 200 !important;
     flex-shrink: 0 !important;
@@ -347,7 +334,7 @@ CUSTOM_CSS = """
 @media (max-width: 768px) { .header-logo-desktop { display: block !important; } }
 
 /* Conteúdo principal ao lado da sidebar */
-.main-content { overflow-x: hidden !important;
+.main-content {
     flex: 1 !important;
     overflow: hidden !important;
     display: flex !important;
@@ -363,6 +350,17 @@ CUSTOM_CSS = """
 }
 
 </style>
+
+.cartoes-grid { display: flex !important; gap: 6px !important; padding: 4px 8px 2px 8px !important; width: 100% !important; }
+.cartao-card-kpi { flex: 1 !important; min-width: 0 !important; padding: 10px 8px !important; background: white !important; border-radius: 10px !important; border-left: 4px solid #ccc !important; box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important; }
+.cartao-card-kpi .cartao-logo { width: 36px !important; height: 22px !important; object-fit: contain !important; flex-shrink: 0 !important; }
+.cartao-card-kpi .cartao-nome { font-size: 10px !important; font-weight: 600 !important; color: #374151 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+.cartao-card-kpi .cartao-valor { font-size: 14px !important; font-weight: 700 !important; color: #1f2937 !important; line-height: 1.2 !important; }
+.cartao-card-kpi .cartao-limite { font-size: 9px !important; color: #6b7280 !important; }
+.cartao-card-kpi .cartao-barra-bg { width: 100% !important; height: 5px !important; border-radius: 3px !important; background: #e5e7eb !important; margin-top: 6px !important; overflow: hidden !important; }
+.cartao-card-kpi .cartao-barra-fill { height: 100% !important; border-radius: 3px !important; transition: width 0.3s !important; }
+@media (max-width: 768px) { .cartoes-grid { flex-wrap: wrap !important; } .cartao-card-kpi { min-width: 45% !important; flex: 1 1 45% !important; } }
+@media (max-width: 480px) { .cartao-card-kpi { min-width: 100% !important; flex: 1 1 100% !important; } }
 """
 
 
@@ -370,7 +368,7 @@ def tela_lancamentos(container):
     
     container.clear()
     container.classes('p-0 m-0')
-    container.style('padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; height: 100vh !important; overflow: hidden !important;')
+    container.style('padding: 0 !important; margin: 0 !important; width: 100vw !important; max-width: 100vw !important; height: 100vh !important; overflow: hidden !important;')
     
     ui.add_head_html(CUSTOM_CSS)
     
@@ -816,7 +814,7 @@ def tela_lancamentos(container):
         num_cartoes = len(cartoes_ordenados)
         
         # Container flex - ocupa 100% horizontal
-        with ui.element('div').classes('cartoes-grid'):
+        with ui.element('div').style(f'display:flex!important;gap:6px!important;padding:4px 8px!important;width:100%!important'):
             for cartao in cartoes_ordenados:
                 nome = cartao.get("nome", "")
                 limite_total = cartao.get("limite_total", 0)
@@ -864,56 +862,28 @@ def tela_lancamentos(container):
                 cor_barra = "#10b981" if percentual < 50 else "#f59e0b" if percentual < 80 else "#ef4444"
                 img_url = get_img_cartao(nome)
                 
-                # Card com layout responsivo
-                limite_vista_cartao = cartao.get("limite_vista", 0) or 0
-                limite_parcelado_cartao = cartao.get("limite_parcelado", 0) or 0
-                limite_total_exib = limite_vista_cartao + limite_parcelado_cartao
-                
-                # DESKTOP: igual tela de configurações
-                with ui.element('div').classes('cartao-card-desktop').style(
-                    f'flex:1!important;min-width:0!important;padding:14px 16px!important;'
-                    f'background:white!important;border-radius:12px!important;'
-                    f'border-left:4px solid {cor_cartao}!important;'
-                    f'box-shadow:0 1px 4px rgba(0,0,0,0.07)!important;'
-                    f'flex-direction:column!important;gap:10px!important;'
-                ):
-                    # Topo: imagem grande | bloco direito
-                    with ui.row().classes('w-full no-wrap').style('gap:14px;align-items:flex-start;'):
-                        # Imagem do cartão
-                        if img_url:
-                            ui.image(img_url).style('width:90px;height:56px;object-fit:contain;border-radius:8px;border:1px solid #e5e7eb;padding:3px;flex-shrink:0;')
-                        # Bloco direito: nome+valor no topo, detalhes abaixo
-                        with ui.column().style('flex:1;min-width:0;gap:4px;'):
-                            # Linha 1: nome + bandeira | valor
-                            with ui.row().classes('w-full no-wrap').style('align-items:center;justify-content:space-between;'):
-                                with ui.row().classes('no-wrap').style('align-items:center;gap:6px;'):
-                                    ui.label(nome).style('font-size:14px!important;font-weight:700!important;color:#111827!important;')
-                                    bandeira = next((c.get("bandeira","") for c in CARTOES_POPULARES if c["nome"]==nome), "")
-                                    if bandeira:
-                                        ui.label(bandeira).style('font-size:10px!important;color:#9ca3af!important;font-weight:400!important;')
-                                ui.label(formatar_moeda_br(gasto_cartao)).style(f'font-size:16px!important;font-weight:700!important;color:{cor_barra}!important;white-space:nowrap;flex-shrink:0;')
-                            # Linha 2: Limite Total
-                            ui.label(f"Limite Total: {formatar_moeda_br(limite_total_exib)}").style(f'font-size:12px!important;font-weight:600!important;color:{cor_cartao}!important;')
-                            # Linha 3: À Vista | Parcelado
-                            ui.label(f"À Vista: {formatar_moeda_br(limite_vista_cartao).replace(',00','')} | Parcelado: {formatar_moeda_br(limite_parcelado_cartao).replace(',00','')}").style('font-size:10px!important;color:#6b7280!important;')
-                    # Barra de progresso no fundo (largura total do card)
-                    with ui.row().classes('w-full no-wrap').style('align-items:center;gap:8px;'):
-                        with ui.element('div').style('flex:1;height:6px;border-radius:3px;background:#e5e7eb;overflow:hidden;'):
-                            ui.element('div').style(f'height:100%;border-radius:3px;width:{min(percentual,100):.0f}%;background:{cor_cartao};transition:width 0.3s;')
-                        ui.label(f"{percentual:.0f}%").style(f'font-size:11px!important;font-weight:700!important;color:{cor_barra}!important;flex-shrink:0;')
-                
-                # MOBILE: layout anterior compacto (imagem 20% maior: 48x30)
-                with ui.card().classes('cartao-card-mobile').style(f'flex:1!important;min-width:0!important;padding:10px 8px!important;background:white!important;border-radius:10px!important;border-left:4px solid {cor_cartao}!important;box-shadow:0 1px 3px rgba(0,0,0,0.06)!important'):
+                # Card com borda colorida e flex:1
+                with ui.card().style(f'flex:1!important;min-width:0!important;padding:10px 8px!important;background:white!important;border-radius:10px!important;border-left:4px solid {cor_cartao}!important;box-shadow:0 1px 3px rgba(0,0,0,0.06)!important'):
+                    # Linha 1: Logo + Nome | Valor
+                    # Linha 1: Logo + Nome | Valor (mesma linha)
                     with ui.row().style('align-items:center!important;justify-content:space-between!important;width:100%!important;margin-bottom:2px!important'):
                         with ui.row().style('align-items:center!important;gap:6px!important;flex:1!important;min-width:0!important'):
                             if img_url:
-                                ui.image(img_url).style('width:48px!important;height:30px!important;object-fit:contain!important;flex-shrink:0!important;border-radius:4px!important')
+                                ui.image(img_url).style('width:40px!important;height:25px!important;object-fit:contain!important;flex-shrink:0!important;border-radius:4px!important')
                             ui.label(nome).style('font-size:12px!important;font-weight:600!important;color:#374151!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important')
                         ui.label(formatar_moeda_br(gasto_cartao)).style(f'font-size:16px!important;font-weight:700!important;color:{cor_barra}!important;flex-shrink:0!important;margin-left:8px!important')
+                    
+                    # Linha 2: Limite
                     with ui.column().style('gap:0!important;margin-bottom:4px!important'):
-                        ui.label(f"Limite Total: " + formatar_moeda_br(limite_total_exib)).style('font-size:10px!important;color:#6b7280!important;')
-                        ui.label("A Vista " + formatar_moeda_br(limite_vista_cartao).replace(",00","") + " | Parcelado " + formatar_moeda_br(limite_parcelado_cartao).replace(",00","")).style('font-size:8px!important;color:#9ca3af!important;')
+                        ui.label(f"Limite Total: " + formatar_moeda_br(limite_total).replace(",00","")).style('font-size:10px!important;color:#6b7280!important')
+                        # Exibir À Vista e Parcelado (nomes padronizados)
+                        limite_vista_cartao = cartao.get("limite_vista", 0) or 0
+                        limite_parcelado_cartao = cartao.get("limite_parcelado", 0) or 0
+                        ui.label("À Vista " + formatar_moeda_br(limite_vista_cartao).replace(",00","") + " | Parcelado " + formatar_moeda_br(limite_parcelado_cartao).replace(",00","")).style('font-size:8px!important;color:#9ca3af!important')
+                    
+                    # Linha 3: Barra de progresso + % (usando ui.linear_progress)
                     with ui.row().style('align-items:center!important;gap:4px!important;width:100%!important'):
+                        
                         with ui.element('div').style('flex:1;height:6px;border-radius:3px;background:#e5e7eb;overflow:hidden;'):
                             ui.element('div').style(f'height:100%;border-radius:3px;width:{min(percentual,100):.0f}%;background:{cor_cartao};transition:width 0.3s;')
                         ui.label(f"{percentual:.0f}%").style(f'font-size:12px!important;font-weight:700!important;color:{cor_barra}!important;flex-shrink:0!important')
@@ -1071,7 +1041,7 @@ def tela_lancamentos(container):
                         else:
                             detalhes.append(f"{parcela_atual}/{num_parcelas}x")
                     
-                    with ui.card().classes('lancamento-card').style(f'border-left-color: {cor_cat} !important; margin-left: var(--page-padding) !important; margin-right: var(--page-padding) !important; border-radius: 12px !important;').on('click', lambda g=g, i=idx: visualizar_gasto(g, i) if i >= 0 else None):
+                    with ui.card().classes('lancamento-card').style(f'border-left-color: {cor_cat} !important; margin-left: 10px !important; margin-right: 10px !important; border-radius: 12px !important;').on('click', lambda g=g, i=idx: visualizar_gasto(g, i) if i >= 0 else None):
                         with ui.row().classes('items-center justify-between w-full'):
                             with ui.row().classes('items-center gap-3 flex-1'):
                                 ui.icon(icone_cat).classes('text-lg').style(f'color: {cor_cat} !important;')
@@ -1092,31 +1062,18 @@ def tela_lancamentos(container):
                 for idx, g in sem_data:
                     categoria = g.get("categoria", "Sem categoria")
                     cor_cat, icone_cat = get_cor_icone(categoria)
-                    is_inativo = g.get("_is_inativo", False)
-                    cor_icone = "#9ca3af" if is_inativo else cor_cat
-                    cor_texto = "#9ca3af" if is_inativo else "#1f2937"
-                    cor_valor = "#9ca3af" if is_inativo else "#7c3aed"
-                    cor_borda = "#d1d5db" if is_inativo else cor_cat
-                    bg_card = "#f5f5f5" if is_inativo else "#faf5ff"
-                    opacidade = "0.55" if is_inativo else "1"
-                    with ui.card().classes('lancamento-card-fixo').style(f'border-left-color: {cor_borda} !important; margin-left: var(--page-padding) !important; margin-right: var(--page-padding) !important; border-radius: 12px !important; opacity: {opacidade} !important; background: {bg_card} !important;').on('click', lambda g=g, i=idx: editar_fixo(g, i)):
+                    with ui.card().classes('lancamento-card-fixo').style(f'border-left-color: {cor_cat} !important; margin-left: 10px !important; margin-right: 10px !important; border-radius: 12px !important;').on('click', lambda g=g, i=idx: editar_fixo(g, i)):
                         with ui.row().classes('items-center justify-between w-full'):
                             with ui.row().classes('items-center gap-3 flex-1'):
-                                ui.icon(icone_cat).classes('text-lg').style(f'color: {cor_icone} !important;')
+                                ui.icon(icone_cat).classes('text-lg').style(f'color: {cor_cat} !important;')
                                 with ui.column().classes('gap-0 flex-1'):
-                                    ui.label(g.get("descricao", "Sem descrição")).classes('lancamento-desc').style(f'color: {cor_texto} !important;')
+                                    ui.label(g.get("descricao", "Sem descrição")).classes('lancamento-desc')
                                     if g.get("cartao"):
-                                        if is_inativo:
-                                            ui.label(f"💳 {g.get('cartao')} • Inativo").classes('lancamento-detalhe').style('color: #9ca3af !important;')
-                                        else:
-                                            ui.label(f"💳 {g.get('cartao')} • Mensal").classes('lancamento-detalhe text-purple-400')
+                                        ui.label(f"💳 {g.get('cartao')} • Mensal").classes('lancamento-detalhe text-purple-400')
                                     else:
-                                        if is_inativo:
-                                            ui.label("Inativo").classes('lancamento-detalhe').style('color: #9ca3af !important;')
-                                        else:
-                                            ui.label("Mensal").classes('lancamento-detalhe text-purple-400')
+                                        ui.label("Mensal").classes('lancamento-detalhe text-purple-400')
                             with ui.row().classes('items-center gap-2'):
-                                ui.label(formatar_moeda_br(g.get("valor", 0))).classes('lancamento-valor').style(f'color: {cor_valor} !important;')
+                                ui.label(formatar_moeda_br(g.get("valor", 0))).classes('lancamento-valor text-purple-600')
                                 ui.icon('chevron_right').classes('chevron-icon')
     
     
@@ -1382,7 +1339,7 @@ def tela_lancamentos(container):
                             contador_label = ui.label(f"📊 {count}/{max_lanc}").classes('limite-badge')
                             contador_label.style(f'background: {cor_badge} !important;')
                 
-                with ui.element('div').classes('notificacoes-container desktop-hidden'):
+                with ui.element('div').classes('notificacoes-container'):
                     notif_badge = ui.label('0').classes('notif-badge')
                     notif_badge.style('display: none')
                     ui.button(icon='notifications', on_click=abrir_notificacoes).props('flat round size=sm').classes('header-icon-btn').style('color: white !important;')
@@ -1410,9 +1367,8 @@ def tela_lancamentos(container):
                     select_cartao.on('update:model-value', lambda e: set_filtro_cartao(e.args))
         
          with ui.element('div').classes('lancamentos-rolagem'):
-            with ui.element('div').classes('content-wrapper'):
-                kpi_container = ui.column().classes('w-full')
-                lista = ui.column().classes('w-full')
+            kpi_container = ui.column().classes('w-full')
+            lista = ui.column().classes('w-full').style('padding: 0 8px !important;')
         
          with ui.element('div').classes('fab-button').style(f'background-color: {cor_primaria} !important;'):
             ui.button(icon='add', on_click=abrir_cadastro).props('round flat').style('color: white !important; width: 50px; height: 50px; font-size: 22px;')

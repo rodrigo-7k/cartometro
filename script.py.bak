@@ -1,0 +1,74 @@
+"""
+corrigir_todos_imports_final.py - Corrige TODOS os imports restantes
+"""
+import os
+import re
+
+# Lista de TODOS os nomes inválidos que precisam ser corrigidos
+CORRECOES = {
+    'adicionar_gasto': 'salvar_json',
+    'remover_gasto': 'salvar_json', 
+    'adicionar_cartao': 'salvar_json',
+    'remover_cartao': 'salvar_json',
+    'atualizar_cartao': 'salvar_json',
+    'adicionar_fixo': 'salvar_json',
+    'remover_fixo': 'salvar_json',
+    'salvar': 'salvar_json',
+}
+
+# Todos os arquivos Python no projeto
+for root, dirs, files in os.walk('.'):
+    # Pular __pycache__ e .git
+    dirs[:] = [d for d in dirs if d not in ('__pycache__', '.git', 'node_modules')]
+    
+    for arquivo in files:
+        if not arquivo.endswith('.py'):
+            continue
+        
+        caminho = os.path.join(root, arquivo)
+        
+        with open(caminho, 'r', encoding='utf-8') as f:
+            try:
+                conteudo = f.read()
+            except:
+                continue
+        
+        original = conteudo
+        modificado = False
+        
+        # Verificar e corrigir cada palavra inválida
+        for nome_errado, nome_correto in CORRECOES.items():
+            # Padrão: from db import ... nome_errado ...
+            padrao = rf'(from db import\s+[^)]*)\b{nome_errado}\b'
+            if re.search(padrao, conteudo):
+                conteudo = re.sub(padrao, rf'\1{nome_correto}', conteudo)
+                modificado = True
+                print(f"✅ {caminho}: '{nome_errado}' → '{nome_correto}'")
+        
+        # Corrigir carregar() sem argumento
+        if re.search(r'=\s*carregar\(\)', conteudo):
+            # Não corrigir definições de função
+            linhas = conteudo.split('\n')
+            novas_linhas = []
+            for i, linha in enumerate(linhas):
+                if '= carregar()' in linha and 'def ' not in linha:
+                    # Adicionar email antes
+                    novas_linhas.append('        email = get_usuario_logado_email()')
+                    linha = linha.replace('carregar()', 'carregar(email) if email else {}')
+                novas_linhas.append(linha)
+            conteudo = '\n'.join(novas_linhas)
+            modificado = True
+            print(f"✅ {caminho}: carregar() corrigido")
+        
+        if modificado:
+            # Backup
+            with open(caminho + '.bak', 'w', encoding='utf-8') as f:
+                f.write(original)
+            # Salvar
+            with open(caminho, 'w', encoding='utf-8') as f:
+                f.write(conteudo)
+
+print("\n" + "=" * 50)
+print("✅ TODOS OS IMPORTS CORRIGIDOS!")
+print("=" * 50)
+print("\n🚀 Reinicie o app: python main.py")

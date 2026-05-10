@@ -463,6 +463,7 @@ def tela_cadastro(callback=None):
             # Se for parcelado, criar um lançamento por parcela
             if tipo == GASTO_PARCELADO and parcelas > 1:
                 valor_parcela = round(float(valor.value) / parcelas, 2)
+                # Ajustar última parcela para evitar diferença de centavos
                 soma_parcelas = valor_parcela * (parcelas - 1)
                 ultima_parcela = round(float(valor.value) - soma_parcelas, 2)
                 
@@ -471,7 +472,7 @@ def tela_cadastro(callback=None):
                     valor_desta_parcela = ultima_parcela if p == parcelas - 1 else valor_parcela
                     
                     dados["gastos"].append({
-                        "id": len(dados.get("gastos", [])) + len(dados.get("fixos", [])) + 1,
+                        "id": len(dados["gastos"]) + 1,
                         "descricao": f"{descricao.value.strip()} ({p+1}/{parcelas})",
                         "valor": valor_desta_parcela,
                         "valor_total": float(valor.value),
@@ -482,17 +483,6 @@ def tela_cadastro(callback=None):
                         "categoria": categoria_valor,
                         "cartao": cartao_valor
                     })
-            elif tipo == GASTO_FIXO:
-                # Salvar no array "fixos" (não em "gastos")
-                if "fixos" not in dados:
-                    dados["fixos"] = []
-                dados["fixos"].append({
-                    "id": len(dados.get("gastos", [])) + len(dados.get("fixos", [])) + 1,
-                    "descricao": descricao.value.strip(),
-                    "valor": float(valor.value),
-                    "categoria": categoria_valor,
-                    "cartao": cartao_valor
-                })
             else:
                 dados["gastos"].append(novo_gasto)
             
@@ -503,8 +493,6 @@ def tela_cadastro(callback=None):
             
             if tipo == GASTO_PARCELADO and parcelas > 1:
                 ui.notify(f"✅ {parcelas}x de {config_service.formatar_valor(float(valor.value)/parcelas)}", type="positive", position="top")
-            elif tipo == GASTO_FIXO:
-                ui.notify(f"✅ Fixo mensal de {config_service.formatar_valor(float(valor.value))} salvo!", type="positive", position="top")
             else:
                 ui.notify(f"✅ Gasto de {config_service.formatar_valor(float(valor.value))} salvo!", type="positive", position="top")
             

@@ -1,0 +1,98 @@
+{
+  "cartoes": [
+    {
+      "id": 1,
+      "nome": "Nubank",
+      "bandeira": "Mastercard",
+      "limite": 5000.0,
+      "fechamento": 15,
+      "vencimento": 20,
+      "cor": "#8b5cf6"
+    }
+  ],
+  "lancamentos": [
+    {
+      "id": 1,
+      "descricao": "Supermercado",
+      "valor": 450.0,
+      "categoria": "Alimentação",
+      "data": "2025-01-05",
+      "cartao_id": 1,
+      "fixo": false
+    },
+    {
+      "id": 2,
+      "descricao": "Netflix",
+      "valor": 39.9,
+      "categoria": "Assinaturas",
+      "data": "2025-01-10",
+      "cartao_id": 1,
+      "fixo": true
+    },
+    {
+      "id": 3,
+      "descricao": "Gasolina",
+      "valor": 200.0,
+      "categoria": "Transporte",
+      "data": "2025-01-12",
+      "cartao_id": 1,
+      "fixo": false
+    },
+    {
+      "id": 4,
+      "descricao": "Restaurante",
+      "valor": 120.0,
+      "categoria": "Alimentação",
+      "data": "2025-01-15",
+      "cartao_id": 1,
+      "fixo": false
+    },
+    {
+      "id": 5,
+      "descricao": "Uber",
+      "valor": 35.0,
+      "categoria": "Transporte",
+      "data": "2025-01-18",
+      "cartao_id": 1,
+      "fixo": false
+    },
+    {
+      "id": 6,
+      "descricao": "Farmácia",
+      "valor": 80.0,
+      "categoria": "Saúde",
+      "data": "2025-01-20",
+      "cartao_id": 1,
+      "fixo": false
+    },
+    {
+      "id": 7,
+      "descricao": "Spotify",
+      "valor": 19.9,
+      "categoria": "Assinaturas",
+      "data": "2025-01-22",
+      "cartao_id": 1,
+      "fixo": true
+    }
+  ],
+  "metas": [
+    {
+      "id": 1,
+      "categoria": "Alimentação",
+      "limite": 800.0,
+      "mes": "2025-01"
+    },
+    {
+      "id": 2,
+      "categoria": "Transporte",
+      "limite": 300.0,
+      "mes": "2025-01"
+    }
+  ],
+  "config": {
+    "cor_primaria": "#2563eb",
+    "cor_escura": "#1d4ed8",
+    "tema": "light",
+    "modo_unificado": true
+  }
+}

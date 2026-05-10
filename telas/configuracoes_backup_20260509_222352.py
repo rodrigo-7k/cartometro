@@ -545,10 +545,7 @@ def tela_configuracoes(container, dialog_pai=None):
                         with ui.row().classes('justify-between items-center w-full'):
                             with ui.column().classes('gap-0 flex-1'):
                                 ui.label(g.get("descricao", "")).classes('text-sm font-semibold text-gray-800')
-                                detalhes_fixo = []
-                                if g.get("categoria"): detalhes_fixo.append(g.get("categoria"))
-                                if g.get("cartao"): detalhes_fixo.append(f"Cartao: {g.get('cartao')}")
-                                if detalhes_fixo: ui.label(" • ".join(detalhes_fixo)).classes('text-[10px] text-purple-500')
+                                if g.get("categoria"): ui.label(g.get("categoria")).classes('text-[10px] text-purple-500')
                             with ui.row().classes('items-center gap-3'):
                                 ui.label(f"R$ {g.get('valor', 0):.2f}").classes('text-sm font-bold').style(f'color: {cor_primaria} !important;')
                                 ui.button(icon='delete', on_click=lambda gid=g["id"]: remover_fixo(gid)).props('flat round size=sm').style(f'color: {cor_primaria} !important;')
@@ -561,35 +558,16 @@ def tela_configuracoes(container, dialog_pai=None):
                     vi = ui.number(label="Valor R$", format="%.2f", value=0).props('outlined dense prefix=R$').classes('w-full')
                     ci = ui.select(options=categorias_nomes, label="Categoria", value="Assinaturas" if "Assinaturas" in categorias_nomes else categorias_nomes[-1]).props('outlined dense').classes('w-full')
                     
-                    # Campo cartao (se houver cartoes cadastrados)
-                    cartoes_disp = dados.get("cartoes", [])
-                    cartao_select = None
-                    if cartoes_disp:
-                        nomes_cartoes_fixo = [c["nome"] for c in cartoes_disp]
-                        cartao_select = ui.select(
-                            options=nomes_cartoes_fixo,
-                            label="Cartao (opcional)",
-                            value=nomes_cartoes_fixo[0] if nomes_cartoes_fixo else None
-                        ).props('outlined dense').classes('w-full')
-                    
                     def add_fixo():
                         if not di.value or not vi.value or vi.value <= 0:
-                            ui.notify("Preencha todos os campos", type="warning", position="top")
+                            ui.notify("⚠️ Preencha todos os campos", type="warning", position="top")
                             return
                         if 'fixos' not in dados:
                             dados['fixos'] = []
-                        novo_fixo = {
-                            'id': len(dados['fixos']) + 1,
-                            'descricao': di.value.strip(),
-                            'valor': float(vi.value),
-                            'categoria': ci.value
-                        }
-                        if cartao_select and cartao_select.value:
-                            novo_fixo['cartao'] = cartao_select.value
-                        dados['fixos'].append(novo_fixo)
+                        dados['fixos'].append({'id': len(dados['fixos']) + 1, 'descricao': di.value.strip(), 'valor': float(vi.value), 'categoria': ci.value})
                         arquivo = os.path.join('data', f"{email.replace('@','_').replace('.','_').lower()}.json")
                         salvar_json(arquivo, dados)
-                        ui.notify("Adicionado!", type="positive", position="top", timeout=1000)
+                        ui.notify("✅ Adicionado!", type="positive", position="top", timeout=1000)
                         recarregar_principal()
                     
                     ui.button("Adicionar", on_click=add_fixo, icon='add').classes('w-full').style(f'background: {cor_primaria} !important; color: white !important; border-radius: 8px; font-weight: 600;')

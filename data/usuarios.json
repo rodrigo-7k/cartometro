@@ -1,0 +1,82 @@
+[
+  {
+    "nome": "Usuário Demo",
+    "email": "demo",
+    "senha": "2a97516c354b68848cdbd8f54a226a0a55b21ed138e207ad6c5cbb9c00aa5aea",
+    "plano": "demo",
+    "ativo": true,
+    "data_criacao": "2025-01-01T00:00:00",
+    "data_expiracao": null,
+    "avatar_emoji": "👑",
+    "config": {
+      "cor_primaria": "#2563eb",
+      "cor_escura": "#1d4ed8",
+      "tema": "light",
+      "modo_unificado": true
+    }
+  },
+  {
+    "nome": "Admin App",
+    "email": "admin@app.com",
+    "senha": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+    "plano": "premium",
+    "ativo": true,
+    "data_criacao": "2025-01-01T00:00:00",
+    "data_expiracao": null,
+    "avatar_emoji": "🦁",
+    "config": {
+      "cor_primaria": "#2563eb",
+      "cor_escura": "#1d4ed8",
+      "tema": "light",
+      "modo_unificado": true
+    }
+  },
+  {
+    "nome": "Teste Local",
+    "email": "teste@local.com",
+    "senha": "289160db0d9f39f9ae1754c4ec9c16f90b50e32e09c5fb5481ae642b3d3d1a36",
+    "plano": "premium",
+    "ativo": true,
+    "data_criacao": "2025-01-01T00:00:00",
+    "data_expiracao": null,
+    "avatar_emoji": "🧪",
+    "config": {
+      "cor_primaria": "#2563eb",
+      "cor_escura": "#1d4ed8",
+      "tema": "light",
+      "modo_unificado": true
+    }
+  },
+  {
+    "nome": "Administrador",
+    "email": "admin@cartometro.com",
+    "senha": "cd6f82ddd4072fd514c01db9753cdd714bccde06dc49f6690bfb5bdbaac98898",
+    "plano": "admin",
+    "ativo": true,
+    "data_criacao": "2025-01-01T00:00:00",
+    "data_expiracao": null,
+    "avatar_emoji": "⚙️",
+    "config": {
+      "cor_primaria": "#2563eb",
+      "cor_escura": "#1d4ed8",
+      "tema": "light",
+      "modo_unificado": true
+    }
+  },
+  {
+    "nome": "Rodrigo",
+    "email": "rodrigo7k@gmail.com",
+    "senha": "cd058dd7e7a87c62dc4eea4018e0751beab272f0c3c6e584fe606266655a1127",
+    "plano": "premium",
+    "ativo": true,
+    "data_criacao": "2026-05-07T23:45:57.086837",
+    "data_expiracao": "2026-06-06T23:46:41.365594",
+    "avatar_emoji": "👤",
+    "config": {
+      "cor_primaria": "#8b5cf6",
+      "cor_escura": "#6d28d9",
+      "tema": "light",
+      "modo_unificado": true
+    }
+  }
+]

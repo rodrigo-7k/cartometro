@@ -147,14 +147,6 @@ CUSTOM_CSS = """
 .cartao-percentual { font-size: 10px !important; font-weight: 600; }
 @media (max-width: 768px) { .cartoes-grid { flex-wrap: wrap !important; } .cartao-card-kpi { min-width: 45% !important; flex: 1 1 45% !important; } }
 
-/* Cada versão aparece apenas no breakpoint correto */
-.cartao-card-desktop { display: flex !important; }
-.cartao-card-mobile  { display: none !important; }
-@media (max-width: 768px) {
-    .cartao-card-desktop { display: none !important; }
-    .cartao-card-mobile  { display: block !important; }
-}
-
 @media (min-width: 769px) { .fab-button { display: none !important; } }
 .fab-button { position: fixed !important; bottom: 72px; right: 16px; z-index: 999; width: 50px; height: 50px; border-radius: 25px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; }
 
@@ -869,40 +861,23 @@ def tela_lancamentos(container):
                 limite_parcelado_cartao = cartao.get("limite_parcelado", 0) or 0
                 limite_total_exib = limite_vista_cartao + limite_parcelado_cartao
                 
-                # DESKTOP: igual tela de configurações
-                with ui.element('div').classes('cartao-card-desktop').style(
-                    f'flex:1!important;min-width:0!important;padding:14px 16px!important;'
-                    f'background:white!important;border-radius:12px!important;'
-                    f'border-left:4px solid {cor_cartao}!important;'
-                    f'box-shadow:0 1px 4px rgba(0,0,0,0.07)!important;'
-                    f'flex-direction:column!important;gap:10px!important;'
-                ):
-                    # Topo: imagem grande | bloco direito
-                    with ui.row().classes('w-full no-wrap').style('gap:14px;align-items:flex-start;'):
-                        # Imagem do cartão
-                        if img_url:
-                            ui.image(img_url).style('width:90px;height:56px;object-fit:contain;border-radius:8px;border:1px solid #e5e7eb;padding:3px;flex-shrink:0;')
-                        # Bloco direito: nome+valor no topo, detalhes abaixo
-                        with ui.column().style('flex:1;min-width:0;gap:4px;'):
-                            # Linha 1: nome + bandeira | valor
-                            with ui.row().classes('w-full no-wrap').style('align-items:center;justify-content:space-between;'):
-                                with ui.row().classes('no-wrap').style('align-items:center;gap:6px;'):
-                                    ui.label(nome).style('font-size:14px!important;font-weight:700!important;color:#111827!important;')
-                                    bandeira = next((c.get("bandeira","") for c in CARTOES_POPULARES if c["nome"]==nome), "")
-                                    if bandeira:
-                                        ui.label(bandeira).style('font-size:10px!important;color:#9ca3af!important;font-weight:400!important;')
-                                ui.label(formatar_moeda_br(gasto_cartao)).style(f'font-size:16px!important;font-weight:700!important;color:{cor_barra}!important;white-space:nowrap;flex-shrink:0;')
-                            # Linha 2: Limite Total
-                            ui.label(f"Limite Total: {formatar_moeda_br(limite_total_exib)}").style(f'font-size:12px!important;font-weight:600!important;color:{cor_cartao}!important;')
-                            # Linha 3: À Vista | Parcelado
-                            ui.label(f"À Vista: {formatar_moeda_br(limite_vista_cartao).replace(',00','')} | Parcelado: {formatar_moeda_br(limite_parcelado_cartao).replace(',00','')}").style('font-size:10px!important;color:#6b7280!important;')
-                    # Barra de progresso no fundo (largura total do card)
-                    with ui.row().classes('w-full no-wrap').style('align-items:center;gap:8px;'):
-                        with ui.element('div').style('flex:1;height:6px;border-radius:3px;background:#e5e7eb;overflow:hidden;'):
-                            ui.element('div').style(f'height:100%;border-radius:3px;width:{min(percentual,100):.0f}%;background:{cor_cartao};transition:width 0.3s;')
-                        ui.label(f"{percentual:.0f}%").style(f'font-size:11px!important;font-weight:700!important;color:{cor_barra}!important;flex-shrink:0;')
+                # DESKTOP
+                with ui.element('div').classes('cartao-card-desktop').style(f'flex:1!important;min-width:0!important;padding:12px!important;background:#f9fafb!important;border-radius:10px!important;border:1px solid #f3f4f6!important;border-left:4px solid {cor_cartao}!important;width:100%!important'):
+                    with ui.row().classes('w-full items-center no-wrap').style('gap: 12px;'):
+                        with ui.element('div').style('flex: 0 0 auto; display: flex; justify-content: center;'):
+                            if img_url:
+                                ui.image(img_url).style('width: 80px; height: 50px; object-fit: contain; border-radius: 6px; border: 1px solid #e5e7eb; padding: 2px; flex-shrink: 0;')
+                        with ui.element('div').style('flex: 1; display: flex; flex-direction: column; gap: 2px;'):
+                            ui.label(nome).style('font-size:13px!important;font-weight:600!important;color:#374151!important;')
+                            with ui.row().style('align-items:center!important;gap:6px!important;width:100%!important;margin:2px 0!important;'):
+                                ui.label(formatar_moeda_br(gasto_cartao)).style(f'font-size:17px!important;font-weight:700!important;color:{cor_barra}!important;flex-shrink:0!important;')
+                                with ui.element('div').style('flex:1;height:5px;border-radius:3px;background:#e5e7eb;overflow:hidden;'):
+                                    ui.element('div').style(f'height:100%;border-radius:3px;width:{min(percentual,100):.0f}%;background:{cor_cartao};transition:width 0.3s;')
+                                ui.label(f"{percentual:.0f}%").style(f'font-size:11px!important;font-weight:600!important;color:{cor_barra}!important;flex-shrink:0!important;')
+                            ui.label(f"Limite Total: " + formatar_moeda_br(limite_total_exib)).style('font-size:11px!important;font-weight:500!important;color:#6b7280!important;')
+                            ui.label("A Vista " + formatar_moeda_br(limite_vista_cartao).replace(",00","") + " | Parcelado " + formatar_moeda_br(limite_parcelado_cartao).replace(",00","")).style('font-size:9px!important;color:#9ca3af!important;')
                 
-                # MOBILE: layout anterior compacto (imagem 20% maior: 48x30)
+                # MOBILE
                 with ui.card().classes('cartao-card-mobile').style(f'flex:1!important;min-width:0!important;padding:10px 8px!important;background:white!important;border-radius:10px!important;border-left:4px solid {cor_cartao}!important;box-shadow:0 1px 3px rgba(0,0,0,0.06)!important'):
                     with ui.row().style('align-items:center!important;justify-content:space-between!important;width:100%!important;margin-bottom:2px!important'):
                         with ui.row().style('align-items:center!important;gap:6px!important;flex:1!important;min-width:0!important'):
@@ -917,49 +892,10 @@ def tela_lancamentos(container):
                         with ui.element('div').style('flex:1;height:6px;border-radius:3px;background:#e5e7eb;overflow:hidden;'):
                             ui.element('div').style(f'height:100%;border-radius:3px;width:{min(percentual,100):.0f}%;background:{cor_cartao};transition:width 0.3s;')
                         ui.label(f"{percentual:.0f}%").style(f'font-size:12px!important;font-weight:700!important;color:{cor_barra}!important;flex-shrink:0!important')
-
-    def atualizar_lista():
-        nonlocal kpi_container, lista
-        if lista is None or kpi_container is None: return
-        lista.clear(); kpi_container.clear()
-        
-        totais = calcular_totais()
-        
-        with kpi_container:
-            with ui.element('div').classes('kpi-grid'):
-                cor_restante = cor_primaria if totais["restante"] > 0 else "#ef4444"
-                
-                # KPI 1: Restante
-                with ui.card().classes('kpi-card').style(f'border-left-color: {cor_restante} !important;'):
-                    ui.icon('wallet').classes('kpi-icon').style(f'color: {cor_restante} !important;')
-                    ui.label("Restante").classes('kpi-label')
-                    ui.label(formatar_moeda_br(totais["restante"])).classes('kpi-valor')
-                
-                # KPI 2: Gasto (com detalhe À Vista | Parcelado)
-                with ui.card().classes('kpi-card').style('border-left-color: #ef4444 !important;'):
-                    ui.icon('trending_down').classes('kpi-icon').style('color: #ef4444 !important;')
-                    ui.label("Gasto").classes('kpi-label')
-                    ui.label(formatar_moeda_br(totais["total_gasto"])).classes('kpi-valor')
-                    # Detalhe: À Vista (com fixos) | Parcelado
-                    vista = totais.get("total_gasto_vista", 0)
-                    parcelado = totais.get("total_parcelado", 0)
-                    ui.label(f"À Vista: {formatar_moeda_br(vista)} | Parc: {formatar_moeda_br(parcelado)}").style('font-size:7px!important;color:#9ca3af!important;margin-top:2px!important;line-height:1.2!important;')
-                
-                # KPI 3: Limite Total
-                with ui.card().classes('kpi-card').style('border-left-color: #6366f1 !important;'):
-                    ui.icon('speed').classes('kpi-icon').style('color: #6366f1 !important;')
-                    ui.label("Limite Total").classes('kpi-label')
-                    ui.label(formatar_moeda_br(totais["limite_total"])).classes('kpi-valor')
-                    # Detalhe: À Vista | Parcelado
-                    limite_v = totais.get("limite_vista", 0)
-                    limite_p = totais.get("limite_parcelado", 0)
-                    ui.label(f"À Vista: {formatar_moeda_br(limite_v)} | Parc: {formatar_moeda_br(limite_p)}").style('font-size:7px!important;color:#9ca3af!important;margin-top:2px!important;line-height:1.2!important;')
-            
-            # Cards dos cartões (modo Individual)
-            if modo_cartao == "Individual" and cartoes:
+if modo_cartao == "Individual" and cartoes:
                 renderizar_cards_cartoes()
             
-            with ui.element('div').classes('progresso-container'):
+             with ui.element('div').classes('progresso-container'):
                 with ui.card().classes('progresso-card'):
                     percentual = min(totais["percentual"], 100)
                     cor_barra = "#10b981" if percentual < 50 else "#f59e0b" if percentual < 80 else "#ef4444"
